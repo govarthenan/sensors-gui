@@ -63,24 +63,33 @@ the reader must handle the wrap with `max_energy_range_uj`.
 
 ## D. GPUs
 
-### NVIDIA RTX 4090 — `nvidia-smi` / NVML
+### NVIDIA RTX 4090 — NVML (`nvidia-ml-py`)
 
-All fields below read correctly as a normal user.
+Decided in ADR 0003 after `exp-0002`. All fields read as a normal user.
+A full sample costs 0.67 ms with NVML, against 19.91 ms with `nvidia-smi`.
 
-| Field | Unit | Note |
-|---|---|---|
-| `temperature.gpu` | °C | 33 °C at idle |
-| `temperature.memory` | °C | **N/A** on this card |
-| `power.draw` | W | 38.22 W at idle |
-| `power.limit` | W | 480.00 W |
-| `fan.speed` | % | 0 % at idle (fan stop) |
-| `utilization.gpu` | % | |
-| `memory.used` / `memory.total` | MiB | 24564 MiB total |
-| `clocks.current.sm` | MHz | |
-| `clocks.current.memory` | MHz | |
-
-Driver 595.84. Prefer NVML through a library over parsing `nvidia-smi` text.
-See open question Q3.
+| Field | Unit | Status | Note |
+|---|---|---|---|
+| GPU temperature (edge) | °C | OK | |
+| Power draw | W | OK | limit 480 W |
+| Total energy counter | J | OK | since the driver loaded |
+| Fan speed | % | OK | 2 fans; both report one value |
+| GPU / memory use | % | OK | |
+| Memory used / total | MiB | OK | **use `nvmlMemory_v2`**, see ADR 0003 |
+| Memory reserved | MiB | OK | v2 only, about 503 MiB |
+| SM / memory clock | MHz | OK | maximum SM clock 3165 MHz |
+| PCIe generation / width | — | OK | drops to gen 1 at idle |
+| PCIe transmit / receive | kB/s | OK | |
+| Encoder / decoder use | % | OK | NVENC, NVDEC |
+| Performance state | P-state | OK | |
+| Throttle reasons | bit field | OK | |
+| BAR1 memory | MiB | OK | |
+| Compute / graphics processes | count | OK | |
+| VBIOS version | text | OK | 95.02.3C.40.D1 |
+| Temperature thresholds | °C | OK | 99 °C slowdown, 104 °C shutdown |
+| **Hotspot temperature** | °C | **MISSING** | NVML says "Invalid Argument" |
+| **Memory (GDDR6X) temperature** | °C | **MISSING** | NVML says "not supported" |
+| Serial number | text | MISSING | not on a consumer card |
 
 ### AMD integrated GPU — `amdgpu`
 

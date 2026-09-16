@@ -36,14 +36,24 @@ Short dated entries. One entry for each session. Details live in `docs/` and
    (`capacity_level = Full`), not a percent. The G515 TKL keyboard and the MSI
    MYSTIC LIGHT RGB controller are present as HID devices.
 6. The Realtek Ethernet PHY has its own temperature sensor. That was a surprise.
+7. `exp-0002`: NVML reads the RTX 4090 in 0.67 ms. `nvidia-smi` needs
+   19.91 ms for the same fields, because it starts a process each time.
+   NVML also gives the fan count, an energy counter, PCIe throughput,
+   NVENC and NVDEC use, and the throttle reasons.
+8. Two traps found in NVML. The version 1 memory structure counts 503 MiB
+   of driver-reserved memory and disagrees with `nvidia-smi`; use version 2.
+   The `*_TLIMIT` fields are headroom in degrees, not temperatures.
+9. The RTX 4090 gives the edge temperature only. NVML has no hotspot and no
+   GDDR6X temperature on this card.
 
 **Decisions**
 
 - ADR 0001 — all project memory lives in the repository.
 - ADR 0002 — identify hwmon sources by name and device path, never by index.
+- ADR 0003 — read the NVIDIA GPU through NVML, with the two rules above.
 
 **Next**
 
 Gova must choose the GUI toolkit (Q5) and answer Q1, Q2 and Q6. Then
-`exp-0002` (Super-I/O chip identification) and `exp-0003` (NVML compared with
-`nvidia-smi`).
+`exp-0003` (Super-I/O chip identification, needs root) and `exp-0004` (a load
+test of every channel).

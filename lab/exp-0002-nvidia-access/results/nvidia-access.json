@@ -1,0 +1,77 @@
+{
+  "captured_at": "2026-09-16T11:11:59+00:00",
+  "nvml": {
+    "sample": {
+      "name": "NVIDIA GeForce RTX 4090",
+      "temperature_gpu_c": 34,
+      "power_draw_w": 44.502,
+      "power_limit_w": 480.0,
+      "fan_speed_pct": 0,
+      "util_gpu_pct": 11,
+      "util_memory_pct": 12,
+      "memory_used_mib": 2426,
+      "memory_total_mib": 24564,
+      "clock_sm_mhz": 1125,
+      "clock_mem_mhz": 810,
+      "pcie_gen": 2,
+      "pcie_width": 16
+    },
+    "timing": {
+      "rounds": 30,
+      "min_ms": 0.405,
+      "median_ms": 0.67,
+      "max_ms": 2.607
+    }
+  },
+  "nvml_extras": {
+    "fan_count": 2,
+    "hotspot_temp_c": "UNSUPPORTED: Invalid Argument",
+    "memory_temp_c": "UNSUPPORTED: Invalid Argument",
+    "temp_slowdown_c": 104,
+    "temp_shutdown_c": 99,
+    "throttle_reasons": 1,
+    "performance_state": 5,
+    "power_state": 5,
+    "encoder_util": 0,
+    "decoder_util": 0,
+    "pcie_tx_kbps": 1562,
+    "pcie_rx_kbps": 16552,
+    "total_energy_j": 3326325.194,
+    "bar1_memory": 1976,
+    "compute_processes": 0,
+    "graphics_processes": 7,
+    "vbios_version": "95.02.3C.40.D1",
+    "serial": "UNSUPPORTED: Not Supported",
+    "max_clock_sm_mhz": 3165,
+    "memory_used_v2_mib": 1922,
+    "memory_reserved_v2_mib": 503,
+    "memory_temp": "UNSUPPORTED: nvmlReturn=3",
+    "temperature_gpu_max_tlimit": 0,
+    "temperature_mem_max_tlimit": "UNSUPPORTED: nvmlReturn=3",
+    "temperature_shutdown_tlimit": -7,
+    "temperature_slowdown_tlimit": -2
+  },
+  "nvidia_smi": {
+    "sample": {
+      "name": "NVIDIA GeForce RTX 4090",
+      "temperature.gpu": "34",
+      "power.draw": "44.50",
+      "power.limit": "480.00",
+      "fan.speed": "0",
+      "utilization.gpu": "11",
+      "utilization.memory": "12",
+      "memory.used": "1923",
+      "memory.total": "24564",
+      "clocks.current.sm": "1125",
+      "clocks.current.memory": "810",
+      "pcie.link.gen.current": "2",
+      "pcie.link.width.current": "16"
+    },
+    "timing": {
+      "rounds": 30,
+      "min_ms": 15.104,
+      "median_ms": 19.908,
+      "max_ms": 27.611
+    }
+  }
+}
