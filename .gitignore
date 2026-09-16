@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environment and secrets
+.env
+tmp/
+
+# Large raw captures. Keep small samples only.
+data/probes/*.raw
+data/probes/*.bin
+data/samples/*.csv
+data/samples/*.parquet
+
+# Editor
+.vscode/
+.idea/

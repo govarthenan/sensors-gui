@@ -1,0 +1,274 @@
+{
+  "captured_at": "2026-09-16T11:09:02+00:00",
+  "uid": 1000,
+  "devices": [
+    {
+      "path": "/sys/class/hwmon/hwmon0",
+      "name": "r8169_0_b00:00",
+      "driver": "Realtek Internal NBASE-T PHY",
+      "device_path": "/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:06.0/0000:0b:00.0/mdio_bus/r8169-0-b00/r8169-0-b00:00",
+      "channels": [
+        {
+          "kind": "temp",
+          "index": 1,
+          "label": null,
+          "unit": "degC",
+          "raw_input": 35500,
+          "value": 35.5,
+          "attributes": {
+            "input": "35500",
+            "max": "120000"
+          },
+          "unreadable": []
+        }
+      ],
+      "extra_files": {}
+    },
+    {
+      "path": "/sys/class/hwmon/hwmon1",
+      "name": "nvme",
+      "driver": null,
+      "device_path": "/sys/devices/pci0000:00/0000:00:01.2/0000:02:00.0/nvme/nvme0",
+      "channels": [
+        {
+          "kind": "temp",
+          "index": 1,
+          "label": "Composite",
+          "unit": "degC",
+          "raw_input": 32850,
+          "value": 32.85,
+          "attributes": {
+            "alarm": "0",
+            "crit": "87850",
+            "input": "32850",
+            "label": "Composite",
+            "max": "83850",
+            "min": "-40150"
+          },
+          "unreadable": []
+        },
+        {
+          "kind": "temp",
+          "index": 2,
+          "label": "Sensor 1",
+          "unit": "degC",
+          "raw_input": 45850,
+          "value": 45.85,
+          "attributes": {
+            "input": "45850",
+            "label": "Sensor 1",
+            "max": "65261850",
+            "min": "-273150"
+          },
+          "unreadable": []
+        },
+        {
+          "kind": "temp",
+          "index": 3,
+          "label": "Sensor 2",
+          "unit": "degC",
+          "raw_input": 32850,
+          "value": 32.85,
+          "attributes": {
+            "input": "32850",
+            "label": "Sensor 2",
+            "max": "65261850",
+            "min": "-273150"
+          },
+          "unreadable": []
+        }
+      ],
+      "extra_files": {}
+    },
+    {
+      "path": "/sys/class/hwmon/hwmon2",
+      "name": "k10temp",
+      "driver": "k10temp",
+      "device_path": "/sys/devices/pci0000:00/0000:00:18.3",
+      "channels": [
+        {
+          "kind": "temp",
+          "index": 1,
+          "label": "Tctl",
+          "unit": "degC",
+          "raw_input": 41000,
+          "value": 41.0,
+          "attributes": {
+            "input": "41000",
+            "label": "Tctl"
+          },
+          "unreadable": []
+        },
+        {
+          "kind": "temp",
+          "index": 3,
+          "label": "Tccd1",
+          "unit": "degC",
+          "raw_input": 33500,
+          "value": 33.5,
+          "attributes": {
+            "input": "33500",
+            "label": "Tccd1"
+          },
+          "unreadable": []
+        },
+        {
+          "kind": "temp",
+          "index": 4,
+          "label": "Tccd2",
+          "unit": "degC",
+          "raw_input": 29250,
+          "value": 29.25,
+          "attributes": {
+            "input": "29250",
+            "label": "Tccd2"
+          },
+          "unreadable": []
+        }
+      ],
+      "extra_files": {}
+    },
+    {
+      "path": "/sys/class/hwmon/hwmon3",
+      "name": "spd5118",
+      "driver": "spd5118",
+      "device_path": "/sys/devices/pci0000:00/0000:00:14.0/i2c-0/0-0051",
+      "channels": [
+        {
+          "kind": "temp",
+          "index": 1,
+          "label": null,
+          "unit": "degC",
+          "raw_input": 30250,
+          "value": 30.25,
+          "attributes": {
+            "crit": "85000",
+            "crit_alarm": "0",
+            "enable": "1",
+            "input": "30250",
+            "lcrit": "0",
+            "lcrit_alarm": "0",
+            "max": "55000",
+            "max_alarm": "0",
+            "min": "0",
+            "min_alarm": "0"
+          },
+          "unreadable": []
+        }
+      ],
+      "extra_files": {}
+    },
+    {
+      "path": "/sys/class/hwmon/hwmon4",
+      "name": "spd5118",
+      "driver": "spd5118",
+      "device_path": "/sys/devices/pci0000:00/0000:00:14.0/i2c-0/0-0053",
+      "channels": [
+        {
+          "kind": "temp",
+          "index": 1,
+          "label": null,
+          "unit": "degC",
+          "raw_input": 28750,
+          "value": 28.75,
+          "attributes": {
+            "crit": "85000",
+            "crit_alarm": "0",
+            "enable": "1",
+            "input": "28750",
+            "lcrit": "0",
+            "lcrit_alarm": "0",
+            "max": "55000",
+            "max_alarm": "0",
+            "min": "0",
+            "min_alarm": "0"
+          },
+          "unreadable": []
+        }
+      ],
+      "extra_files": {}
+    },
+    {
+      "path": "/sys/class/hwmon/hwmon5",
+      "name": "amdgpu",
+      "driver": "amdgpu",
+      "device_path": "/sys/devices/pci0000:00/0000:00:08.1/0000:74:00.0",
+      "channels": [
+        {
+          "kind": "freq",
+          "index": 1,
+          "label": "sclk",
+          "unit": "Hz",
+          "raw_input": 600000000,
+          "value": 600000000.0,
+          "attributes": {
+            "input": "600000000",
+            "label": "sclk"
+          },
+          "unreadable": []
+        },
+        {
+          "kind": "in",
+          "index": 0,
+          "label": "vddgfx",
+          "unit": "V",
+          "raw_input": 1305,
+          "value": 1.305,
+          "attributes": {
+            "input": "1305",
+            "label": "vddgfx"
+          },
+          "unreadable": []
+        },
+        {
+          "kind": "in",
+          "index": 1,
+          "label": "vddnb",
+          "unit": "V",
+          "raw_input": 1305,
+          "value": 1.305,
+          "attributes": {
+            "input": "1305",
+            "label": "vddnb"
+          },
+          "unreadable": []
+        },
+        {
+          "kind": "power",
+          "index": 1,
+          "label": "PPT",
+          "unit": "W",
+          "raw_input": 14000,
+          "value": 0.013999999999999999,
+          "attributes": {
+            "input": "14000",
+            "label": "PPT"
+          },
+          "unreadable": []
+        },
+        {
+          "kind": "temp",
+          "index": 1,
+          "label": "edge",
+          "unit": "degC",
+          "raw_input": 38000,
+          "value": 38.0,
+          "attributes": {
+            "input": "38000",
+            "label": "edge"
+          },
+          "unreadable": []
+        }
+      ],
+      "extra_files": {}
+    },
+    {
+      "path": "/sys/class/hwmon/hwmon6",
+      "name": "hidpp_battery_2",
+      "driver": null,
+      "device_path": "/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-5/1-5:1.2/0003:046D:C53F.0012/0003:046D:4074.0013/power_supply/hidpp_battery_2",
+      "channels": [],
+      "extra_files": {}
+    }
+  ]
+}
