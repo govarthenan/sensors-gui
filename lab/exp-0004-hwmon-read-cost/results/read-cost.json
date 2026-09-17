@@ -1,0 +1,123 @@
+{
+  "captured_at": "2026-09-17T05:57:18+00:00",
+  "rounds": 50,
+  "channels": [
+    {
+      "driver": "nvme",
+      "label": "Sensor 1",
+      "channel": "temp2",
+      "median_ms": 2.0276,
+      "min_ms": 1.9894,
+      "max_ms": 3.1371
+    },
+    {
+      "driver": "nvme",
+      "label": "Sensor 2",
+      "channel": "temp3",
+      "median_ms": 2.0127,
+      "min_ms": 1.9794,
+      "max_ms": 3.9714
+    },
+    {
+      "driver": "nvme",
+      "label": "Composite",
+      "channel": "temp1",
+      "median_ms": 1.9806,
+      "min_ms": 1.9457,
+      "max_ms": 2.8339
+    },
+    {
+      "driver": "spd5118",
+      "label": "temp1",
+      "channel": "temp1",
+      "median_ms": 1.4695,
+      "min_ms": 1.0172,
+      "max_ms": 1.5201
+    },
+    {
+      "driver": "spd5118",
+      "label": "temp1",
+      "channel": "temp1",
+      "median_ms": 1.4692,
+      "min_ms": 1.0149,
+      "max_ms": 1.5362
+    },
+    {
+      "driver": "r8169_0_b00:00",
+      "label": "temp1",
+      "channel": "temp1",
+      "median_ms": 0.0102,
+      "min_ms": 0.01,
+      "max_ms": 0.0166
+    },
+    {
+      "driver": "k10temp",
+      "label": "Tctl",
+      "channel": "temp1",
+      "median_ms": 0.0063,
+      "min_ms": 0.0062,
+      "max_ms": 0.0275
+    },
+    {
+      "driver": "k10temp",
+      "label": "Tccd1",
+      "channel": "temp3",
+      "median_ms": 0.0063,
+      "min_ms": 0.0061,
+      "max_ms": 0.0077
+    },
+    {
+      "driver": "k10temp",
+      "label": "Tccd2",
+      "channel": "temp4",
+      "median_ms": 0.0062,
+      "min_ms": 0.0061,
+      "max_ms": 0.0071
+    },
+    {
+      "driver": "amdgpu",
+      "label": "sclk",
+      "channel": "freq1",
+      "median_ms": 0.0047,
+      "min_ms": 0.0045,
+      "max_ms": 0.0502
+    },
+    {
+      "driver": "amdgpu",
+      "label": "vddgfx",
+      "channel": "in0",
+      "median_ms": 0.0047,
+      "min_ms": 0.0046,
+      "max_ms": 0.006
+    },
+    {
+      "driver": "amdgpu",
+      "label": "vddnb",
+      "channel": "in1",
+      "median_ms": 0.0047,
+      "min_ms": 0.0046,
+      "max_ms": 0.006
+    },
+    {
+      "driver": "amdgpu",
+      "label": "PPT",
+      "channel": "power1",
+      "median_ms": 0.0047,
+      "min_ms": 0.0046,
+      "max_ms": 0.0084
+    },
+    {
+      "driver": "amdgpu",
+      "label": "edge",
+      "channel": "temp1",
+      "median_ms": 0.0047,
+      "min_ms": 0.0046,
+      "max_ms": 0.006
+    }
+  ],
+  "full_pass": {
+    "median_ms": 10.015,
+    "min_ms": 9.094,
+    "max_ms": 11.984
+  }
+}

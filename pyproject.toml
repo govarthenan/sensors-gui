@@ -35,3 +35,8 @@ convention = "google"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v"
+
+[tool.ruff.lint.per-file-ignores]
+# Test names are full sentences. A docstring on each one would only repeat the
+# name. The module docstring gives the context.
+"tests/*" = ["D103", "D107"]

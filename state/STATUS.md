@@ -54,6 +54,14 @@ rules before any code is written. Reading comes first.
   service) accepted.
 - `scripts/root-probe.sh` written. It collects every root-only fact in one
   run. Gova must run it with `sudo`.
+- `docs/architecture.md` written: the collector contract, the core objects,
+  the unit table and the rate table.
+- **Phase 1 started.** `sensors_gui.model` and `sensors_gui.collectors.hwmon`
+  are written and tested. 36 tests pass. The collector reads all 14 channels
+  on this machine.
+- `exp-0004` read cost done → NVMe and SPD5118 reads cost 1.5–2 ms each and
+  take 99.8 % of a pass. ADR 0006 accepted and built: a per-device read
+  interval with a cache. A pass went from 10.015 ms to 0.199 ms.
 
 ## Next actions
 
@@ -80,11 +88,16 @@ rules before any code is written. Reading comes first.
    how each channel moves. This confirms the scale factors and finds the
    channels that never change.
 
-5. Phase 1 — write the collection layer:
-   - `sensors_gui/model.py` — `SensorSource`, `Reading`, `Sample`.
-   - `sensors_gui/collectors/hwmon.py` — the hwmon collector, keyed as ADR 0002.
-   - `sensors_gui/collectors/nvidia.py` — NVML, with the two rules of ADR 0003.
-   - Tests for each, with expected values agreed with Gova first (TDD).
+5. Phase 1, next parts of the collection layer:
+   - `collectors/nvidia.py` — NVML, with the two rules of ADR 0003.
+   - `collectors/power_supply.py` — the Logitech G305 battery.
+   - `collectors/system.py` — CPU use and frequency, memory, disk and network
+     counters, through `psutil` and `/proc`.
+   - `registry.py` and `sampler.py` — hold every spec, and run the passes.
+   - Friendly names: `spd5118@...0-0051` must show as "DIMM 1", and the
+     `r8169` PHY must sit in the `network` group, not in `other`.
+   - Value formatting with SI prefixes: `sclk` shows 600000000 Hz; it must show
+     600 MHz.
 
 ## Open questions
 
