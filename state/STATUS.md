@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-16 (session 1)
+Last update: 2026-09-17 (session 2)
 
 ## Phase
 
@@ -59,45 +59,49 @@ rules before any code is written. Reading comes first.
 - **Phase 1 started.** `sensors_gui.model` and `sensors_gui.collectors.hwmon`
   are written and tested. 36 tests pass. The collector reads all 14 channels
   on this machine.
+- **Session 2.** Gova ran `scripts/root-probe.sh` and installed
+  `smartmontools`, `nvme-cli` and `ddcutil`.
+- `exp-0003` root probe done. RAPL, SMART, DMI and `ddcutil` all work. The
+  Super-I/O question is **not** answered: Secure Boot puts the kernel in
+  integrity lockdown, which blocks `/dev/port`, so `sensors-detect` is blind
+  on this machine. A DKMS module still loads, because a MOK is enrolled.
+- `exp-0005` started, from Gova's idea: a census of every component, then a
+  coverage matrix. Step 1 done: 111 components, 18 with a known source.
 - `exp-0004` read cost done → NVMe and SPD5118 reads cost 1.5–2 ms each and
   take 99.8 % of a pass. ADR 0006 accepted and built: a per-device read
   interval with a cache. A pass went from 10.015 ms to 0.199 ms.
 
 ## Next actions
 
-1. **Gova runs the root probe.** One command, from the project root:
+1. **Install the `nct6687d` DKMS driver.** This is the largest gap: 8 fans, the
+   VRM temperature and 10 voltage rails. Secure Boot does not block it, because
+   DKMS signs each module with the enrolled MOK, which is how the NVIDIA module
+   loads. This also answers which Super-I/O chip is fitted, which no user-space
+   tool can do on this machine.
 
-   ```bash
-   ! sudo ./scripts/root-probe.sh
-   ```
+2. `exp-0005` step 2 and 3 — work down the target list in
+   `lab/exp-0005-component-census/README.md`, in order:
+   Super-I/O, then the Ryzen SMU (`ryzen_smu` or `zenpower3`), then the RTX 4090
+   board over I2C, then the DDR5 PMICs, then the unknown clients `0x4f` and
+   USB `1-11`, then the Wi-Fi chip, then MYSTIC LIGHT.
 
-   It writes to `data/probes/root-probe-<timestamp>/`. It reads only, except
-   that `sensors-detect --auto` can add lines to `/etc/modules`; the script
-   backs that file up and writes a diff.
+3. **Gova looks inside the case** (about 5 minutes). Three questions, in
+   `lab/exp-0005-component-census/README.md`, section "Step 5".
 
-2. **Gova installs the two safe packages** (approved, Q6):
-
-   ```bash
-   ! sudo apt install -y smartmontools nvme-cli ddcutil
-   ```
-
-3. `exp-0003` — read the root probe output. Identify the Super-I/O chip. Then
-   plan the `nct6687d` DKMS install (approved, Q1).
-
-4. `exp-0004` — load test. Put a load on the CPU and on both GPUs, then record
-   how each channel moves. This confirms the scale factors and finds the
-   channels that never change.
-
-5. Phase 1, next parts of the collection layer:
+4. Phase 1, next parts of the collection layer:
    - `collectors/nvidia.py` — NVML, with the two rules of ADR 0003.
    - `collectors/power_supply.py` — the Logitech G305 battery.
    - `collectors/system.py` — CPU use and frequency, memory, disk and network
-     counters, through `psutil` and `/proc`.
-   - `registry.py` and `sampler.py` — hold every spec, and run the passes.
-   - Friendly names: `spd5118@...0-0051` must show as "DIMM 1", and the
+     counters.
+   - `collectors/nvme_smart.py` and the RAPL reader, through the helper of
+     ADR 0005.
+   - `registry.py` and `sampler.py`.
+   - Friendly names: `spd5118@...0-0051` must show as "DIMM A2", and the
      `r8169` PHY must sit in the `network` group, not in `other`.
    - Value formatting with SI prefixes: `sclk` shows 600000000 Hz; it must show
      600 MHz.
+
+5. `exp-0006` — load test, once the fan and power sensors work.
 
 ## Open questions
 
@@ -110,6 +114,9 @@ rules before any code is written. Reading comes first.
 | ~~Q5~~ | ~~GUI toolkit?~~ **ANSWERED: Textual (a terminal UI).** See ADR 0004. | — | closed 2026-09-16 |
 | ~~Q6~~ | ~~Install `smartmontools` and `nvme-cli`?~~ **ANSWERED: yes.** `ddcutil` too. | — | closed 2026-09-16 |
 | Q7 | What is on `nvme0n1p4` (359.2 GB, not mounted)? | inventory | Gova |
+| Q8 | How many fans are plugged in, and into which headers? Is the CPU cooler air or liquid? | exp-0005 step 5 | Gova, with a look inside the case |
+| Q9 | Both monitors run from the **integrated** graphics, not the RTX 4090. Is that intended? | inventory | Gova |
+| Q10 | 28 unsafe shutdowns in 144 power cycles on the SSD. Does Gova know the cause? | health | Gova |
 
 ## Blockers
 

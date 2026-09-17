@@ -1,0 +1,1310 @@
+{
+  "captured_at": "2026-09-17T06:15:27+00:00",
+  "component_count": 111,
+  "with_known_sensor_source": 18,
+  "components": [
+    {
+      "bus": "cpu",
+      "address": "socket-0",
+      "name": "AMD Ryzen 9 9900X 12-Core Processor",
+      "driver": "amd-pstate-epp",
+      "kind": "cpu",
+      "sensor_sources": [
+        "hwmon:k10temp",
+        "powercap:intel-rapl:0 (package, needs root)",
+        "powercap:intel-rapl:0:0 (core 0 only, needs root)",
+        "sysfs:/sys/devices/system/cpu/cpu*/cpufreq",
+        "turbostat (needs root)"
+      ],
+      "notes": {}
+    },
+    {
+      "bus": "dmi",
+      "address": "DIMMA2",
+      "name": "UD5-6400 32 GB DDR5",
+      "driver": null,
+      "kind": "dimm",
+      "sensor_sources": [
+        "hwmon:spd5118 at i2c 0-0051",
+        "i2c:PMIC at 0-0049 (read only, never write)"
+      ],
+      "notes": {
+        "rated": "5200 MT/s",
+        "configured": "6400 MT/s",
+        "voltage": "1.1 V",
+        "rank": "2"
+      }
+    },
+    {
+      "bus": "dmi",
+      "address": "DIMMB2",
+      "name": "UD5-6400 32 GB DDR5",
+      "driver": null,
+      "kind": "dimm",
+      "sensor_sources": [
+        "hwmon:spd5118 at i2c 0-0053",
+        "i2c:PMIC at 0-004b (read only, never write)"
+      ],
+      "notes": {
+        "rated": "5200 MT/s",
+        "configured": "6400 MT/s",
+        "voltage": "1.1 V",
+        "rank": "2"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:00.0",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14d8]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:00.2",
+      "name": "IOMMU [0806]: Advanced Micro Devices, Inc. [AMD] Device [1022:14d9]",
+      "driver": null,
+      "kind": "other",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0806",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:01.0",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14da]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:01.1",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:14db]",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:01.2",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:14db]",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:02.0",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14da]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:02.1",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:14db]",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:02.2",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:14db]",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:03.0",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14da]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:04.0",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14da]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:08.0",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14da]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:08.1",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:14dd]",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:08.3",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:14dd]",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:14.0",
+      "name": "SMBus [0c05]: Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller [1022:790b] (rev 71)",
+      "driver": "piix4_smbus",
+      "kind": "smbus",
+      "sensor_sources": [
+        "hwmon:spd5118"
+      ],
+      "notes": {
+        "class": "0c05",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:14.3",
+      "name": "ISA bridge [0601]: Advanced Micro Devices, Inc. [AMD] FCH LPC Bridge [1022:790e] (rev 51)",
+      "driver": null,
+      "kind": "other",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0601",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:18.0",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14e0]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:18.1",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14e1]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:18.2",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14e2]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:18.3",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14e3]",
+      "driver": "k10temp",
+      "kind": "host-bridge",
+      "sensor_sources": [
+        "hwmon:k10temp"
+      ],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:18.4",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14e4]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:18.5",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14e5]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:18.6",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14e6]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:00:18.7",
+      "name": "Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Device [1022:14e7]",
+      "driver": null,
+      "kind": "host-bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0600",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:01:00.0",
+      "name": "VGA compatible controller [0300]: NVIDIA Corporation AD102 [GeForce RTX 4090] [10de:2684] (rev a1)",
+      "driver": "nvidia",
+      "kind": "gpu",
+      "sensor_sources": [
+        "nvml (nvidia-ml-py)",
+        "nvidia-smi"
+      ],
+      "notes": {
+        "class": "0300",
+        "vendor": "0x10de"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:01:00.1",
+      "name": "Audio device [0403]: NVIDIA Corporation AD102 High Definition Audio Controller [10de:22ba] (rev a1)",
+      "driver": "snd_hda_intel",
+      "kind": "audio",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0403",
+        "vendor": "0x10de"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:02:00.0",
+      "name": "Non-Volatile memory controller [0108]: Sandisk Corp WD Black SN770 / PC SN740 256GB / PC SN560 (DRAM-less) NVMe SSD [15b7:5017] (rev 01)",
+      "driver": "nvme",
+      "kind": "storage",
+      "sensor_sources": [
+        "hwmon:nvme"
+      ],
+      "notes": {
+        "class": "0108",
+        "vendor": "0x15b7"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:03:00.0",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset PCIe Switch Upstream Port [1022:43f4] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:04:00.0",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset PCIe Switch Downstream Port [1022:43f5] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:04:04.0",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset PCIe Switch Downstream Port [1022:43f5] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:04:06.0",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset PCIe Switch Downstream Port [1022:43f5] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:04:07.0",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset PCIe Switch Downstream Port [1022:43f5] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:04:08.0",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset PCIe Switch Downstream Port [1022:43f5] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:04:0c.0",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset PCIe Switch Downstream Port [1022:43f5] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:04:0d.0",
+      "name": "PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset PCIe Switch Downstream Port [1022:43f5] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:06:00.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. ASM2806 4-Port PCIe x2 Gen3 Packet Switch [1b21:2806] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:07:00.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. ASM2806 4-Port PCIe x2 Gen3 Packet Switch [1b21:2806] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:07:06.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. ASM2806 4-Port PCIe x2 Gen3 Packet Switch [1b21:2806] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:07:0e.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. ASM2806 4-Port PCIe x2 Gen3 Packet Switch [1b21:2806] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:08:00.0",
+      "name": "Network controller [0280]: Qualcomm Technologies, Inc WCN785x Wi-Fi 7(802.11be) 320MHz 2x2 [FastConnect 7800] [17cb:1107] (rev 01)",
+      "driver": "ath12k_wifi7_pci",
+      "kind": "network",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0280",
+        "vendor": "0x17cb"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:0b:00.0",
+      "name": "Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. Device [10ec:8126] (rev 01)",
+      "driver": "r8169",
+      "kind": "network",
+      "sensor_sources": [
+        "hwmon:r8169_0_b00:00"
+      ],
+      "notes": {
+        "class": "0200",
+        "vendor": "0x10ec"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:0c:00.0",
+      "name": "SATA controller [0106]: ASMedia Technology Inc. ASM1064 Serial ATA Controller [1b21:1064] (rev 02)",
+      "driver": "ahci",
+      "kind": "other",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0106",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:0e:00.0",
+      "name": "USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Device [1022:43fc] (rev 01)",
+      "driver": "xhci_hcd",
+      "kind": "usb",
+      "sensor_sources": [
+        "hwmon:hidpp_battery_3"
+      ],
+      "notes": {
+        "class": "0c03",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:0f:00.0",
+      "name": "SATA controller [0106]: Advanced Micro Devices, Inc. [AMD] 600 Series Chipset SATA Controller [1022:43f6] (rev 01)",
+      "driver": "ahci",
+      "kind": "other",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0106",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:10:00.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. Device [1b21:2421] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:11:00.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. Device [1b21:2423] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:11:01.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. Device [1b21:2423] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:11:02.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. Device [1b21:2423] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:11:03.0",
+      "name": "PCI bridge [0604]: ASMedia Technology Inc. Device [1b21:2423] (rev 01)",
+      "driver": "pcieport",
+      "kind": "bridge",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0604",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:72:00.0",
+      "name": "USB controller [0c03]: ASMedia Technology Inc. Device [1b21:2426] (rev 01)",
+      "driver": "xhci_hcd",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0c03",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:73:00.0",
+      "name": "USB controller [0c03]: ASMedia Technology Inc. Device [1b21:2425] (rev 01)",
+      "driver": "thunderbolt",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0c03",
+        "vendor": "0x1b21"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:74:00.0",
+      "name": "VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Device [1002:13c0] (rev c2)",
+      "driver": "amdgpu",
+      "kind": "gpu",
+      "sensor_sources": [
+        "hwmon:amdgpu"
+      ],
+      "notes": {
+        "class": "0300",
+        "vendor": "0x1002"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:74:00.1",
+      "name": "Audio device [0403]: Advanced Micro Devices, Inc. [AMD/ATI] Rembrandt Radeon High Definition Audio Controller [1002:1640]",
+      "driver": "snd_hda_intel",
+      "kind": "audio",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0403",
+        "vendor": "0x1002"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:74:00.2",
+      "name": "Encryption controller [1080]: Advanced Micro Devices, Inc. [AMD] Family 19h PSP/CCP [1022:1649]",
+      "driver": "ccp",
+      "kind": "other",
+      "sensor_sources": [],
+      "notes": {
+        "class": "1080",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:74:00.3",
+      "name": "USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Device [1022:15b6]",
+      "driver": "xhci_hcd",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0c03",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:74:00.4",
+      "name": "USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Device [1022:15b7]",
+      "driver": "xhci_hcd",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0c03",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:74:00.6",
+      "name": "Audio device [0403]: Advanced Micro Devices, Inc. [AMD] Family 17h/19h HD Audio Controller [1022:15e3]",
+      "driver": "snd_hda_intel",
+      "kind": "audio",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0403",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "pci",
+      "address": "0000:75:00.0",
+      "name": "USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Device [1022:15b8]",
+      "driver": "xhci_hcd",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "class": "0c03",
+        "vendor": "0x1022"
+      }
+    },
+    {
+      "bus": "i2c",
+      "address": "0-0051",
+      "name": "spd5118",
+      "driver": "spd5118",
+      "kind": "i2c-client",
+      "sensor_sources": [
+        "hwmon:spd5118"
+      ],
+      "notes": {}
+    },
+    {
+      "bus": "i2c",
+      "address": "0-0053",
+      "name": "spd5118",
+      "driver": "spd5118",
+      "kind": "i2c-client",
+      "sensor_sources": [
+        "hwmon:spd5118"
+      ],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-0",
+      "name": "SMBus PIIX4 adapter port 0 at 0b00",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-1",
+      "name": "SMBus PIIX4 adapter port 2 at 0b00",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-10",
+      "name": "AMDGPU DM i2c hw bus 2",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-11",
+      "name": "AMDGPU DM i2c hw bus 3",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-12",
+      "name": "AMDGPU DM aux hw bus 1",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-13",
+      "name": "AMDGPU DM aux hw bus 2",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-14",
+      "name": "AMDGPU DM aux hw bus 3",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-2",
+      "name": "SMBus PIIX4 adapter port 1 at 0b20",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-3",
+      "name": "NVIDIA i2c adapter 1 at 1:00.0",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-4",
+      "name": "NVIDIA i2c adapter 3 at 1:00.0",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-5",
+      "name": "NVIDIA i2c adapter 4 at 1:00.0",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-6",
+      "name": "NVIDIA i2c adapter 5 at 1:00.0",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-7",
+      "name": "NVIDIA i2c adapter 6 at 1:00.0",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-8",
+      "name": "AMDGPU DM i2c hw bus 0",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "i2c-adapter",
+      "address": "i2c-9",
+      "name": "AMDGPU DM i2c hw bus 1",
+      "driver": null,
+      "kind": "bus",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "usb",
+      "address": "1-11",
+      "name": "? ?",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "0489:e10a",
+        "speed": "12"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "1-4",
+      "name": "Logitech G515 TKL",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "046d:c358",
+        "speed": "12"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "1-5",
+      "name": "Logitech USB Receiver",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "046d:c53f",
+        "speed": "12"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "1-6",
+      "name": "MSI MYSTIC LIGHT",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "0db0:0076",
+        "speed": "12"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "9-1",
+      "name": "? USB2.0 Hub",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "05e3:0608",
+        "speed": "480"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb1",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0002",
+        "speed": "480"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb2",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0003",
+        "speed": "20000"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb3",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0002",
+        "speed": "480"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb4",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0003",
+        "speed": "20000"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb5",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0002",
+        "speed": "480"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb6",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0003",
+        "speed": "10000"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb7",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0002",
+        "speed": "480"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb8",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0003",
+        "speed": "10000"
+      }
+    },
+    {
+      "bus": "usb",
+      "address": "usb9",
+      "name": "Linux 7.0.0-31-generic xhci-hcd xHCI Host Controller",
+      "driver": "usb",
+      "kind": "usb",
+      "sensor_sources": [],
+      "notes": {
+        "id": "1d6b:0002",
+        "speed": "480"
+      }
+    },
+    {
+      "bus": "hid",
+      "address": "0003:046D:4074.001A",
+      "name": "Logitech G305",
+      "driver": "logitech-hidpp-device",
+      "kind": "hid",
+      "sensor_sources": [
+        "power_supply:hidpp_battery_3"
+      ],
+      "notes": {}
+    },
+    {
+      "bus": "hid",
+      "address": "0003:046D:C358.0014",
+      "name": "Logitech G515 TKL",
+      "driver": "hid-generic",
+      "kind": "hid",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "hid",
+      "address": "0003:046D:C358.0015",
+      "name": "Logitech G515 TKL",
+      "driver": "hid-generic",
+      "kind": "hid",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "hid",
+      "address": "0003:046D:C358.0016",
+      "name": "Logitech G515 TKL",
+      "driver": "hid-generic",
+      "kind": "hid",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "hid",
+      "address": "0003:046D:C53F.0017",
+      "name": "Logitech USB Receiver",
+      "driver": "logitech-djreceiver",
+      "kind": "hid",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "hid",
+      "address": "0003:046D:C53F.0018",
+      "name": "Logitech USB Receiver",
+      "driver": "logitech-djreceiver",
+      "kind": "hid",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "hid",
+      "address": "0003:046D:C53F.0019",
+      "name": "Logitech USB Receiver",
+      "driver": "logitech-djreceiver",
+      "kind": "hid",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "hid",
+      "address": "0003:0DB0:0076.0001",
+      "name": "MSI MYSTIC LIGHT",
+      "driver": "hid-generic",
+      "kind": "hid",
+      "sensor_sources": [],
+      "notes": {}
+    },
+    {
+      "bus": "block",
+      "address": "nvme0n1",
+      "name": "WD_BLACK SN770 1TB",
+      "driver": null,
+      "kind": "storage",
+      "sensor_sources": [
+        "nvme-cli:smart-log",
+        "smartctl"
+      ],
+      "notes": {
+        "size_gb": "1000.2"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card1-DP-1",
+      "name": "connector card1-DP-1",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [
+        "ddcutil"
+      ],
+      "notes": {
+        "status": "connected",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card1-DP-2",
+      "name": "connector card1-DP-2",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [],
+      "notes": {
+        "status": "disconnected",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card1-DP-3",
+      "name": "connector card1-DP-3",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [],
+      "notes": {
+        "status": "disconnected",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card1-HDMI-A-1",
+      "name": "connector card1-HDMI-A-1",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [
+        "ddcutil"
+      ],
+      "notes": {
+        "status": "connected",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card2-DP-4",
+      "name": "connector card2-DP-4",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [],
+      "notes": {
+        "status": "disconnected",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card2-DP-5",
+      "name": "connector card2-DP-5",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [],
+      "notes": {
+        "status": "disconnected",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card2-DP-6",
+      "name": "connector card2-DP-6",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [],
+      "notes": {
+        "status": "disconnected",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card2-HDMI-A-2",
+      "name": "connector card2-HDMI-A-2",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [],
+      "notes": {
+        "status": "disconnected",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "drm",
+      "address": "card2-Writeback-1",
+      "name": "connector card2-Writeback-1",
+      "driver": null,
+      "kind": "display-connector",
+      "sensor_sources": [],
+      "notes": {
+        "status": "unknown",
+        "enabled": "disabled"
+      }
+    },
+    {
+      "bus": "net",
+      "address": "enp11s0",
+      "name": "pci:v000010ECd00008126sv00001462sd00007E47bc02sc00i00",
+      "driver": "r8169",
+      "kind": "network",
+      "sensor_sources": [
+        "sysfs:/sys/class/net/enp11s0/statistics",
+        "hwmon:r8169_0_b00:00"
+      ],
+      "notes": {
+        "state": "down",
+        "mac": "34:5a:60:07:ab:c4"
+      }
+    },
+    {
+      "bus": "net",
+      "address": "wlp8s0",
+      "name": "pci:v000017CBd00001107sv0000105Bsd0000E0F7bc02sc80i00",
+      "driver": "ath12k_wifi7_pci",
+      "kind": "network",
+      "sensor_sources": [
+        "sysfs:/sys/class/net/wlp8s0/statistics",
+        "proc:/proc/net/wireless (signal quality)"
+      ],
+      "notes": {
+        "state": "up",
+        "mac": "78:46:5c:7b:a4:29"
+      }
+    }
+  ]
+}

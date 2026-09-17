@@ -113,3 +113,57 @@ test of every channel).
 Gova runs `sudo ./scripts/root-probe.sh` and installs the three packages. Then
 `exp-0003` (the Super-I/O chip) can start, and the NVML collector can be built.
 
+---
+
+## 2026-09-17 — Session 2: the root probe, and a census of the machine
+
+**Goal:** read the root probe that Gova ran, and answer Gova's question about a
+component census.
+
+**What happened**
+
+- Read `data/probes/root-probe-20260917T060712Z/` → `exp-0003`.
+- Answered Gova's idea: the census experiment **is** worth doing, with one
+  change. Started it as `exp-0005`, and built `census.py` for step 1.
+
+**Findings**
+
+1. **`sensors-detect` gave a false negative.** It ended with "no sensors were
+   detected", but three lines earlier it printed
+   `/dev/port: Operation not permitted`. Secure Boot puts the kernel in
+   **integrity lockdown**, which blocks `/dev/port` and `iopl`. **No
+   user-space tool can probe the ISA ports on this machine.** The Super-I/O
+   chip is still unidentified, and no user-space tool will ever identify it
+   here.
+2. **A DKMS module still loads.** `sig_enforce=Y`, but a MOK is already
+   enrolled and `/var/lib/shim-signed/mok/MOK.priv` exists. DKMS signs each
+   module it builds; that is how the NVIDIA module loads. So `nct6687d` needs
+   no BIOS change.
+3. **The RAPL `core` domain is core 0 only**, not the package cores. It read
+   0.269 W while `turbostat` gave 3.71 W for the package and 0.32 W for CPU 0.
+   On Zen 5 the core energy register is per core.
+4. The drive is healthy: 0 % wear, 9.28 TB written, 320 hours, no throttle
+   event ever. But it records **28 unsafe shutdowns** in 144 power cycles.
+5. The memory is 2 × 32 GB DDR5 `UD5-6400` in slots **A2** and **B2**, running
+   at **6400 MT/s** against a 5200 MT/s rating, so an EXPO profile is on. That
+   also names the two `spd5118` sensors: `0x51` is DIMMA2 and `0x53` is DIMMB2.
+6. Three I2C clients are unclaimed: `0x49`, `0x4b` and `0x4f`. The first two
+   fit the DDR5 power management chips of the two modules. **Those chips set
+   the DIMM voltage, so nothing may ever write to 0x48–0x4F.**
+7. Both monitors are **MSI MD272QXP**, and both run from the **integrated**
+   Radeon graphics, not from the RTX 4090.
+8. **ADR 0002 proved itself.** The Logitech battery was `hidpp_battery_2`
+   yesterday and is `hidpp_battery_3` after the reboot, with no hardware
+   change.
+
+**Census result (exp-0005 step 1)**
+
+111 components, 18 with a known sensor source. Of the 93 without one, 51 are
+bridges, buses and root hubs that hold no sensor. Ten real targets remain, and
+they are listed in order in `lab/exp-0005-component-census/README.md`.
+
+**Next**
+
+Install `nct6687d` through DKMS. It is the largest gap and the only way to
+identify the Super-I/O chip on a locked-down kernel.
+

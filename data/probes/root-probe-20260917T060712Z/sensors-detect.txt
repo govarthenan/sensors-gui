@@ -1,0 +1,155 @@
+# sensors-detect version 3.6.0
+# System: Micro-Star International Co., Ltd. MS-7E47 [1.1]
+# Board: Micro-Star International Co., Ltd. PRO X870-P WIFI (MS-7E47)
+# Kernel: 7.0.0-31-generic x86_64
+# Processor: AMD Ryzen 9 9900X 12-Core Processor (26/68/0)
+
+Running in automatic mode, default answers to all questions
+are assumed.
+
+Some south bridges, CPUs or memory controllers contain embedded sensors.
+Do you want to scan for them? This is totally safe. (YES/no): 
+Module cpuid loaded successfully.
+Silicon Integrated Systems SIS5595...                       No
+VIA VT82C686 Integrated Sensors...                          No
+VIA VT8231 Integrated Sensors...                            No
+AMD K8 thermal sensors...                                   No
+AMD Family 10h thermal sensors...                           No
+AMD Family 11h thermal sensors...                           No
+AMD Family 12h and 14h thermal sensors...                   No
+AMD Family 15h thermal sensors...                           No
+AMD Family 16h thermal sensors...                           No
+AMD Family 17h thermal sensors...                           No
+AMD Family 15h power sensors...                             No
+AMD Family 16h power sensors...                             No
+Hygon Family 18h thermal sensors...                         No
+Intel digital thermal sensor...                             No
+Intel AMB FB-DIMM thermal sensor...                         No
+Intel 5500/5520/X58 thermal sensor...                       No
+VIA C7 thermal sensor...                                    No
+VIA Nano thermal sensor...                                  No
+/dev/port: Operation not permitted
+
+Some Super I/O chips contain embedded sensors. We have to write to
+standard I/O ports to probe them. This is usually safe.
+Do you want to scan for Super I/O sensors? (YES/no): 
+
+Some systems (mainly servers) implement IPMI, a set of common interfaces
+through which system health data may be retrieved, amongst other things.
+We first try to get the information from SMBIOS. If we don't find it
+there, we have to read from arbitrary I/O ports to probe for such
+interfaces. This is normally safe. Do you want to scan for IPMI
+interfaces? (YES/no): 
+/dev/port: Operation not permitted
+/dev/port: Operation not permitted
+
+Some hardware monitoring chips are accessible through the ISA I/O ports.
+We have to write to arbitrary I/O ports to probe them. This is usually
+safe though. Yes, you do have ISA I/O ports even if you do not have any
+ISA slots! Do you want to scan the ISA I/O ports? (YES/no): 
+
+Lastly, we can probe the I2C/SMBus adapters for connected hardware
+monitoring devices. This is the most risky part, and while it works
+reasonably well on most systems, it has been reported to cause trouble
+on some systems.
+Do you want to probe the I2C/SMBus adapters now? (YES/no): 
+Using driver `i2c-piix4' for device 0000:00:14.0: AMD KERNCZ SMBus
+
+Next adapter: SMBus PIIX4 adapter port 0 at 0b00 (i2c-0)
+Do you want to scan it? (YES/no/selectively): 
+Client found at address 0x49
+Probing for `National Semiconductor LM75'...                No
+Probing for `National Semiconductor LM75A'...               No
+Probing for `Dallas Semiconductor DS75'...                  No
+Probing for `National Semiconductor LM77'...                No
+Probing for `Analog Devices ADT7410/ADT7420'...             No
+Probing for `Maxim MAX6642'...                              No
+Probing for `Texas Instruments TMP435'...                   No
+Probing for `National Semiconductor LM73'...                No
+Probing for `National Semiconductor LM92'...                No
+Probing for `National Semiconductor LM76'...                No
+Probing for `Maxim MAX6633/MAX6634/MAX6635'...              No
+Probing for `NXP/Philips SA56004'...                        No
+Probing for `SMSC EMC1023'...                               No
+Probing for `SMSC EMC1043'...                               No
+Probing for `SMSC EMC1053'...                               No
+Probing for `SMSC EMC1063'...                               No
+Client found at address 0x4b
+Probing for `National Semiconductor LM75'...                No
+Probing for `National Semiconductor LM75A'...               No
+Probing for `Dallas Semiconductor DS75'...                  No
+Probing for `National Semiconductor LM77'...                No
+Probing for `Analog Devices ADT7410/ADT7420'...             No
+Probing for `Analog Devices ADT7411'...                     No
+Probing for `Maxim MAX6642'...                              No
+Probing for `Texas Instruments TMP435'...                   No
+Probing for `National Semiconductor LM92'...                No
+Probing for `National Semiconductor LM76'...                No
+Probing for `Maxim MAX6633/MAX6634/MAX6635'...              No
+Probing for `NXP/Philips SA56004'...                        No
+Probing for `Analog Devices ADT7481'...                     No
+Client found at address 0x4f
+Probing for `National Semiconductor LM75'...                No
+Probing for `National Semiconductor LM75A'...               No
+Probing for `Dallas Semiconductor DS75'...                  No
+Probing for `Maxim MAX6642'...                              No
+Probing for `Texas Instruments TMP421'...                   No
+Probing for `Texas Instruments TMP422'...                   No
+Probing for `Texas Instruments TMP435'...                   No
+Probing for `Texas Instruments TMP441'...                   No
+Probing for `Maxim MAX6633/MAX6634/MAX6635'...              No
+Probing for `NXP/Philips SA56004'...                        No
+Client found at address 0x51
+Handled by driver `spd5118' (already loaded), chip type `spd5118'
+    (note: this is probably NOT a sensor chip!)
+Client found at address 0x53
+Handled by driver `spd5118' (already loaded), chip type `spd5118'
+    (note: this is probably NOT a sensor chip!)
+
+Next adapter: SMBus PIIX4 adapter port 2 at 0b00 (i2c-1)
+Do you want to scan it? (YES/no/selectively): 
+
+Next adapter: SMBus PIIX4 adapter port 1 at 0b20 (i2c-2)
+Do you want to scan it? (YES/no/selectively): 
+
+Next adapter: NVIDIA i2c adapter 1 at 1:00.0 (i2c-3)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: NVIDIA i2c adapter 3 at 1:00.0 (i2c-4)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: NVIDIA i2c adapter 4 at 1:00.0 (i2c-5)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: NVIDIA i2c adapter 5 at 1:00.0 (i2c-6)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: NVIDIA i2c adapter 6 at 1:00.0 (i2c-7)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: AMDGPU DM i2c hw bus 0 (i2c-8)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: AMDGPU DM i2c hw bus 1 (i2c-9)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: AMDGPU DM i2c hw bus 2 (i2c-10)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: AMDGPU DM i2c hw bus 3 (i2c-11)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: AMDGPU DM aux hw bus 1 (i2c-12)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: AMDGPU DM aux hw bus 2 (i2c-13)
+Do you want to scan it? (yes/NO/selectively): 
+
+Next adapter: AMDGPU DM aux hw bus 3 (i2c-14)
+Do you want to scan it? (yes/NO/selectively): 
+
+Sorry, no sensors were detected.
+Either your system has no sensors, or they are not supported, or
+they are connected to an I2C or SMBus adapter that is not
+supported. If you find out what chips are on your board, check
+https://hwmon.wiki.kernel.org/device_support_status for driver status.

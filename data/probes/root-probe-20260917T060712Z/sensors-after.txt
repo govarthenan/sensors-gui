@@ -1,0 +1,65 @@
+$ sensors -A -u
+
+spd5118-i2c-0-53
+temp1:
+  temp1_input: 28.500
+  temp1_max: 55.000
+  temp1_min: 0.000
+  temp1_crit: 85.000
+  temp1_lcrit: 0.000
+  temp1_max_alarm: 0.000
+  temp1_min_alarm: 0.000
+  temp1_crit_alarm: 0.000
+  temp1_lcrit_alarm: 0.000
+
+k10temp-pci-00c3
+Tctl:
+  temp1_input: 45.125
+Tccd1:
+  temp3_input: 31.000
+Tccd2:
+  temp4_input: 28.750
+
+r8169_0_b00:00-mdio-0
+temp1:
+  temp1_input: 35.500
+  temp1_max: 120.000
+
+amdgpu-pci-7400
+vddgfx:
+  in0_input: 1.310
+vddnb:
+  in1_input: 1.305
+edge:
+  temp1_input: 38.000
+PPT:
+  power1_input: 0.011
+
+spd5118-i2c-0-51
+temp1:
+  temp1_input: 30.000
+  temp1_max: 55.000
+  temp1_min: 0.000
+  temp1_crit: 85.000
+  temp1_lcrit: 0.000
+  temp1_max_alarm: 0.000
+  temp1_min_alarm: 0.000
+  temp1_crit_alarm: 0.000
+  temp1_lcrit_alarm: 0.000
+
+nvme-pci-0200
+Composite:
+  temp1_input: 32.850
+  temp1_max: 83.850
+  temp1_min: -40.150
+  temp1_crit: 87.850
+  temp1_alarm: 0.000
+Sensor 1:
+  temp2_input: 42.850
+  temp2_max: 65261.850
+  temp2_min: -273.150
+Sensor 2:
+  temp3_input: 32.850
+  temp3_max: 65261.850
+  temp3_min: -273.150
+

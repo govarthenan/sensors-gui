@@ -33,14 +33,23 @@ Source: `lscpu`, `/sys/devices/system/cpu/cpu0/cpufreq/`.
 
 | Item | Value |
 |---|---|
-| Total | 60 GiB usable (61 GiB installed, 2 × 32 GB) |
+| Total | 60 GiB usable (2 × 32 GB) |
 | Swap | none (0 B) |
-| SPD hubs | 2 × `spd5118` on SMBus port 0, addresses 0x51 and 0x53 |
 
-DDR5 modules report their own temperature through the SPD5118 hub. Part numbers
-and speed need `dmidecode` with root. **Open item.**
+| Slot | Fitted | Size | Type | Rated | Configured | Voltage | Part | Rank | SPD hub | PMIC |
+|---|---|---|---|---|---|---|---|---|---|---|
+| DIMMA1 | no | — | — | — | — | — | — | — | — | — |
+| **DIMMA2** | yes | 32 GB | DDR5 | 5200 MT/s | **6400 MT/s** | 1.1 V | `UD5-6400` | 2 | i2c `0-0051` | i2c `0-0049` |
+| DIMMB1 | no | — | — | — | — | — | — | — | — | — |
+| **DIMMB2** | yes | 32 GB | DDR5 | 5200 MT/s | **6400 MT/s** | 1.1 V | `UD5-6400` | 2 | i2c `0-0053` | i2c `0-004b` |
 
-Source: `free -h`, `/sys/bus/i2c/devices/0-0051`, `0-0053`.
+Both modules run above their JEDEC rating, so an EXPO or XMP profile is on.
+
+DDR5 puts the SPD hub of slot *n* at `0x50 + n` and the power management chip
+at `0x48 + n`. **Never write to an address from 0x48 to 0x4F.** Those chips set
+the voltage of the memory modules.
+
+Source: `free -h`, `dmidecode -t memory`, `/sys/bus/i2c/devices/`.
 
 ## Graphics
 
@@ -94,16 +103,61 @@ Only one drive is present.
 
 ## Peripherals
 
-| Item | Value |
-|---|---|
-| Logitech device | `hidpp_battery_2` hwmon, UPower `battery_hidpp_battery_2` |
+| Item | Model | Sensor |
+|---|---|---|
+| Mouse | Logitech G305 Lightspeed, wireless | battery through `/sys/class/power_supply/hidpp_battery_N/` |
+| Keyboard | Logitech G515 TKL | none found yet |
+| Receiver | Logitech USB Receiver `046D:C53F` | — |
+| RGB controller | MSI MYSTIC LIGHT, HID `0DB0:0076` | none found yet |
 
-The exact model of the Logitech device is an **open item**.
+The battery node was `hidpp_battery_2` on 2026-09-16 and `hidpp_battery_3`
+after the reboot on 2026-09-17, with no change to the hardware. This is why
+ADR 0002 forbids keying a sensor by its index.
+
+## Displays
+
+| Display | Connector | Bus | Model | Serial |
+|---|---|---|---|---|
+| 1 | `card1-HDMI-A-1` | `/dev/i2c-4` | MSI MD272QXP | PB1H824600444 |
+| 2 | `card1-DP-1` | `/dev/i2c-5` | MSI MD272QXP | PB1H824600465 |
+
+`card1` is the **integrated** Radeon graphics. Both monitors are plugged into
+the motherboard video outputs, not into the RTX 4090 (`card2`).
+
+Source: `ddcutil detect`.
+
+## Firmware state
+
+| Item | Value | Effect |
+|---|---|---|
+| Secure Boot | **enabled** | |
+| Kernel lockdown | **integrity** | `/dev/port` and `iopl` are blocked, so no user-space tool can probe the ISA ports |
+| `sig_enforce` | `Y` | an unsigned kernel module cannot load |
+| Enrolled MOK | `CN=aipc03-MS-7E47 Secure Boot Module Signature key` | DKMS signs each module it builds, so a DKMS module still loads |
+
+Source: `mokutil --sb-state`, `/sys/kernel/security/lockdown`, `dkms status`.
+
+## Storage health (2026-09-17)
+
+| Field | Value |
+|---|---|
+| Wear (`percentage_used`) | 0 % |
+| Spare | 100 %, threshold 10 % |
+| Written | 9.28 TB |
+| Read | 2.57 TB |
+| Power-on hours | 320 |
+| Power cycles | 144 |
+| **Unsafe shutdowns** | **28** |
+| Media errors | 0 |
+| Thermal throttle events | 0 |
+
+Source: `nvme smart-log /dev/nvme0`.
 
 ## Open items
 
-1. DIMM part numbers, speed and slot positions — needs root `dmidecode`.
-2. Logitech peripheral model name.
-3. Contents of `nvme0n1p4` (359.2 GB, not mounted).
-4. Super-I/O chip model on the MSI PRO X870-P WIFI — expected Nuvoton NCT6687,
-   not confirmed, because no driver is loaded.
+1. Contents of `nvme0n1p4` (359.2 GB, not mounted).
+2. Super-I/O chip model — **still unknown.** Secure Boot lockdown blocks the
+   user-space probe. Only a kernel module can answer. See `exp-0003`.
+3. The I2C client at `0x4f` is not identified.
+4. The USB device `1-11` is not identified.
+5. 28 unsafe shutdowns in 144 power cycles. Worth watching.
