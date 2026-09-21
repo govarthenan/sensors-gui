@@ -7,3 +7,4 @@
 | [exp-0003](exp-0003-root-probe/) | The root probe | 2026-09-17 | What do the root-only sensors give, and which Super-I/O chip is fitted? | RAPL, SMART and DMI all work. The Super-I/O question stays open: Secure Boot lockdown blocks the user-space probe. |
 | [exp-0004](exp-0004-hwmon-read-cost/) | The cost of a hwmon read | 2026-09-16 | Does every channel cost the same? | No. NVMe and SPD5118 cost 1.5–2 ms; the rest cost 5 µs. ADR 0006. |
 | [exp-0005](exp-0005-component-census/) | Component census and coverage matrix | 2026-09-17, open | How many sensors does this PC hold, and how many can we reach? | Step 1 done: 111 components, 18 with a known source. 10 targets to chase. |
+| [exp-0006](exp-0006-nvml-read-cost/) | The cost of an NVML read | 2026-09-21 | Does NVML have expensive calls too? | Yes. Two PCIe calls take 92 % of a pass, 20.6 ms each. A pass fell from 48.4 ms to 0.0227 ms. |

@@ -205,9 +205,34 @@ plugged into the motherboard rather than into a hub or a controller, whether the
 The MSI PRO X870-P WIFI has 8 headers (`CPU_FAN1`, `PUMP_FAN1`, `SYS_FAN1` to
 `SYS_FAN6`), so every case fan and the pump can reach the board.
 
+**Then: the NVIDIA collector**
+
+Built `sensors_gui/collectors/nvidia.py`, 17 channels, test first against the
+real card. No mock: for a monitor built for one PC, the hardware is the fixture.
+
+`exp-0006` measured each channel, and found the `exp-0004` pattern again, this
+time **inside one device**:
+
+- `nvmlDeviceGetPcieThroughput` costs **20.6 ms** per call, because it samples
+  the link over a window and blocks for it. Two of them, transmit and receive,
+  took 92 % of a 48.4 ms pass. That is nearly the whole 50 ms budget that the
+  architecture gives to every collector together.
+- `exp-0002` missed this, because its 13 test fields did not include the PCIe
+  throughput. A benchmark of "a typical sample" hides the worst call.
+
+So ADR 0006 was amended: the read interval is **per channel**, not per device,
+and the cache moved into one shared module that both collectors use. The NVML
+pass fell from **48.4 ms to 0.0227 ms**. hwmon kept its 0.192 ms.
+
+A second bug came out of the same work. The VRAM channels declared `Unit.BYTE`
+but reported mebibytes, so the screen showed `1125 B` for 1.1 GiB. The unit was
+right and the collector was wrong. `SensorSpec.format` now gives SI and binary
+prefixes: `1.1 GiB`, `210.0 MHz`, `485.1 kJ`, `38.9 MB/s`.
+
+89 tests pass.
+
 **Next**
 
 Gova runs `sudo ./scripts/install-nct6687d.sh`. The expected fan count is now
 known, which is what makes a `0 RPM` reading readable: 0 will mean a stopped
 fan, not a missing one.
-

@@ -13,6 +13,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from sensors_gui.collectors.cache import ChannelCache
 from sensors_gui.model import Group, Reading, SensorId, SensorSpec, Unit
 
 logger = logging.getLogger(__name__)
@@ -89,7 +90,6 @@ class _Channel:
     spec: SensorSpec
     input_path: Path
     divisor: int
-    last: Reading | None = None
 
 
 def _read_text(path: Path) -> str | None:
@@ -169,6 +169,7 @@ class HwmonCollector:
         """
         self.root = Path(root)
         self.clock = clock
+        self._cache = ChannelCache(lambda: self.clock())
         self._channels: list[_Channel] = []
 
     def discover(self) -> list[SensorSpec]:
@@ -176,9 +177,9 @@ class HwmonCollector:
 
         A re-scan keeps the cached value of every channel that is still there.
         Throwing the cache away would make a re-scan start a bus transaction on
-        every slow device at once, which is what ADR 0006 avoids.
+        every slow device at once, which is what ADR 0006 avoids. The cache is
+        keyed by `SensorId`, so it survives a re-scan by itself.
         """
-        cached = {channel.spec.id: channel.last for channel in self._channels}
         self._channels = []
         if not self.root.is_dir():
             logger.warning("no hwmon root at %s", self.root)
@@ -190,9 +191,6 @@ class HwmonCollector:
             except OSError as exc:
                 logger.warning("skipping %s: %s", hwmon_dir, exc)
 
-        for channel in self._channels:
-            channel.last = cached.get(channel.spec.id)
-
         logger.info("hwmon: found %d channels", len(self._channels))
         return [channel.spec for channel in self._channels]
 
@@ -203,30 +201,19 @@ class HwmonCollector:
         cache, with the time of the read that first produced the value. See
         ADR 0006.
         """
-        now = self.clock()
-        readings: list[Reading] = []
-        for channel in self._channels:
-            if self._is_fresh(channel, now):
-                readings.append(channel.last)  # type: ignore[arg-type]
-                continue
-            value = _read_scaled(channel.input_path, channel.divisor)
-            if value is None:
-                channel.last = Reading.failed(channel.spec.id, f"cannot read {channel.input_path}", read_at=now)
-            else:
-                channel.last = Reading.ok(channel.spec.id, value, read_at=now)
-            readings.append(channel.last)
-        return readings
-
-    @staticmethod
-    def _is_fresh(channel: _Channel, now: float) -> bool:
-        """Return True when the cached value is young enough to serve again."""
-        if channel.last is None or channel.last.read_at is None:
-            return False
-        return (now - channel.last.read_at) < channel.spec.min_interval
+        return [
+            self._cache.serve(
+                channel.spec.id,
+                channel.spec.min_interval,
+                lambda channel=channel: _read_scaled(channel.input_path, channel.divisor),
+            )
+            for channel in self._channels
+        ]
 
     def close(self) -> None:
-        """Release the discovered channels. The collector holds no open file."""
+        """Release the discovered channels and the cache. The collector holds no open file."""
         self._channels = []
+        self._cache.forget()
 
     def _discover_device(self, hwmon_dir: Path) -> list[_Channel]:
         """Find every channel of one hwmon device."""

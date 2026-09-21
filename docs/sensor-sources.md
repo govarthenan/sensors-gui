@@ -65,8 +65,11 @@ the reader must handle the wrap with `max_energy_range_uj`.
 
 ### NVIDIA RTX 4090 — NVML (`nvidia-ml-py`)
 
-Decided in ADR 0003 after `exp-0002`. All fields read as a normal user.
-A full sample costs 0.67 ms with NVML, against 19.91 ms with `nvidia-smi`.
+Decided in ADR 0003 after `exp-0002`, and built on 2026-09-21. All fields
+read as a normal user. A warmed pass of all 17 channels costs **0.023 ms**.
+See `exp-0006` for why the two PCIe channels need their own interval.
+
+Collector: `sensors_gui/collectors/nvidia.py`. 17 channels, 89 tests pass.
 
 | Field | Unit | Status | Note |
 |---|---|---|---|

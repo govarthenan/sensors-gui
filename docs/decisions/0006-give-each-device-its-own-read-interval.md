@@ -53,3 +53,39 @@ interval on a bus-backed sensor costs time and wakes the device.
   pass, or a graph will show steps that the hardware did not make.
 - The collector interface gains a cache. `read()` must stay the shape it is;
   the cache lives inside the collector.
+
+---
+
+## Amendment, 2026-09-21
+
+- Evidence: `lab/exp-0006-nvml-read-cost/`
+
+`exp-0006` found the same pattern in NVML, but **inside one device**, not
+between devices:
+
+| NVML channel | Median cost |
+|---|---|
+| `pcie_tx`, `pcie_rx` | 20.6 ms each |
+| `energy` | 3.1 ms |
+| `fan_speed` | 0.6 ms |
+| the other 11 channels | 0.0006 ms each |
+
+`nvmlDeviceGetPcieThroughput` samples the link over a window of about 20 ms and
+blocks for that whole time. Two of those calls took 92 % of a 48.4 ms pass,
+which is nearly the whole 50 ms budget for every collector together.
+
+So the decision changes in two ways:
+
+1. **The interval is per channel, not per device.** A device can hold one
+   expensive channel among ten cheap ones.
+2. **The cache lives in one shared place**, `sensors_gui/collectors/cache.py`,
+   and every collector uses it. The first version of this ADR said the cache
+   lives inside the collector. That led to two copies of the same rule, so the
+   rule moved out.
+
+The shared cache also holds a failure for the same interval as a success.
+Retrying a dead device on every pass costs as much as reading a live one.
+
+Result: the NVML pass fell from 48.4 ms to 0.0227 ms, and the hwmon pass kept
+its 0.192 ms.
+

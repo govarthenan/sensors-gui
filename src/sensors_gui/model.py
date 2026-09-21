@@ -59,6 +59,24 @@ _UNIT_SYMBOLS: dict[Unit, str] = {
     Unit.NONE: "",
 }
 
+# How a unit scales when the number gets large.
+#   "si"     decimal steps of 1000, prefixes k, M, G, T
+#   "binary" steps of 1024, prefixes Ki, Mi, Gi, Ti
+#   None     never scaled
+_UNIT_SCALING: dict[Unit, str] = {
+    Unit.HERTZ: "si",
+    Unit.JOULE: "si",
+    Unit.BYTE_PER_SECOND: "si",
+    Unit.BYTE: "binary",
+}
+
+_SI_PREFIXES = ("", "k", "M", "G", "T", "P")
+_BINARY_PREFIXES = ("", "Ki", "Mi", "Gi", "Ti", "Pi")
+
+# Below this, a value keeps its base unit. A GPU draws 480 W, never 0.48 kW,
+# and a 512 byte value reads better than 0.5 KiB.
+_SCALE_THRESHOLD = 1.0
+
 _UNIT_DECIMALS: dict[Unit, int] = {
     Unit.VOLT: 3,
     Unit.WATT: 2,
@@ -69,6 +87,29 @@ _UNIT_DECIMALS: dict[Unit, int] = {
     Unit.HERTZ: 0,
     Unit.BYTE: 0,
 }
+
+
+def _scale(value: float, scaling: str | None) -> tuple[float, str]:
+    """Return the value and the prefix to put in front of its unit.
+
+    Args:
+        value: The value in the base unit.
+        scaling: `"si"`, `"binary"`, or None when the unit is never scaled.
+
+    Returns:
+        The scaled value and the prefix, which is empty when nothing changed.
+    """
+    if scaling is None:
+        return value, ""
+    step = 1000.0 if scaling == "si" else 1024.0
+    prefixes = _SI_PREFIXES if scaling == "si" else _BINARY_PREFIXES
+    magnitude = abs(value)
+    index = 0
+    while magnitude >= step * _SCALE_THRESHOLD and index < len(prefixes) - 1:
+        magnitude /= step
+        value /= step
+        index += 1
+    return value, prefixes[index]
 
 
 class Group(StrEnum):
@@ -166,6 +207,11 @@ class SensorSpec:
     def format(self, value: float | None) -> str:
         """Return the value as text with its unit, or an em dash when it is missing.
 
+        A unit that grows large takes a prefix, so that a clock reads
+        `210.0 MHz` and not `210000000 Hz`. Frequency, energy and transfer rate
+        take decimal SI prefixes. A byte count takes a binary prefix, because
+        that is what every other tool on this machine shows.
+
         Args:
             value: The value to show, or None.
 
@@ -174,8 +220,12 @@ class SensorSpec:
         """
         if value is None:
             return "—"
-        text = f"{value:.{self.unit.decimals}f}"
-        return f"{text} {self.unit.symbol}".rstrip()
+        scaling = _UNIT_SCALING.get(self.unit)
+        scaled, prefix = _scale(value, scaling)
+        # A unit that can be scaled always keeps one decimal, so that the
+        # column does not change width when the value crosses a step.
+        decimals = 1 if scaling is not None else self.unit.decimals
+        return f"{scaled:.{decimals}f} {prefix}{self.unit.symbol}".rstrip()
 
 
 @dataclass(frozen=True, slots=True)

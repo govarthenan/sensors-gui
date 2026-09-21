@@ -125,6 +125,10 @@ with a raw value.
 The default sample rate is **2 Hz**. It can be set per collector, because some
 sources are slow or change slowly:
 
+Rates are per collector. On top of that, each **channel** carries its own
+minimum read interval, because one device can hold an expensive channel among
+cheap ones. See ADR 0006 and its amendment.
+
 | Collector | Default rate |
 |---|---|
 | hwmon | 2 Hz |

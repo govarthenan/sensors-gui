@@ -1,0 +1,110 @@
+{
+  "captured_at": "2026-09-21T11:04:13+00:00",
+  "rounds": 20,
+  "channels": [
+    {
+      "channel": "pcie_tx",
+      "label": "PCIe transmit",
+      "min_interval": 2.0,
+      "median_ms": 20.5898
+    },
+    {
+      "channel": "pcie_rx",
+      "label": "PCIe receive",
+      "min_interval": 2.0,
+      "median_ms": 20.561
+    },
+    {
+      "channel": "energy",
+      "label": "GPU energy",
+      "min_interval": 1.0,
+      "median_ms": 3.1372
+    },
+    {
+      "channel": "fan_speed",
+      "label": "GPU fan",
+      "min_interval": 1.0,
+      "median_ms": 0.6029
+    },
+    {
+      "channel": "graphics_processes",
+      "label": "Graphics processes",
+      "min_interval": 1.0,
+      "median_ms": 0.0484
+    },
+    {
+      "channel": "compute_processes",
+      "label": "Compute processes",
+      "min_interval": 1.0,
+      "median_ms": 0.0165
+    },
+    {
+      "channel": "memory_used",
+      "label": "VRAM used",
+      "min_interval": 0.0,
+      "median_ms": 0.0034
+    },
+    {
+      "channel": "memory_reserved",
+      "label": "VRAM reserved",
+      "min_interval": 0.0,
+      "median_ms": 0.0034
+    },
+    {
+      "channel": "temperature",
+      "label": "GPU edge",
+      "min_interval": 0.0,
+      "median_ms": 0.0009
+    },
+    {
+      "channel": "power",
+      "label": "GPU power",
+      "min_interval": 0.0,
+      "median_ms": 0.0008
+    },
+    {
+      "channel": "performance_state",
+      "label": "P-state",
+      "min_interval": 0.0,
+      "median_ms": 0.0007
+    },
+    {
+      "channel": "utilization",
+      "label": "GPU use",
+      "min_interval": 0.0,
+      "median_ms": 0.0006
+    },
+    {
+      "channel": "memory_utilization",
+      "label": "VRAM bus use",
+      "min_interval": 0.0,
+      "median_ms": 0.0006
+    },
+    {
+      "channel": "clock_sm",
+      "label": "SM clock",
+      "min_interval": 0.0,
+      "median_ms": 0.0006
+    },
+    {
+      "channel": "clock_memory",
+      "label": "VRAM clock",
+      "min_interval": 0.0,
+      "median_ms": 0.0006
+    },
+    {
+      "channel": "encoder_utilization",
+      "label": "NVENC use",
+      "min_interval": 0.0,
+      "median_ms": 0.0006
+    },
+    {
+      "channel": "decoder_utilization",
+      "label": "NVDEC use",
+      "min_interval": 0.0,
+      "median_ms": 0.0006
+    }
+  ],
+  "sum_uncached_ms": 44.969,
+  "warmed_pass_median_ms": 0.0227
+}

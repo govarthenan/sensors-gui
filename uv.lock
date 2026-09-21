@@ -129,6 +129,9 @@ wheels = [
 name = "sensors-gui"
 version = "0.1.0"
 source = { editable = "." }
+dependencies = [
+    { name = "nvidia-ml-py" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -139,6 +142,7 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "nvidia-ml-py", specifier = ">=13.610.43" }]
 
 [package.metadata.requires-dev]
 dev = [

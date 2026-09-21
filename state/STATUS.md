@@ -67,6 +67,15 @@ rules before any code is written. Reading comes first.
   on this machine. A DKMS module still loads, because a MOK is enrolled.
 - `exp-0005` started, from Gova's idea: a census of every component, then a
   coverage matrix. Step 1 done: 111 components, 18 with a known source.
+- **Session 3.** Corrected the GPU and monitor error. Gova gave the fan count.
+- `collectors/nvidia.py` built: 17 channels through NVML, with the two rules
+  of ADR 0003. `exp-0006` found that two PCIe calls cost 20.6 ms each and
+  took 92 % of a 48.4 ms pass. ADR 0006 amended: the interval is now per
+  channel, and the cache moved to one shared place. The pass fell to
+  0.0227 ms.
+- `SensorSpec.format` gained SI and binary prefixes. `1125 B` now reads
+  `1.1 GiB`, and `210000000 Hz` reads `210.0 MHz`.
+- 89 tests pass.
 - `exp-0004` read cost done → NVMe and SPD5118 reads cost 1.5–2 ms each and
   take 99.8 % of a pass. ADR 0006 accepted and built: a per-device read
   interval with a cache. A pass went from 10.015 ms to 0.199 ms.
@@ -89,7 +98,6 @@ rules before any code is written. Reading comes first.
    `lab/exp-0005-component-census/README.md`, section "Step 5".
 
 4. Phase 1, next parts of the collection layer:
-   - `collectors/nvidia.py` — NVML, with the two rules of ADR 0003.
    - `collectors/power_supply.py` — the Logitech G305 battery.
    - `collectors/system.py` — CPU use and frequency, memory, disk and network
      counters.
@@ -98,8 +106,6 @@ rules before any code is written. Reading comes first.
    - `registry.py` and `sampler.py`.
    - Friendly names: `spd5118@...0-0051` must show as "DIMM A2", and the
      `r8169` PHY must sit in the `network` group, not in `other`.
-   - Value formatting with SI prefixes: `sclk` shows 600000000 Hz; it must show
-     600 MHz.
 
 5. `exp-0006` — load test, once the fan and power sensors work.
 
