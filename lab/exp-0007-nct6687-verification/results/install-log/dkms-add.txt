@@ -1,0 +1,1 @@
+Creating symlink /var/lib/dkms/nct6687d/1/source -> /usr/src/nct6687d-1

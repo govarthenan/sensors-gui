@@ -1,0 +1,7 @@
+[13717.640863] nct6687: Detected MSI board requiring msi_alt1 fan configuration
+[13718.644617] nct6687: Found NCT6687D or compatible chip at 0x004e:0x0a20
+[13718.644690] nct6687 nct6687.2592: Detected MSI board; using alternative fan configuration (msi_alt1)
+[13718.644691] nct6687 nct6687.2592: MSI fan brute force mode: disabled
+[13718.644692] nct6687 nct6687.2592: active fan config=msi_alt1, SYS_FAN reg_rpm=0x015E/0x015C/0x015A
+[13718.644693] nct6687 nct6687.2592: enabled channels: fan/pwm mask=0xff, temp mask=0x7f
+[13718.647630] nct6687 nct6687.2592: NCT6687D EC firmware version 0.0 build 08/22/24

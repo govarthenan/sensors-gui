@@ -72,6 +72,18 @@ DRIVER_INTERVALS: dict[str, float] = {
 }
 DEFAULT_INTERVAL = 0.0
 
+# Drivers whose `_min` and `_max` files hold the running minimum and maximum
+# the driver has seen, not a threshold.
+#
+# The hwmon ABI says `tempN_max` is a limit. The nct6687 driver does not follow
+# it. Measured on this machine on 2026-09-21: `temp1_max` read 58000 and then
+# 60000 two seconds later, tracking `temp1_input` as the CPU warmed. Reading
+# those files as thresholds would put every channel at its own warning limit,
+# so the application would alarm for ever.
+#
+# A `_crit` file from these drivers is not trusted either, for the same reason.
+DRIVERS_WITH_TRACKING_LIMITS: frozenset[str] = frozenset({"nct6687", "nct6686", "nct6683"})
+
 # A drive can report a placeholder limit such as 65261850 millidegrees. Any
 # limit outside a plausible range for its unit is thrown away.
 PLAUSIBLE_LIMITS: dict[Unit, tuple[float, float]] = {
@@ -112,6 +124,33 @@ def _read_scaled(path: Path, divisor: int) -> float | None:
         logger.debug("not an integer in %s: %r", path, text)
         return None
     return raw / divisor if divisor != 1 else float(raw)
+
+
+def _limit(
+    files: dict[str, Path],
+    name: str,
+    divisor: int,
+    unit: Unit,
+    *,
+    trusted: bool,
+) -> float | None:
+    """Read one limit file of a channel, or return None when there is no real limit.
+
+    Args:
+        files: The attribute files of the channel, keyed by attribute name.
+        name: Which limit to read: `max`, `min` or `crit`.
+        divisor: The divisor that turns the raw value into the display unit.
+        unit: The unit of the channel, used for the plausibility check.
+        trusted: False when the driver puts a running minimum or maximum in
+            these files instead of a threshold. See
+            `DRIVERS_WITH_TRACKING_LIMITS`.
+
+    Returns:
+        The limit in the display unit, or None.
+    """
+    if not trusted or name not in files:
+        return None
+    return _plausible(_read_scaled(files[name], divisor), unit)
 
 
 def _plausible(value: float | None, unit: Unit) -> float | None:
@@ -224,6 +263,7 @@ class HwmonCollector:
         device = f"{driver_name}@{_device_path(hwmon_dir)}"
         group = DRIVER_GROUPS.get(driver_name, Group.OTHER)
         interval = DRIVER_INTERVALS.get(driver_name, DEFAULT_INTERVAL)
+        trusts_limits = driver_name not in DRIVERS_WITH_TRACKING_LIMITS
         attributes = self._group_attributes(hwmon_dir)
 
         channels: list[_Channel] = []
@@ -238,9 +278,9 @@ class HwmonCollector:
                 label=label or channel_name,
                 group=group,
                 unit=unit,
-                warn=_plausible(_read_scaled(files["max"], divisor), unit) if "max" in files else None,
-                critical=_plausible(_read_scaled(files["crit"], divisor), unit) if "crit" in files else None,
-                low=_plausible(_read_scaled(files["min"], divisor), unit) if "min" in files else None,
+                warn=_limit(files, "max", divisor, unit, trusted=trusts_limits),
+                critical=_limit(files, "crit", divisor, unit, trusted=trusts_limits),
+                low=_limit(files, "min", divisor, unit, trusted=trusts_limits),
                 min_interval=interval,
                 origin=str(files["input"]),
             )

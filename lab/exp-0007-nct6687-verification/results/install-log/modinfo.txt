@@ -1,0 +1,4 @@
+filename:       /lib/modules/7.0.0-31-generic/updates/dkms/nct6687.ko.zst
+sig_id:         PKCS#7
+signer:         localhost.localdomain Secure Boot Module Signature key
+sig_key:        86:D7:FF:CE:16:8B:01:3C:0E:13:F5:61:D8:71:75:90:27:71:ED

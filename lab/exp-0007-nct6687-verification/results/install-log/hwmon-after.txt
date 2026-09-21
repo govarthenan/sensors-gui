@@ -1,0 +1,9 @@
+# hwmon devices after the install
+hwmon0 = r8169_0_b00:00
+hwmon1 = nvme
+hwmon2 = k10temp
+hwmon3 = spd5118
+hwmon4 = spd5118
+hwmon5 = amdgpu
+hwmon6 = hidpp_battery_0
+hwmon7 = nct6687

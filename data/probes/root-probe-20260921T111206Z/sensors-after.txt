@@ -1,0 +1,183 @@
+$ sensors -A -u
+
+spd5118-i2c-0-53
+temp1:
+  temp1_input: 31.750
+  temp1_max: 55.000
+  temp1_min: 0.000
+  temp1_crit: 85.000
+  temp1_lcrit: 0.000
+  temp1_max_alarm: 0.000
+  temp1_min_alarm: 0.000
+  temp1_crit_alarm: 0.000
+  temp1_lcrit_alarm: 0.000
+
+k10temp-pci-00c3
+Tctl:
+  temp1_input: 60.500
+Tccd1:
+  temp3_input: 69.375
+Tccd2:
+  temp4_input: 56.125
+
+r8169_0_b00:00-mdio-0
+temp1:
+  temp1_input: 38.000
+  temp1_max: 120.000
+
+nct6687-isa-0a20
++12V:
+  in0_input: 12.120
+  in0_min: 12.120
+  in0_max: 12.120
++5V:
+  in1_input: 5.040
+  in1_min: 5.040
+  in1_max: 5.050
++3.3V:
+  in2_input: 3.332
+  in2_min: 0.000
+  in2_max: 3.332
+CPU Soc:
+  in3_input: 1.316
+  in3_min: 1.312
+  in3_max: 1.316
+CPU Vcore:
+  in4_input: 1.162
+  in4_min: 1.162
+  in4_max: 1.364
+CPU 1P8:
+  in5_input: 3.332
+  in5_min: 3.332
+  in5_max: 3.336
+CPU VDDP:
+  in6_input: 3.328
+  in6_min: 3.328
+  in6_max: 3.336
+DRAM:
+  in7_input: 1.368
+  in7_min: 1.368
+  in7_max: 1.372
+Chipset:
+  in8_input: 0.320
+  in8_min: 0.320
+  in8_max: 0.336
+CPU SA:
+  in9_input: 0.792
+  in9_min: 0.784
+  in9_max: 0.792
+Voltage #2:
+  in10_input: 1.528
+  in10_min: 1.528
+  in10_max: 1.528
+AVCC3:
+  in11_input: 3.288
+  in11_min: 3.288
+  in11_max: 3.292
+AVSB:
+  in12_input: 3.328
+  in12_min: 0.000
+  in12_max: 3.332
+VBat:
+  in13_input: 2.046
+  in13_min: 0.000
+  in13_max: 2.046
+CPU Fan:
+  fan1_input: 1610.000
+  fan1_min: 1610.000
+  fan1_max: 2294.000
+Pump Fan:
+  fan2_input: 1470.000
+  fan2_min: 1461.000
+  fan2_max: 1477.000
+System Fan #1:
+  fan3_input: 1291.000
+  fan3_min: 1263.000
+  fan3_max: 1298.000
+System Fan #2:
+  fan4_input: 0.000
+  fan4_min: 0.000
+  fan4_max: 0.000
+System Fan #3:
+  fan5_input: 0.000
+  fan5_min: 0.000
+  fan5_max: 0.000
+System Fan #4:
+  fan6_input: 0.000
+  fan6_min: 0.000
+  fan6_max: 0.000
+System Fan #5:
+  fan7_input: 0.000
+  fan7_min: 0.000
+  fan7_max: 0.000
+System Fan #6:
+  fan8_input: 0.000
+  fan8_min: 0.000
+  fan8_max: 0.000
+CPU:
+  temp1_input: 53.000
+  temp1_max: 60.000
+  temp1_min: 53.000
+System:
+  temp2_input: 38.000
+  temp2_max: 38.500
+  temp2_min: 38.000
+VRM MOS:
+  temp3_input: 38.500
+  temp3_max: 39.500
+  temp3_min: 38.500
+PCH:
+  temp4_input: 37.500
+  temp4_max: 38.000
+  temp4_min: 37.500
+CPU Socket:
+  temp5_input: 0.000
+  temp5_max: 0.000
+  temp5_min: 0.000
+PCIe x1:
+  temp6_input: 0.000
+  temp6_max: 0.000
+  temp6_min: 0.000
+M2_1:
+  temp7_input: 0.000
+  temp7_max: 0.000
+  temp7_min: 0.000
+
+amdgpu-pci-7400
+vddgfx:
+  in0_input: 1.209
+vddnb:
+  in1_input: 1.305
+edge:
+  temp1_input: 44.000
+PPT:
+  power1_input: 0.044
+
+spd5118-i2c-0-51
+temp1:
+  temp1_input: 33.750
+  temp1_max: 55.000
+  temp1_min: 0.000
+  temp1_crit: 85.000
+  temp1_lcrit: 0.000
+  temp1_max_alarm: 0.000
+  temp1_min_alarm: 0.000
+  temp1_crit_alarm: 0.000
+  temp1_lcrit_alarm: 0.000
+
+nvme-pci-0200
+Composite:
+  temp1_input: 42.850
+  temp1_max: 83.850
+  temp1_min: -40.150
+  temp1_crit: 87.850
+  temp1_alarm: 0.000
+Sensor 1:
+  temp2_input: 55.850
+  temp2_max: 65261.850
+  temp2_min: -273.150
+Sensor 2:
+  temp3_input: 42.850
+  temp3_max: 65261.850
+  temp3_min: -273.150
+

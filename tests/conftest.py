@@ -75,6 +75,33 @@ FAKE_DEVICES: dict[str, tuple[str, dict[str, str]]] = {
         "devices/pci0000:00/0000:00:02.1/usb1/hidpp",
         {"name": "hidpp_battery_2"},
     ),
+    # The nct6687 driver writes the running minimum and maximum it has seen
+    # into `_min` and `_max`, not a threshold. Here `temp1_max` equals
+    # `temp1_input`, which is what the real driver does on this machine.
+    "hwmon7": (
+        "devices/platform/nct6687.2592",
+        {
+            "name": "nct6687",
+            "temp1_input": "58000",
+            "temp1_label": "CPU",
+            "temp1_min": "58000",
+            "temp1_max": "58000",
+            "temp3_input": "39500",
+            "temp3_label": "VRM MOS",
+            "temp3_min": "39500",
+            "temp3_max": "39500",
+            "fan1_input": "2247",
+            "fan1_label": "CPU Fan",
+            "fan1_min": "2222",
+            "fan1_max": "2272",
+            "fan4_input": "0",
+            "fan4_label": "System Fan #2",
+            "in0_input": "12120",
+            "in0_label": "+12V",
+            "in0_min": "12120",
+            "in0_max": "12120",
+        },
+    ),
 }
 
 

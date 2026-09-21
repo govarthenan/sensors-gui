@@ -1,0 +1,15 @@
+# powercap domains
+--- /sys/class/powercap/intel-rapl:0/
+  name                 = package-0
+  energy_uj            = 59321113532
+  max_energy_range_uj  = 65532610987
+  enabled              = 0
+--- /sys/class/powercap/intel-rapl:0:0/
+  name                 = core
+  energy_uj            = 15119153161
+  max_energy_range_uj  = 65532610987
+  enabled              = 0
+
+# two reads one second apart, to show the power in watts
+  package-0: 64307 mW over 1 s  (raw 59321505724 -> 59385812732)
+  core: 652 mW over 1 s  (raw 15120542798 -> 15121195719)

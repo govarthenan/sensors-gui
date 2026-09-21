@@ -8,3 +8,4 @@
 | [exp-0004](exp-0004-hwmon-read-cost/) | The cost of a hwmon read | 2026-09-16 | Does every channel cost the same? | No. NVMe and SPD5118 cost 1.5–2 ms; the rest cost 5 µs. ADR 0006. |
 | [exp-0005](exp-0005-component-census/) | Component census and coverage matrix | 2026-09-17, open | How many sensors does this PC hold, and how many can we reach? | Step 1 done: 111 components, 18 with a known source. 10 targets to chase. |
 | [exp-0006](exp-0006-nvml-read-cost/) | The cost of an NVML read | 2026-09-21 | Does NVML have expensive calls too? | Yes. Two PCIe calls take 92 % of a pass, 20.6 ms each. A pass fell from 48.4 ms to 0.0227 ms. |
+| [exp-0007](exp-0007-nct6687-verification/) | Verify the nct6687 channels | 2026-09-21 | Which of the 29 new channels can we trust? | The chip is an NCT6687D. Fans and temperatures are good. 4 voltages are wrong, because the driver has no voltage map for this board. `_min`/`_max` are not thresholds. |

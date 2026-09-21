@@ -1,0 +1,8 @@
+
+nct6687.ko.zst:
+Running module version sanity check.
+ - Original module
+   - No original module exists within this kernel
+ - Installation
+   - Installing to /lib/modules/7.0.0-31-generic/updates/dkms/
+depmod...

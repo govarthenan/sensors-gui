@@ -16,7 +16,8 @@ def test_discover_finds_every_device_that_has_at_least_one_channel(fake_hwmon_ro
     collector = HwmonCollector(root=fake_hwmon_root)
     specs = collector.discover()
     devices = {spec.id.device.split("@", 1)[0] for spec in specs}
-    assert devices == {"k10temp", "spd5118", "amdgpu", "nvme"}
+    # nct6687 joined the fixture on 2026-09-21, when the driver was installed.
+    assert devices == {"k10temp", "spd5118", "amdgpu", "nvme", "nct6687"}
 
 
 def test_discover_skips_a_device_with_no_channels(fake_hwmon_root: Path) -> None:
@@ -121,3 +122,40 @@ def test_read_on_an_empty_tree_returns_nothing_and_does_not_raise(tmp_path: Path
     collector = HwmonCollector(root=tmp_path / "does-not-exist")
     assert collector.discover() == []
     assert collector.read() == []
+
+
+def test_a_driver_that_tracks_min_and_max_gives_no_threshold(fake_hwmon_root: Path) -> None:
+    # The nct6687 driver puts the running minimum and maximum it has seen into
+    # `_min` and `_max`. Reading them as thresholds makes every channel sit at
+    # its own warning limit, so the application would alarm for ever.
+    collector = HwmonCollector(root=fake_hwmon_root)
+    board = [spec for spec in collector.discover() if "nct6687" in spec.id.device]
+    assert board, "the fake tree must hold an nct6687 device"
+    for spec in board:
+        assert spec.warn is None
+        assert spec.critical is None
+        assert spec.low is None
+
+
+def test_a_driver_with_real_thresholds_still_gives_them(fake_hwmon_root: Path) -> None:
+    # The same code must not throw away a genuine limit.
+    collector = HwmonCollector(root=fake_hwmon_root)
+    composite = next(spec for spec in collector.discover() if spec.label == "Composite")
+    assert composite.warn == 83.85
+    assert composite.critical == 87.85
+
+
+def test_the_board_sensors_are_put_in_the_board_group(fake_hwmon_root: Path) -> None:
+    collector = HwmonCollector(root=fake_hwmon_root)
+    vrm = next(spec for spec in collector.discover() if spec.label == "VRM MOS")
+    assert vrm.group is Group.BOARD
+
+
+def test_a_fan_header_with_no_fan_still_gets_a_channel(fake_hwmon_root: Path) -> None:
+    # A header reading 0 RPM must appear, so that the user can see that it is
+    # empty. Hiding it would hide a fan that has stopped.
+    collector = HwmonCollector(root=fake_hwmon_root)
+    empty = next(spec for spec in collector.discover() if spec.label == "System Fan #2")
+    assert empty.unit is Unit.RPM
+    readings = {reading.id: reading for reading in collector.read()}
+    assert readings[empty.id].value == 0.0
