@@ -136,6 +136,15 @@ The driver needs one update cycle before its values are valid. **The
 application must throw away the first sample after a device appears.**
 Unconfirmed: reproducing it needs a module reload, which needs root.
 
+## Correction, from exp-0008
+
+This file first called four voltages "**WRONG**" and implied they were dead.
+`exp-0008` showed that **all 14 voltages are live**: every one jitters by at
+least one step across 220 samples. The fault is narrower than stated here — it
+is a **mapping** fault, not a dead channel. Four names read one register, and
+two more are scaled or addressed wrongly. See `exp-0008` for the corrected
+table.
+
 ## Next
 
 `exp-0008` — a load test. Put a load on the CPU and watch which channels move.

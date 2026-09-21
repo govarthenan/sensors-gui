@@ -68,6 +68,19 @@ rules before any code is written. Reading comes first.
 - `exp-0005` started, from Gova's idea: a census of every component, then a
   coverage matrix. Step 1 done: 111 components, 18 with a known source.
 - **Session 3.** Corrected the GPU and monitor error. Gova gave the fan count.
+- **The motherboard driver is installed and working.** Gova ran
+  `scripts/install-nct6687d.sh`. It built, was signed with the enrolled MOK and
+  loaded first time. The chip is a **Nuvoton NCT6687D at ISA 0x0a20**.
+  **29 new channels**: 8 fans, 14 voltages, 7 temperatures. The project now
+  reads **60 channels** in total.
+- `exp-0007` verified them. Fans and temperatures are good. **Four voltages are
+  wrong**, because the driver has a board-specific voltage map for the MSI Z890
+  only. Fixed a serious collector bug: this driver's `_min` and `_max` files
+  hold a running minimum and maximum, not a threshold, so the application would
+  have alarmed for ever on every board channel.
+- Gova sent photographs. `docs/physical-build.md` written. The power supply is
+  an NZXT C1200 with no telemetry. The radiator is at the bottom with 2 fans.
+  The card is an MSI RTX 4090 SUPRIM.
 - `collectors/nvidia.py` built: 17 channels through NVML, with the two rules
   of ADR 0003. `exp-0006` found that two PCIe calls cost 20.6 ms each and
   took 92 % of a 48.4 ms pass. ADR 0006 amended: the interval is now per
@@ -82,19 +95,25 @@ rules before any code is written. Reading comes first.
 
 ## Next actions
 
-1. **Install the `nct6687d` DKMS driver.** This is the largest gap: 8 fans, the
-   VRM temperature and 10 voltage rails. Secure Boot does not block it, because
-   DKMS signs each module with the enrolled MOK, which is how the NVIDIA module
-   loads. This also answers which Super-I/O chip is fitted, which no user-space
-   tool can do on this machine.
+1. **Map the 9 fans to the 3 headers that report.** Gova must look at the cable
+   side of the case: is there a fan hub, and which headers have cables? See
+   `docs/physical-build.md`.
 
-2. `exp-0005` step 2 and 3 — work down the target list in
+2. **Fix the four wrong voltages.** The driver needs a voltage map for
+   MS-7E47. The Z890 MS-7E32 map in the driver shows the shape of the answer.
+   Method: the `manual` module parameter exposes the raw `in0` to `in13`, and a
+   load test says which register moves with what. This is worth contributing
+   back to the driver project.
+
+3. `exp-0005` step 2 and 3 — work down the target list in
    `lab/exp-0005-component-census/README.md`, in order:
    Super-I/O, then the Ryzen SMU (`ryzen_smu` or `zenpower3`), then the RTX 4090
    board over I2C, then the DDR5 PMICs, then the unknown clients `0x4f` and
    USB `1-11`, then the Wi-Fi chip, then MYSTIC LIGHT.
 
-3. **Gova looks inside the case** (about 5 minutes). Three questions, in
+4. ~~Gova looks inside the case~~ **DONE.** See `docs/physical-build.md`.
+
+5. **Gova looks inside the case** (about 5 minutes). Three questions, in
    `lab/exp-0005-component-census/README.md`, section "Step 5".
 
 4. Phase 1, next parts of the collection layer:

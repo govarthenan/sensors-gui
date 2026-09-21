@@ -236,3 +236,70 @@ prefixes: `1.1 GiB`, `210.0 MHz`, `485.1 kJ`, `38.9 MB/s`.
 Gova runs `sudo ./scripts/install-nct6687d.sh`. The expected fan count is now
 known, which is what makes a `0 RPM` reading readable: 0 will mean a stopped
 fan, not a missing one.
+
+---
+
+## 2026-09-21 — Session 3, part 2: the motherboard driver works
+
+**Gova installed `nct6687d`.** It built, was signed with the enrolled MOK and
+loaded first time. No BIOS change, no kernel parameter.
+
+- The chip is a **Nuvoton NCT6687D at ISA 0x0a20**. `/proc/ioports` now shows
+  `0a20-0a23 : nct6687`.
+- **29 new channels**: 8 fans, 14 voltages, 7 temperatures. The project reads
+  **60 channels** in total.
+
+**Proof that `sensors-detect` is blind here.** Gova ran the root probe again
+with the driver loaded and reading 29 channels from that exact chip.
+`sensors-detect` still printed `/dev/port: Operation not permitted` three times
+and ended with "Sorry, no sensors were detected." Under Secure Boot lockdown,
+no user-space tool can see the Super-I/O chip, even when a kernel driver is
+reading it at that moment.
+
+**A serious bug found and fixed.** The hwmon ABI says `tempN_max` is a
+threshold. This driver writes the running minimum and maximum it has seen:
+`temp1_max` read 58000 and then 60000 two seconds later, tracking the input.
+The collector read those as warning limits, which put every board channel at
+its own limit. The application would have alarmed for ever. Fixed with
+`DRIVERS_WITH_TRACKING_LIMITS`.
+
+**`exp-0008`, the load test.** 60 channels at 2 Hz through idle, load and
+cooldown.
+
+- 45 of 60 channels moved. The 15 that did not all have a reason: empty fan
+  headers, empty thermistor headers, the GPU fan stopped below 50 °C, no video
+  encoding, and a fixed VRAM reservation.
+- `Tccd1` reached 78.4 °C, `CPU Vcore` fell from 1.376 V to 1.042 V under an
+  all-core load, and the CPU fan rose from 2030 to 2758 RPM. Those three
+  confirm each other.
+- **A flaw in the run:** the idle phase was not idle, so the phase medians are
+  not usable and one of them is absurd. The ranges and the distinct-value
+  counts do not depend on the phase split, so those are what was kept. The run
+  must be repeated on a quiet machine.
+
+**A correction to my own earlier claim.** `exp-0007` called four voltages
+"wrong" and implied they were dead. They are not. All 14 board voltages are
+live analogue readings; every one jitters by at least one step. The fault is
+narrower: four names read the **same** register, and two more are scaled or
+addressed wrongly. It is a mapping fault, and the cause is that the driver
+carries a board-specific voltage map for the MSI Z890 only.
+
+**Gova's photographs.** `docs/physical-build.md` written.
+
+- Power supply: **NZXT C1200**, with no telemetry link. Total system power
+  cannot be measured, only estimated.
+- The AIO radiator is at the **bottom** of the case with 2 fans. The "2 fans
+  from the GPU" are those.
+- 9 case fans exist; only 3 headers report. Every USB device is accounted for,
+  so it is not a USB controller. It is a splitter or a hub.
+- The drive reached 66.9 °C under load. It sits under the graphics card with
+  the radiator below it. It has never throttled.
+
+**Two open items closed.** USB `1-11` is a Foxconn Bluetooth adapter. The
+Super-I/O chip is named.
+
+**Next**
+
+Map the voltage registers (`exp-0009`), using the driver's `manual` parameter,
+and contribute the map back. Repeat the load test on a quiet machine.
+
