@@ -70,14 +70,14 @@ USB root hubs. Those hold no sensor, and they are not a gap.
 
 | # | Component | What it should hold | How to reach it | State |
 |---|---|---|---|---|
-| 1 | Super-I/O chip (expected Nuvoton NCT6687D) | 8 fan speeds, 8 PWM outputs, VRM and chipset temperature, VCore, VSOC, +12 V, +5 V, +3.3 V, DRAM voltage | `nct6687d` DKMS module | **not identified**; Secure Boot lockdown blocks the user-space probe |
+| ~~1~~ | Super-I/O chip | 8 fans, 8 PWM, VRM and chipset temperature, 14 voltages | `nct6687d` DKMS module | **DONE 2026-09-21.** It is a Nuvoton NCT6687D at ISA 0x0a20. 29 channels. 4 voltages are wrong; see `exp-0007`. |
 | 2 | Ryzen 9 9900X SMU | per-core power, SoC power, the real VID, per-CCD limits | `ryzen_smu` or `zenpower3` DKMS module | TODO |
 | 3 | RTX 4090 board | hotspot temperature, per-fan RPM, VRM temperature | the card's own I2C bus (`i2c-1` to `i2c-7`), from the board controller | TODO, and risky |
 | 4 | DDR5 PMIC ×2 (`0x49`, `0x4b`) | module VIN, the 1.1 V and 1.8 V rails | I2C read, per JESD301 | TODO |
 | 5 | I2C client at `0x4f` | unknown | identify it first | **unknown** |
 | 6 | Qualcomm WCN7850 Wi-Fi | chip temperature | the `ath12k` driver, if it reports one | TODO |
 | 7 | MSI MYSTIC LIGHT (`0DB0:0076`) | it is an RGB controller, but the MSI MCU can also carry fan and temperature data | the HID protocol, as OpenRGB uses it | TODO |
-| 8 | USB device `1-11` | not identified | read its descriptors | **unknown** |
+| ~~8~~ | ~~USB device `1-11`~~ | — | — | **ANSWERED: Foxconn Bluetooth, `0489:e10a`, driver `btusb`. No sensor.** |
 | 9 | Logitech G515 TKL keyboard | it may report nothing; it is wired | HID++ | TODO |
 | 10 | 2 × MSI MD272QXP monitors | brightness, contrast, input source, power state | `ddcutil` (works) | **reachable** |
 
@@ -92,12 +92,16 @@ Gova answered on 2026-09-21. Photographs of the machine are expected.
    header. Whether the 3 top fans are the radiator fans is not yet known.
 3. **Displays.** Into the RTX 4090.
 
-Open points that the photographs must settle:
-- Which of the 9 fans are plugged into the **motherboard**, and which into a
-  hub, a controller or the graphics card. Only the ones on the board can be
-  read by `nct6687d`.
-- Whether the 3 top fans are the AIO radiator fans, or separate exhaust fans.
-- The AIO model, and whether its pump reports RPM to the board.
+The photographs arrived on 2026-09-21. See `docs/physical-build.md`. They
+settled two of the three points:
+
+- The 3 top fans are **not** the radiator fans. The radiator is at the
+  **bottom** of the case, with its own 2 fans. The "2 fans from the GPU" that
+  Gova named are those radiator fans, which sit below the card.
+- The pump **does** report: 1470 RPM on the `PUMP_FAN` header.
+- Still open: which headers the 9 fans are wired to. Only 3 of 8 headers give a
+  signal. It is not a USB controller, because every USB device is accounted
+  for. It is a splitter or a hub, and only a look at the cable side can say.
 
 A `0 RPM` reading stays ambiguous, because it means "no fan fitted" as well as
 "fan stopped". The count above gives the expected number, which is what makes a

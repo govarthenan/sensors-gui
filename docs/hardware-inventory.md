@@ -169,11 +169,44 @@ Source: `mokutil --sb-state`, `/sys/kernel/security/lockdown`, `dkms status`.
 
 Source: `nvme smart-log /dev/nvme0`.
 
+## Cooling and power (from photographs, 2026-09-21)
+
+| Item | Model |
+|---|---|
+| Power supply | NZXT C1200 — **no telemetry link**, so total system power cannot be measured |
+| CPU cooler | MSI liquid cooler (AIO), radiator at the bottom of the case with 2 fans |
+| Case fans | 3 front intake, 3 top, 1 rear, plus the 2 radiator fans = **9** |
+| Pump | reports 1470 RPM on the `PUMP_FAN` header |
+| Graphics card | MSI GeForce RTX 4090 **SUPRIM**, on a 600 W rated 12VHPWR cable |
+
+Only 3 of the 8 board headers carry a tachometer signal. See
+`docs/physical-build.md`.
+
+## Motherboard sensors (nct6687, from 2026-09-21)
+
+The Super-I/O chip is a **Nuvoton NCT6687D at ISA 0x0a20**, read by the
+out-of-tree `nct6687d` DKMS driver. `/proc/ioports` confirms it:
+
+```
+0a20-0a2f : PNP0C02:02
+  0a20-0a23 : nct6687
+```
+
+29 channels: 8 fans, 14 voltages, 7 temperatures. **Four of the voltages are
+wrong**, because the driver has no voltage map for this board. See `exp-0007`.
+
 ## Open items
 
 1. Contents of `nvme0n1p4` (359.2 GB, not mounted).
-2. Super-I/O chip model — **still unknown.** Secure Boot lockdown blocks the
-   user-space probe. Only a kernel module can answer. See `exp-0003`.
+2. ~~Super-I/O chip model.~~ **ANSWERED 2026-09-21: Nuvoton NCT6687D at
+   ISA 0x0a20.**
 3. The I2C client at `0x4f` is not identified.
-4. The USB device `1-11` is not identified.
-5. 28 unsafe shutdowns in 144 power cycles. Worth watching.
+4. ~~The USB device `1-11`.~~ **ANSWERED: a Foxconn Bluetooth adapter**
+   (`0489:e10a`, driver `btusb`, `hci0`). It is the Bluetooth half of the
+   Qualcomm WCN7850 Wi-Fi card.
+5. **Unsafe shutdowns: now 29 of 145 power cycles.** Between the two probes the
+   machine went through **one** power cycle, and the unsafe count rose by
+   **one**. One sample is not a pattern, but it is worth watching.
+6. Which headers the 9 fans are wired to. Only a look at the cable side of the
+   case can say. See `docs/physical-build.md`.
+7. The exact model of the MSI liquid cooler.

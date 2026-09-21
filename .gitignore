@@ -20,3 +20,7 @@ data/samples/*.parquet
 # Editor
 .vscode/
 .idea/
+
+# Photographs are kept, but only after they are made small.
+# Full-size phone photographs do not belong in the repository.
+data/photos-original/
