@@ -4,89 +4,145 @@
 #     sudo ./scripts/map-fans.sh
 #
 # The problem
-#   The board has 8 fan headers. Nine fans are in the case. Only 3 headers
-#   return a speed signal, so software alone cannot say which fan is where.
+#   The MSI PRO X870-P WIFI has 8 fan headers and one EZ Conn header (JAF_1).
+#   Nine fans are in the case. Only 3 headers return a speed signal, so
+#   software alone cannot say which fan is where.
 #
 # The method
-#   Set every header to a low speed. Then raise one header at a time to full
-#   speed for 8 seconds, and tell the operator which header it is. The operator
-#   watches and listens, and says which fan became loud. That maps a header to
-#   a fan without opening the case.
+#   Stop every fan except the pump. Then run ONE header at a time at full
+#   speed. Only one fan turns, so the operator can SEE which one it is. This
+#   is Gova's method; listening to a louder fan did not work.
 #
-# SAFETY
-#   - The pump header is NEVER touched. The script finds it by its label and
-#     refuses to write to it.
-#   - No fan is ever set below 30 percent. A stopped fan is not needed for this
-#     test, and a low speed is enough to hear the difference.
-#   - The original values are saved first, and restored when the script ends,
-#     including when it is interrupted with Ctrl-C or killed.
-#   - There is a hard time limit. If the operator walks away, everything goes
-#     back to automatic control by itself.
+#   Step 0 answers the biggest question by itself: with every board header at
+#   zero, any fan that KEEPS TURNING is not wired to the motherboard.
 #
-# This script WRITES to the fan control outputs. Reading is safe; writing is
-# not, so every rule above is enforced in code, not left to the operator.
+# SAFETY — every rule is enforced in code, not left to the operator.
+#   See docs/decisions/0007-rules-for-writing-to-hardware.md.
+#   - The pump header is never written to. It is found by its label.
+#   - A temperature watchdog samples every second. If any watched sensor goes
+#     over its limit, everything is restored at once and the script stops.
+#   - The script refuses to start if the machine is already warm.
+#   - Each step is bounded in seconds, and the whole run is bounded too.
+#   - The original values are saved first and restored on every exit path,
+#     including Ctrl-C, a kill signal, and an error.
 
 set -uo pipefail
 
-MIN_PWM=77        # 30 percent of 255. Low, but every fan keeps turning.
-MAX_PWM=255       # 100 percent.
-SETTLE_SECONDS=4  # time for a fan to reach the low speed
-BURST_SECONDS=8   # time the operator has to watch and listen
+STEP_SECONDS=15         # how long the operator has to look at each step
+TOTAL_LIMIT_SECONDS=420 # the whole run may never last longer than this
+START_MAX_TCTL=65       # refuse to start if the CPU is warmer than this
+ABORT_TCTL=80           # stop and restore at once above this
+ABORT_VRM=70
+ABORT_NVME=70
 PUMP_PATTERN='[Pp]ump'
 
 [ "$(id -u)" -eq 0 ] || { echo "This script needs root. Run: sudo $0" >&2; exit 1; }
 
-# --- find the board sensor chip ---------------------------------------------
-HWMON=""
-for dir in /sys/class/hwmon/hwmon*; do
-    [ "$(cat "${dir}/name" 2>/dev/null)" = "nct6687" ] && HWMON="${dir}" && break
-done
-[ -n "${HWMON}" ] || { echo "The nct6687 driver is not loaded. Run scripts/install-nct6687d.sh first." >&2; exit 1; }
-echo "board sensor chip: ${HWMON}"
+# --- find the chips ----------------------------------------------------------
+find_hwmon() {
+    for dir in /sys/class/hwmon/hwmon*; do
+        [ "$(cat "${dir}/name" 2>/dev/null)" = "$1" ] && { echo "${dir}"; return 0; }
+    done
+    return 1
+}
+BOARD="$(find_hwmon nct6687)" || { echo "The nct6687 driver is not loaded. Run scripts/install-nct6687d.sh." >&2; exit 1; }
+CPU="$(find_hwmon k10temp)"   || { echo "k10temp is missing; the watchdog cannot work." >&2; exit 1; }
+NVME="$(find_hwmon nvme)" || NVME=""
 
-# --- work out which headers may be touched ----------------------------------
+millideg() { local v; v="$(cat "$1" 2>/dev/null)" || { echo 0; return; }; echo $(( v / 1000 )); }
+tctl()    { millideg "${CPU}/temp1_input"; }
+vrm()     { millideg "${BOARD}/temp3_input"; }
+nvme_t()  { [ -n "${NVME}" ] && millideg "${NVME}/temp1_input" || echo 0; }
+
+# --- classify the headers ----------------------------------------------------
 CHANNELS=()
-PUMP_CHANNELS=()
-for path in "${HWMON}"/pwm[0-9]; do
+declare -A LABEL
+for path in "${BOARD}"/pwm[0-9]; do
     [ -w "${path}" ] || continue
     index="${path##*pwm}"
-    label="$(cat "${HWMON}/fan${index}_label" 2>/dev/null || echo "fan${index}")"
-    if [[ "${label}" =~ ${PUMP_PATTERN} ]]; then
-        PUMP_CHANNELS+=("${index}")
-        echo "  pwm${index}  ${label}  -- PROTECTED, this script will not write to it"
+    name="$(cat "${BOARD}/fan${index}_label" 2>/dev/null || echo "fan${index}")"
+    LABEL["${index}"]="${name}"
+    if [[ "${name}" =~ ${PUMP_PATTERN} ]]; then
+        echo "  pwm${index}  ${name}  -- PROTECTED, never written to"
     else
         CHANNELS+=("${index}")
-        echo "  pwm${index}  ${label}"
     fi
 done
 [ "${#CHANNELS[@]}" -gt 0 ] || { echo "no writable fan headers found" >&2; exit 1; }
 
-# --- save the original state, and promise to restore it ----------------------
+# --- refuse to start on a warm machine ---------------------------------------
+start_tctl="$(tctl)"
+if [ "${start_tctl}" -gt "${START_MAX_TCTL}" ]; then
+    echo "REFUSING TO START: Tctl is ${start_tctl} C, over the ${START_MAX_TCTL} C limit." >&2
+    echo "Let the machine settle, then run this again." >&2
+    exit 1
+fi
+echo "start state: Tctl ${start_tctl} C, VRM $(vrm) C, NVMe $(nvme_t) C"
+
+# --- save, and promise to restore --------------------------------------------
 declare -A ORIGINAL_PWM ORIGINAL_ENABLE
 for index in "${CHANNELS[@]}"; do
-    ORIGINAL_PWM["${index}"]="$(cat "${HWMON}/pwm${index}" 2>/dev/null)"
-    ORIGINAL_ENABLE["${index}"]="$(cat "${HWMON}/pwm${index}_enable" 2>/dev/null)"
+    ORIGINAL_PWM["${index}"]="$(cat "${BOARD}/pwm${index}")"
+    ORIGINAL_ENABLE["${index}"]="$(cat "${BOARD}/pwm${index}_enable")"
 done
 
+RESTORED=0
 restore() {
+    [ "${RESTORED}" -eq 1 ] && return
+    RESTORED=1
     echo
-    echo "[restore] putting every fan header back to how it was"
+    echo "[restore] returning every fan header to the board's own control"
     for index in "${CHANNELS[@]}"; do
-        [ -n "${ORIGINAL_PWM[${index}]:-}" ] && echo "${ORIGINAL_PWM[${index}]}" > "${HWMON}/pwm${index}" 2>/dev/null
-        [ -n "${ORIGINAL_ENABLE[${index}]:-}" ] && echo "${ORIGINAL_ENABLE[${index}]}" > "${HWMON}/pwm${index}_enable" 2>/dev/null
+        echo "${ORIGINAL_PWM[${index}]}" > "${BOARD}/pwm${index}" 2>/dev/null
+        echo "${ORIGINAL_ENABLE[${index}]}" > "${BOARD}/pwm${index}_enable" 2>/dev/null
     done
-    echo "[restore] done. The fans are back under the board's own control."
+    echo "[restore] done.  Tctl $(tctl) C, VRM $(vrm) C, NVMe $(nvme_t) C"
 }
 trap restore EXIT INT TERM
 
-speeds() {
-    local out=""
-    for index in 1 2 3 4 5 6 7 8; do
-        local rpm; rpm="$(cat "${HWMON}/fan${index}_input" 2>/dev/null)" || continue
-        [ "${rpm}" = "0" ] && continue
-        out+="$(cat "${HWMON}/fan${index}_label" 2>/dev/null || echo "fan${index}")=${rpm} "
+RUN_START="$(date +%s)"
+check_safe() {
+    local t v n now
+    t="$(tctl)"; v="$(vrm)"; n="$(nvme_t)"; now="$(date +%s)"
+    if [ "${t}" -ge "${ABORT_TCTL}" ] || [ "${v}" -ge "${ABORT_VRM}" ] || [ "${n}" -ge "${ABORT_NVME}" ]; then
+        echo
+        echo "!!! WATCHDOG: Tctl ${t} C, VRM ${v} C, NVMe ${n} C -- stopping now"
+        return 1
+    fi
+    if [ $(( now - RUN_START )) -ge "${TOTAL_LIMIT_SECONDS}" ]; then
+        echo
+        echo "!!! time limit reached -- stopping now"
+        return 1
+    fi
+    return 0
+}
+
+# Hold a state for N seconds, checking the watchdog every second.
+hold() {
+    local seconds="$1" i
+    for (( i = 0; i < seconds; i++ )); do
+        check_safe || return 1
+        sleep 1
     done
-    echo "${out}"
+    return 0
+}
+
+set_all() {
+    local value="$1" index
+    for index in "${CHANNELS[@]}"; do
+        echo 1 > "${BOARD}/pwm${index}_enable" 2>/dev/null   # 1 = manual
+        echo "${value}" > "${BOARD}/pwm${index}" 2>/dev/null
+    done
+}
+
+reporting_speeds() {
+    local out="" index rpm
+    for index in 1 2 3 4 5 6 7 8; do
+        rpm="$(cat "${BOARD}/fan${index}_input" 2>/dev/null)" || continue
+        [ "${rpm}" = "0" ] && continue
+        out+="${LABEL[${index}]:-fan${index}}=${rpm} "
+    done
+    echo "${out:-none}"
 }
 
 cat <<'INTRO'
@@ -94,44 +150,44 @@ cat <<'INTRO'
 -------------------------------------------------------------------
   FAN MAPPING TEST
 -------------------------------------------------------------------
-  What happens:
-    1. Every fan except the pump goes to 30 percent. It gets quiet.
-    2. One header at a time goes to 100 percent for 8 seconds.
-    3. You watch the case and say which fan became loud.
+  STEP 0  Every board fan stops, except the pump.
+          COUNT THE FANS THAT KEEP TURNING. Those are not wired to
+          the motherboard, and that is the answer we most need.
 
-  Write your answers down as they appear. At the end, tell Claude.
+  THEN    One header at a time runs at full speed, alone.
+          Say which fan turns. Write it down as you go.
 
-  The pump is not touched. Everything goes back to normal at the end,
-  even if you press Ctrl-C.
+  The pump is never touched. A watchdog checks the CPU, the VRM and
+  the drive every second and puts everything back if anything warms.
+  Ctrl-C also puts everything back.
 -------------------------------------------------------------------
 INTRO
-read -r -p "Press Enter when you can see and hear the case. " _
+read -r -p "Press Enter when you can see inside the case. " _
 
-# --- quiet everything --------------------------------------------------------
+# --- step 0: everything off --------------------------------------------------
 echo
-echo "[phase 1] setting every header to 30 percent..."
-for index in "${CHANNELS[@]}"; do
-    echo 1 > "${HWMON}/pwm${index}_enable" 2>/dev/null   # 1 = manual control
-    echo "${MIN_PWM}" > "${HWMON}/pwm${index}" 2>/dev/null
-done
-sleep "${SETTLE_SECONDS}"
-echo "[phase 1] quiet.  speeds now: $(speeds)"
+echo "=============================================================="
+echo "  STEP 0 — ALL BOARD FANS STOPPED (the pump keeps running)"
+echo "  Look now. HOW MANY FANS ARE STILL TURNING?"
+echo "=============================================================="
+set_all 0
+hold "${STEP_SECONDS}" || exit 1
+echo "  speeds the board still reports: $(reporting_speeds)"
+echo "  temperatures: Tctl $(tctl) C, VRM $(vrm) C, NVMe $(nvme_t) C"
 
 # --- one header at a time ----------------------------------------------------
 for index in "${CHANNELS[@]}"; do
-    label="$(cat "${HWMON}/fan${index}_label" 2>/dev/null || echo "fan${index}")"
+    set_all 0
+    echo 255 > "${BOARD}/pwm${index}" 2>/dev/null
     echo
     echo "=============================================================="
-    echo "  NOW AT FULL SPEED:  header pwm${index}  (\"${label}\")"
-    echo "  Watch the case for ${BURST_SECONDS} seconds. Which fan is loud?"
+    echo "  ONLY THIS HEADER IS RUNNING:  pwm${index}  (\"${LABEL[${index}]}\")"
+    echo "  Which fan is turning? (front / top / rear / radiator / none)"
     echo "=============================================================="
-    echo "${MAX_PWM}" > "${HWMON}/pwm${index}" 2>/dev/null
-    sleep "${BURST_SECONDS}"
-    echo "  speeds during the burst: $(speeds)"
-    echo "${MIN_PWM}" > "${HWMON}/pwm${index}" 2>/dev/null
-    sleep 2
+    hold "${STEP_SECONDS}" || exit 1
+    echo "  speeds: $(reporting_speeds)"
 done
 
 echo
-echo "All headers tested."
-# The trap restores everything on exit.
+echo "All headers tested. Tell Claude what you saw at each step."
+# The trap restores everything.

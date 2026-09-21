@@ -53,3 +53,46 @@ A write that cannot keep all six rules is not written.
   explicit agreement. It is not in scope now.
 - The application itself still writes nothing. Only this one script does, and
   only when Gova runs it by hand.
+
+---
+
+## Amendment, 2026-09-21: when a fan may be stopped
+
+Rule 3 said a cooling device may never be commanded to stop. The first version
+of `map-fans.sh` kept that rule and set a floor of 30 percent, so the operator
+had to pick a louder fan out of nine running ones. **It did not work.** Gova
+tried it and could not tell them apart.
+
+Gova proposed the method that does work: stop every fan, then run one at a
+time, so that only one turns and it can be **seen** rather than heard. Gova
+asked for this after the concern was raised, and the machine is idle.
+
+So rule 3 is narrowed. A fan that is not a pump may be stopped, but only when
+**all** of these hold:
+
+1. **The pump keeps running.** This is not relaxed. Coolant must keep moving.
+2. **A watchdog samples every second** and restores everything the moment any
+   watched sensor passes a limit. The limits here are Tctl 80 °C, VRM 70 °C and
+   the drive 70 °C.
+3. **The machine must be cool to start.** The script refuses to run if Tctl is
+   already over 65 °C.
+4. **Each step is bounded in seconds**, and the whole run has its own hard
+   limit as well. Both are checked by the same loop as the watchdog, so a
+   sleeping script cannot outlive them.
+5. **The restore runs on every exit path**: normal end, error, Ctrl-C, kill,
+   and watchdog abort. It is guarded so that it cannot run twice.
+6. This is for a **diagnostic run that a person is watching**. The application
+   itself still writes nothing, ever.
+
+The physics support this. The loop holds a large mass of coolant, the CPU is at
+idle, and the graphics card runs its own fans, which the board does not control.
+Fifteen seconds with the case fans stopped moves an idle CPU by a few degrees.
+The watchdog exists for the case where that reasoning is wrong.
+
+### Why this is written down
+
+The first version of the rule was too strict to do the job it existed for, and
+a rule that blocks the work gets worked around in a hurry, without a watchdog.
+Narrowing it in the open, with the conditions in code, is safer than leaving it
+absolute.
+

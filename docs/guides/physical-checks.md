@@ -4,6 +4,54 @@ A short guide for Gova, for the questions that software cannot answer.
 
 ---
 
+## 0. The board layout (added 2026-09-21)
+
+`docs/reference/mobo-board-layout.png` is page 27 of the MSI manual. It shows
+where every connector sits.
+
+The 8 fan headers are in **four separate places**:
+
+| Header | Where | Reports a speed? |
+|---|---|---|
+| `CPU_FAN1`, `PUMP_SYS1`, `SYS_FAN1` | **top edge**, right of the CPU socket, above the memory | **yes, all three** |
+| `SYS_FAN5`, `SYS_FAN6` | **right edge**, just above the 24-pin power plug | no |
+| `SYS_FAN2` | **left edge**, below `JTPM1`, near the rear sockets | no |
+| `SYS_FAN3`, `SYS_FAN4` | **bottom edge**, right of centre | no |
+
+Header ratings, from page 44 of the manual:
+
+| Header | Mode | Max current | Max power |
+|---|---|---|---|
+| `CPU_FAN1` | automatic (it detects PWM or DC) | 2 A | 24 W |
+| `PUMP_SYS1` | PWM | 3 A | 36 W |
+| `SYS_FAN1` to `SYS_FAN6` | automatic | 1 A | 12 W |
+
+### `JAF_1`, the EZ Conn header — the likely answer
+
+There is a **ninth** connector that is not a fan header and that no sensor
+driver reads: `JAF_1`, "EZ Conn-Header V1", on the **bottom edge** of the board
+between `JDASH1` and `PCIE_PWR1`. See
+`docs/reference/mobo-ez-conn-header.png`.
+
+Its 8 pins are:
+
+| Pin | Signal | Pin | Signal |
+|---|---|---|---|
+| 1 | Ground | 2 | 5 V |
+| 3 | 12 V | 4 | ARGB DATA |
+| 5 | **Sense** | 6 | Ground |
+| 7 | **Speed Control** | 8 | no pin |
+
+One plug carries fan power, fan speed control, the fan tachometer **and** the
+ARGB lighting. MSI ships a "1 to 2 EZ Conn-Cable" with this board.
+
+Your case fans are lit. If they are chained on `JAF_1`, that explains
+everything: there is no hub **box** to find, because it is only a cable.
+
+**What to look for:** a single cable plugged into the **bottom edge** of the
+board, roughly below the second graphics card slot. Follow it and see how many
+fans it feeds.
+
 ## 1. The fan hub
 
 ### What it is
