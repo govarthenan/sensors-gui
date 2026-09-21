@@ -83,14 +83,29 @@ USB root hubs. Those hold no sensor, and they are not a gap.
 
 ## Step 5: the questions only Gova can answer
 
-Software cannot answer these, and a `0 RPM` reading is ambiguous, because it
-means "no fan fitted" as well as "fan stopped":
+Gova answered on 2026-09-21. Photographs of the machine are expected.
 
-1. How many fans are plugged into the motherboard, and into which headers?
-2. Is the CPU cooler an air cooler, or a liquid cooler with a pump header?
-3. Are the monitors plugged into the graphics card or into the motherboard?
-   The probe says both run from the **integrated** Radeon graphics (`card1`),
-   not from the RTX 4090 (`card2`).
+1. **Fans.** 2 on the graphics card, mounted separately. 3 intake fans in the
+   case. 3 fans on the top of the case. 1 fan at the rear. **9 in total**, of
+   which 7 are case fans.
+2. **CPU cooler.** A liquid cooler (AIO), so the board should also show a pump
+   header. Whether the 3 top fans are the radiator fans is not yet known.
+3. **Displays.** Into the RTX 4090.
+
+Open points that the photographs must settle:
+- Which of the 9 fans are plugged into the **motherboard**, and which into a
+  hub, a controller or the graphics card. Only the ones on the board can be
+  read by `nct6687d`.
+- Whether the 3 top fans are the AIO radiator fans, or separate exhaust fans.
+- The AIO model, and whether its pump reports RPM to the board.
+
+A `0 RPM` reading stays ambiguous, because it means "no fan fitted" as well as
+"fan stopped". The count above gives the expected number, which is what makes a
+`0` readable.
+3. ~~Are the monitors plugged into the graphics card or into the
+   motherboard?~~ **ANSWERED 2026-09-21: into the RTX 4090.** The claim that
+   they ran from the integrated graphics was a mistake by Claude, which guessed
+   the DRM card order instead of reading the PCI address behind each card.
 
 ## A finding from the census itself
 

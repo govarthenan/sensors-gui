@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-17 (session 2)
+Last update: 2026-09-21 (session 3)
 
 ## Phase
 
@@ -114,9 +114,25 @@ rules before any code is written. Reading comes first.
 | ~~Q5~~ | ~~GUI toolkit?~~ **ANSWERED: Textual (a terminal UI).** See ADR 0004. | — | closed 2026-09-16 |
 | ~~Q6~~ | ~~Install `smartmontools` and `nvme-cli`?~~ **ANSWERED: yes.** `ddcutil` too. | — | closed 2026-09-16 |
 | Q7 | What is on `nvme0n1p4` (359.2 GB, not mounted)? | inventory | Gova |
-| Q8 | How many fans are plugged in, and into which headers? Is the CPU cooler air or liquid? | exp-0005 step 5 | Gova, with a look inside the case |
-| Q9 | Both monitors run from the **integrated** graphics, not the RTX 4090. Is that intended? | inventory | Gova |
+| ~~Q8~~ | ~~How many fans, and is the cooler air or liquid?~~ **ANSWERED: 9 fans** (2 on the GPU, 3 intake, 3 top, 1 rear) and a **liquid AIO**. Which fans reach the board is still open; photographs are expected. | — | part-closed 2026-09-21 |
+| ~~Q9~~ | ~~Monitors on the integrated graphics?~~ **ANSWERED: no, they are on the RTX 4090.** Claude guessed the DRM card order instead of reading it. `card1` is the 4090. | — | closed 2026-09-21 |
 | Q10 | 28 unsafe shutdowns in 144 power cycles on the SSD. Does Gova know the cause? | health | Gova |
+
+## Expected fan count (Gova, 2026-09-21)
+
+This is the number that makes a `0 RPM` reading readable.
+
+| Location | Count | Reaches the motherboard? |
+|---|---|---|
+| Graphics card | 2 | no — the card controls its own fans, and NVML reports them |
+| Case intake | 3 | to be confirmed |
+| Case top | 3 | to be confirmed; they may be the AIO radiator fans |
+| Case rear | 1 | to be confirmed |
+| AIO pump | 1 | to be confirmed; it should be on a `PUMP_FAN` header |
+| **Total** | **9 fans plus a pump** | |
+
+The MSI PRO X870-P WIFI has 8 four-pin headers: `CPU_FAN1`, `PUMP_FAN1` and
+`SYS_FAN1` to `SYS_FAN6`. So all 7 case fans and the pump can reach the board.
 
 ## Blockers
 

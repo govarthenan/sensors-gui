@@ -141,9 +141,20 @@ group plus the DRM connector path is enough:
 | 1 | `/dev/i2c-4` | `card1-HDMI-A-1` | MSI MD272QXP, serial PB1H824600444 |
 | 2 | `/dev/i2c-5` | `card1-DP-1` | MSI MD272QXP, serial PB1H824600465 |
 
-**Note for Gova.** `card1` is the **integrated** Radeon graphics, not the RTX
-4090 (which is `card2`). Both monitors are plugged into the motherboard video
-outputs, not into the graphics card.
+**Correction, 2026-09-21.** An earlier version of this file said `card1` was
+the integrated graphics. That was **wrong**. `card1` is the RTX 4090
+(PCI `0000:01:00.0`) and `card2` is the integrated Radeon
+(PCI `0000:74:00.0`). Both monitors run from the graphics card. Gova confirmed
+this by looking at the machine.
+
+The error came from guessing the card order instead of reading it. The right
+command is:
+
+```bash
+for c in /sys/class/drm/card[0-9]; do
+    echo "$(basename "$c") -> $(basename "$(readlink -f "$c/device")")"
+done
+```
 
 ## Findings, in order of importance
 
@@ -157,4 +168,5 @@ outputs, not into the graphics card.
 4. The two DIMMs are in slots A2 and B2 and run at 6400 MT/s, above their 5200
    MT/s rating.
 5. Three I2C clients are unclaimed. Two are almost certainly the DDR5 PMICs.
-6. Both monitors run from the integrated graphics, not from the RTX 4090.
+6. Both monitors run from the **RTX 4090**. (This point said the opposite
+   until 2026-09-21. It was a guess, not a reading. See the correction above.)

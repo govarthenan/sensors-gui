@@ -167,3 +167,47 @@ they are listed in order in `lab/exp-0005-component-census/README.md`.
 Install `nct6687d` through DKMS. It is the largest gap and the only way to
 identify the Super-I/O chip on a locked-down kernel.
 
+---
+
+## 2026-09-21 — Session 3: a correction, and the fan count
+
+**A correction.** Claude reported on 2026-09-17 that both monitors ran from the
+integrated Radeon graphics. **That was wrong.** `card1` is the RTX 4090
+(PCI `0000:01:00.0`) and `card2` is the integrated graphics
+(PCI `0000:74:00.0`). Both monitors are on the graphics card, which is what
+Gova said.
+
+The cause: Claude guessed the DRM card order from the connector names instead
+of reading the PCI address behind each card. `docs/hardware-inventory.md`,
+`exp-0003` and `exp-0005` are corrected, and the inventory now carries the
+command that reads it:
+
+```bash
+for c in /sys/class/drm/card[0-9]; do
+    echo "$(basename "$c") -> $(basename "$(readlink -f "$c/device")")"
+done
+```
+
+This is the project rule "do not guess hardware facts" failing in practice. Any
+card, bus or slot order must be read from sysfs, never taken from a name.
+
+**Gova answered the three questions from `exp-0005` step 5**
+
+1. **9 fans**: 2 on the graphics card, mounted separately; 3 intake; 3 on the
+   top; 1 at the rear.
+2. The CPU cooler is a **liquid AIO**, so a pump header should also report.
+3. The monitors are on the **RTX 4090**.
+
+Still open, and the photographs should settle it: which of the 7 case fans are
+plugged into the motherboard rather than into a hub or a controller, whether the
+3 top fans are the AIO radiator fans, and the AIO model.
+
+The MSI PRO X870-P WIFI has 8 headers (`CPU_FAN1`, `PUMP_FAN1`, `SYS_FAN1` to
+`SYS_FAN6`), so every case fan and the pump can reach the board.
+
+**Next**
+
+Gova runs `sudo ./scripts/install-nct6687d.sh`. The expected fan count is now
+known, which is what makes a `0 RPM` reading readable: 0 will mean a stopped
+fan, not a missing one.
+

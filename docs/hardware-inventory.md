@@ -64,7 +64,8 @@ Two GPUs are present.
 | Driver | NVIDIA 595.84 |
 | VRAM | 24564 MiB |
 | Power limit | 480.00 W |
-| DRM card | `card2` (outputs DP-4, DP-5, DP-6, HDMI-A-2) |
+| DRM card | **`card1`** (outputs DP-1, DP-2, DP-3, HDMI-A-1) |
+| Displays | **both monitors run from this card** |
 
 ### 2. AMD Radeon integrated graphics (in the 9900X)
 
@@ -73,7 +74,8 @@ Two GPUs are present.
 | PCI | `74:00.0`, `1002:13c0` rev c2 |
 | Audio function | `74:00.1`, `1002:1640` |
 | Driver | `amdgpu` |
-| DRM card | `card1` (outputs DP-1, DP-2, DP-3, HDMI-A-1) |
+| DRM card | **`card2`** (outputs DP-4, DP-5, DP-6, HDMI-A-2, Writeback-1) |
+| Displays | none |
 
 ## Storage
 
@@ -121,10 +123,24 @@ ADR 0002 forbids keying a sensor by its index.
 | 1 | `card1-HDMI-A-1` | `/dev/i2c-4` | MSI MD272QXP | PB1H824600444 |
 | 2 | `card1-DP-1` | `/dev/i2c-5` | MSI MD272QXP | PB1H824600465 |
 
-`card1` is the **integrated** Radeon graphics. Both monitors are plugged into
-the motherboard video outputs, not into the RTX 4090 (`card2`).
+`card1` is the **RTX 4090**. Both monitors are plugged into the graphics card,
+which Gova confirmed on 2026-09-21.
 
-Source: `ddcutil detect`.
+Do not guess which card is which. Read the PCI address behind it:
+
+```bash
+for c in /sys/class/drm/card[0-9]; do
+    echo "$(basename "$c") -> $(basename "$(readlink -f "$c/device")")"
+done
+# card1 -> 0000:01:00.0   NVIDIA RTX 4090
+# card2 -> 0000:74:00.0   AMD integrated graphics
+```
+
+`xrandr --listproviders` gives one provider, `NVIDIA-0`, with 7 outputs. The
+two connectors read `enabled=disabled` in sysfs, because the NVIDIA driver does
+its own mode setting and does not use the DRM path that sysfs reports.
+
+Source: `ddcutil detect`, `/sys/class/drm/card*/device`, `xrandr`.
 
 ## Firmware state
 
