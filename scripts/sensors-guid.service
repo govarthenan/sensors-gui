@@ -1,0 +1,53 @@
+[Unit]
+# The privileged, read-only sensor helper of ADR 0005.
+#
+# It reads two things that need root on this machine — the RAPL CPU energy
+# counters and the NVMe SMART log — and publishes them on a Unix socket that
+# the group `gova` can read. The screen never needs root.
+#
+# THIS SERVICE WRITES NOTHING TO HARDWARE. See ADR 0007 and
+# data/evidence/2026-09-22-thermal-shutdown/. The settings below are not
+# decoration: `ProtectSystem=strict` makes the whole filesystem read-only for
+# this process except /run, so the rule holds even if the code is wrong.
+Description=sensors-gui privileged sensor helper (read-only)
+Documentation=file:/usr/local/lib/sensors-gui/sensors_guid.py
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/lib/sensors-gui/sensors_guid.py --socket /run/sensors-gui.sock --group gova
+Restart=on-failure
+RestartSec=5
+
+# --- it reads, it never writes ----------------------------------------------
+ProtectSystem=strict
+ReadWritePaths=/run
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+
+# --- it needs no network and no new privilege -------------------------------
+NoNewPrivileges=yes
+PrivateNetwork=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# --- the least root it can do the job with ----------------------------------
+# CAP_DAC_OVERRIDE and CAP_DAC_READ_SEARCH open the 0400 energy counter and the
+# 0600 NVMe node. CAP_SYS_ADMIN is what the NVMe admin command needs.
+# CAP_CHOWN and CAP_FOWNER set the owner and the mode of the socket.
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_ADMIN CAP_CHOWN CAP_FOWNER
+
+[Install]
+WantedBy=multi-user.target

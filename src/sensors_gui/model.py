@@ -29,6 +29,7 @@ class Unit(StrEnum):
     PWM = "pwm"
     COUNT = "count"
     SECOND = "second"
+    HOUR = "hour"
     NONE = "none"
 
     @property
@@ -56,6 +57,7 @@ _UNIT_SYMBOLS: dict[Unit, str] = {
     Unit.PWM: "",
     Unit.COUNT: "",
     Unit.SECOND: "s",
+    Unit.HOUR: "h",
     Unit.NONE: "",
 }
 
@@ -86,6 +88,7 @@ _UNIT_DECIMALS: dict[Unit, int] = {
     Unit.COUNT: 0,
     Unit.HERTZ: 0,
     Unit.BYTE: 0,
+    Unit.HOUR: 0,
 }
 
 

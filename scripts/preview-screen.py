@@ -26,6 +26,7 @@ from sensors_gui.app.status import StatusBar
 from sensors_gui.collectors.hwmon import HwmonCollector
 from sensors_gui.collectors.nvidia import NvidiaCollector
 from sensors_gui.collectors.power_supply import PowerSupplyCollector
+from sensors_gui.collectors.privileged import PrivilegedCollector
 from sensors_gui.collectors.system import SystemCollector
 
 logging.basicConfig(level=logging.ERROR, format="%(levelname)s %(name)s: %(message)s")
@@ -40,7 +41,13 @@ async def render(rows: int, settle: float, show_all: bool) -> None:
         show_all: Whether to include the channels the BIOS proved wrong.
     """
     app = SensorsApp(
-        collectors=[HwmonCollector(), NvidiaCollector(), PowerSupplyCollector(), SystemCollector()],
+        collectors=[
+            HwmonCollector(),
+            NvidiaCollector(),
+            PowerSupplyCollector(),
+            PrivilegedCollector(),
+            SystemCollector(),
+        ],
         hz=10.0,
         decorate=naming.friendly,
         keep=(lambda spec: True) if show_all else worth_showing,

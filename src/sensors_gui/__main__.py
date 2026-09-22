@@ -12,6 +12,7 @@ from sensors_gui.app.sensors_app import SensorsApp
 from sensors_gui.collectors.hwmon import HwmonCollector
 from sensors_gui.collectors.nvidia import NvidiaCollector
 from sensors_gui.collectors.power_supply import PowerSupplyCollector
+from sensors_gui.collectors.privileged import PrivilegedCollector
 from sensors_gui.collectors.system import SystemCollector
 from sensors_gui.model import SensorSpec
 
@@ -39,6 +40,7 @@ def main() -> None:
             HwmonCollector(),
             NvidiaCollector(),
             PowerSupplyCollector(),
+            PrivilegedCollector(),
             SystemCollector(),
         ],
         decorate=naming.friendly,
