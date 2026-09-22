@@ -1,0 +1,25 @@
+# captured 2026-09-22T05:16:41Z on dst-gova-pc
+# command: read energy_uj of every domain once a second, 10 times
+# source:  this machine, dst-gova-pc
+
+sample	monotonic_s	domain	name	energy_uj
+1	478.75	intel-rapl:0	package-0	24519471256
+1	478.75	intel-rapl:0:0	core	482387559
+2	479.76	intel-rapl:0	package-0	24584201490
+2	479.76	intel-rapl:0:0	core	484016717
+3	480.76	intel-rapl:0	package-0	24647101100
+3	480.76	intel-rapl:0:0	core	485495080
+4	481.77	intel-rapl:0	package-0	24708158947
+4	481.77	intel-rapl:0:0	core	487141891
+5	482.77	intel-rapl:0	package-0	24776710852
+5	482.77	intel-rapl:0:0	core	488926344
+6	483.78	intel-rapl:0	package-0	24863086421
+6	483.78	intel-rapl:0:0	core	493168603
+7	484.78	intel-rapl:0	package-0	24934311802
+7	484.78	intel-rapl:0:0	core	495419035
+8	485.79	intel-rapl:0	package-0	25004875475
+8	485.79	intel-rapl:0:0	core	495933276
+9	486.79	intel-rapl:0	package-0	25074156514
+9	486.79	intel-rapl:0:0	core	497072423
+10	487.80	intel-rapl:0	package-0	25144130526
+10	487.80	intel-rapl:0:0	core	497717729

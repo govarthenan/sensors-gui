@@ -627,3 +627,96 @@ my own script. The rule that came out of it — this project writes nothing to
 hardware — is now in `CLAUDE.md` in capitals, and the answer that script was
 chasing came from a photograph of the BIOS a few hours later, for free.
 
+
+---
+
+## 2026-09-22 — Session 5: phase 2, the privileged helper
+
+**The last big gap is closed.** CPU package power and the drive's SMART health
+are on the screen, and the screen still never needs root.
+
+**Read the machine first, then write the code.** `scripts/probe-privileged.sh`
+captured both sources before a line of the helper was written, so every field
+name comes from this machine under nvme-cli 2.8 and not from memory. Raw:
+`data/probes/privileged-20260922T051641Z/`.
+
+Three facts came out of that capture and shaped the code:
+
+1. **The RAPL `core` domain is core 0, not the cores.** It gave 1.69 W while
+   `turbostat` gave 2.07–3.68 W for CPU 0 and 22.8–28.0 W for all twelve.
+   `exp-0003` found this in September; here it is again with fresh numbers. The
+   channel is labelled `CPU Core 0 Power`. Later, live, the helper read
+   **2.534 W** where `turbostat` had read **2.55 W** for CPU 0.
+2. **The energy counter wraps about every 15 minutes** at this machine's idle
+   power. `max_energy_range_uj` is 65 532 610 987 µJ. A reader that ignored
+   that would report a large negative power four times an hour.
+3. **The `warning_temp_time` fields are in minutes and the `thm_*_total_time`
+   fields are in seconds.** Both leave the helper in seconds.
+
+**What was built**
+
+| Part | What |
+|---|---|
+| `src/sensors_gui/helper/sensors_guid.py` | The service. One file, standard library only, because every import is code that runs as root. |
+| `src/sensors_gui/collectors/privileged.py` | The client. An ordinary collector. |
+| `scripts/sensors-guid.service` | The systemd unit. |
+| `scripts/install-helper.sh` / `uninstall-helper.sh` | Install, enable, **and check**. Re-runnable. |
+| `docs/decisions/0009-rules-for-the-privileged-helper.md` | The rules the root code keeps. |
+
+**ADR 0009**, the four decisions worth writing down:
+
+- **No NVMe passthrough ioctl.** The SMART log is read by running a fixed
+  `nvme smart-log -o json` argument list, with no shell. The ioctl carries an
+  opcode, and the same call that reads log page 02h can, with a different
+  opcode, write to the drive. `nvme smart-log` cannot become a write however
+  wrong the surrounding code is. On a machine that has already had one
+  hardware incident, that is worth 3 ms and a process.
+- **Root does not run code from a directory the user can write.** The install
+  script copies the helper to `/usr/local/lib/sensors-gui/` and records its
+  SHA-256; the client compares versions and logs a warning on drift.
+- **The unit enforces the read-only rule.** `ProtectSystem=strict` with
+  `ReadWritePaths=/run` makes the whole filesystem read-only for this process
+  except the socket's own directory, plus `PrivateNetwork=yes`,
+  `RestrictAddressFamilies=AF_UNIX` and a five-capability bounding set. A rule
+  the machine keeps is stronger than a rule a person must remember.
+- **The protocol has no way to name a path.** Three commands, none of which
+  takes a path, a device or a file name.
+
+**Four defects, and the tests found only two of them.**
+
+1. The label read `CPU Package 0 Power`. There is one package.
+2. A failed `nvme` call reported nvme-cli's bold usage banner instead of
+   `Permission denied`, which is the one word that tells a person what to do.
+3. **A failed bind made the root process delete the file in its way.**
+   `socketserver` calls `server_close()` when `server_bind()` raises, and the
+   override unlinked the socket path without asking what was there. Pointed at
+   an ordinary file, as root, it deleted it. **This is the same shape as fault
+   1 of the thermal shutdown: a clean-up path that acted without checking what
+   it was acting on.** A test now proves it does not.
+4. `nvme_command=None` searched the PATH, so "nvme-cli is not installed" could
+   not be tested on a machine that has it, and that branch never ran.
+
+**Measured, with the service running** (`exp-0011`):
+
+| | |
+|---|---|
+| New channels | **19** — 4 RAPL, 15 SMART. All gave a value. |
+| Cost of one request over the socket | **0.034–0.080 ms** |
+| Cost of one SMART read from the drive | 3.0 ms, so the helper reads it once a minute |
+| The screen | **153 channels, 2.02 ms per pass** |
+| Socket | `srw-rw---- root:gova`, read by the user with no password |
+| Tests | **326**, up from 279. No mocks: real sysfs trees, a real `nvme` process, real Unix sockets. |
+
+**The drive, as the screen now shows it live:** 0 % worn, 100 % spare, 9.2 TiB
+written, 331 power-on hours, **31 unsafe shutdowns in 150 power cycles**, no
+media errors, and all six throttle counters at zero — it has never throttled.
+
+That also settles a small disagreement between two documents. `HANDOFF.md`
+said 29 unsafe shutdowns and `state/STATUS.md` said 28. Both were right when
+they were written, at 145 and 144 power cycles. The number is now a live
+channel, so no document needs to hold a copy of it. Q10 is rewritten to ask
+about the **rate**, which is the part that does not change.
+
+**Still missing after this:** per-core power for all twelve cores, which needs
+the Ryzen SMU mailbox, and total system power, which nothing can measure
+because the NZXT C1200 has no telemetry link.

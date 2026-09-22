@@ -1,0 +1,13 @@
+# captured 2026-09-22T05:16:54Z on dst-gova-pc
+# command: nvme version, smartctl version, uname -r
+# source:  this machine, dst-gova-pc
+
+nvme version 2.8 (git 2.8)
+libnvme version 1.8 (git 1.8)
+
+smartctl 7.4 2023-08-01 r5530 [x86_64-linux-7.0.0-31-generic] (local build)
+Copyright (C) 2002-23, Bruce Allen, Christian Franke, www.smartmontools.org
+
+7.0.0-31-generic
+
+Python 3.12.3

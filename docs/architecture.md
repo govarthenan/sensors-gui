@@ -35,6 +35,30 @@ Status: draft, written 2026-09-16 at the start of phase 1.
                         +------------------+
 ```
 
+## The helper, as built on 2026-09-22
+
+The dashed part of the diagram above is now real. `exp-0011` has the numbers.
+
+| Part | Where | What it is |
+|---|---|---|
+| The service | `src/sensors_gui/helper/sensors_guid.py` | One file, standard library only, run as root by `sensors-guid.service`. Installed to `/usr/local/lib/sensors-gui/` (ADR 0009). |
+| The socket | `/run/sensors-gui.sock` | `srw-rw---- root:gova`. No network socket exists. |
+| The client | `src/sensors_gui/collectors/privileged.py` | An ordinary collector. It keeps the contract below like every other one. |
+
+The protocol is newline-delimited JSON with three commands, `describe`, `read`
+and `ping`. None of them takes a path: the catalogue is built on the root side,
+from the machine, and a client may have all of it or none of it.
+
+The helper samples on **its own** clock, not the client's — RAPL every second,
+SMART every minute — and reports the age of each value. So the screen can ask
+ten times a second and the hardware pays nothing. One request costs 0.034 to
+0.080 ms. That is ADR 0006's per-channel interval, moved across the socket,
+and it is why `PrivilegedCollector` sets `min_interval` to zero: a second
+interval on the client side would only add staleness on top of the first.
+
+When the socket is absent the collector still reports all 19 specs, each
+reading carrying the error "needs the helper". ADR 0005 rule 3.
+
 ## Core objects
 
 ### `SensorId`

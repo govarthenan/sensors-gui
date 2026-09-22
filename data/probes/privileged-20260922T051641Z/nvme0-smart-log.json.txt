@@ -1,0 +1,30 @@
+# captured 2026-09-22T05:16:54Z on dst-gova-pc
+# command: nvme smart-log -o json /dev/nvme0
+# source:  this machine, dst-gova-pc
+
+{
+  "critical_warning":0,
+  "temperature":318,
+  "avail_spare":100,
+  "spare_thresh":10,
+  "percent_used":0,
+  "endurance_grp_critical_warning_summary":0,
+  "data_units_read":5149676,
+  "data_units_written":19702733,
+  "host_read_commands":91619714,
+  "host_write_commands":570202432,
+  "controller_busy_time":345,
+  "power_cycles":150,
+  "power_on_hours":331,
+  "unsafe_shutdowns":31,
+  "media_errors":0,
+  "num_err_log_entries":0,
+  "warning_temp_time":0,
+  "critical_comp_time":0,
+  "temperature_sensor_1":339,
+  "temperature_sensor_2":315,
+  "thm_temp1_trans_count":0,
+  "thm_temp2_trans_count":0,
+  "thm_temp1_total_time":0,
+  "thm_temp2_total_time":0
+}

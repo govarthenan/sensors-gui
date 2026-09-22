@@ -1,0 +1,30 @@
+# captured 2026-09-22T05:22:35Z on dst-gova-pc
+# command: connect to /run/sensors-gui.sock as the user gova and send describe, then read
+# source:  this machine, dst-gova-pc. NO ROOT AND NO PASSWORD WERE USED FOR THIS READ.
+
+helper_version = 1.0, channels = 19
+
+cost of one read request: min 0.034 ms, max 0.080 ms
+(the helper reads the hardware on its own clock, so this is socket cost only)
+
+device                             channel              label                                 value unit   age
+----------------------------------------------------------------------------------------------------------------------
+package-0                          power                CPU Package Power                    64.840 watt   0.998s 
+package-0                          energy               CPU Package Energy                 2483.457 joule  0.998s 
+package-0.core                     power                CPU Core 0 Power                      1.806 watt   0.998s 
+package-0.core                     energy               CPU Core 0 Energy                    81.832 joule  0.998s 
+WD_BLACK SN770 1TB@234639803238    wear                 SSD Wear                              0.000 percent 36.008s 
+WD_BLACK SN770 1TB@234639803238    spare                Spare Available                     100.000 percent 36.008s 
+WD_BLACK SN770 1TB@234639803238    data_written         Data Written             10104404480000.000 byte   36.008s 
+WD_BLACK SN770 1TB@234639803238    data_read            Data Read                 2637935616000.000 byte   36.008s 
+WD_BLACK SN770 1TB@234639803238    power_on_hours       Power-On Hours                      331.000 hour   36.008s 
+WD_BLACK SN770 1TB@234639803238    power_cycles         Power Cycles                        150.000 count  36.008s 
+WD_BLACK SN770 1TB@234639803238    unsafe_shutdowns     Unsafe Shutdowns                     31.000 count  36.008s 
+WD_BLACK SN770 1TB@234639803238    media_errors         Media Errors                          0.000 count  36.008s 
+WD_BLACK SN770 1TB@234639803238    critical_warning     Critical Warning                      0.000 count  36.008s 
+WD_BLACK SN770 1TB@234639803238    throttle_t1_count    Throttle T1 Count                     0.000 count  36.008s 
+WD_BLACK SN770 1TB@234639803238    throttle_t2_count    Throttle T2 Count                     0.000 count  36.008s 
+WD_BLACK SN770 1TB@234639803238    throttle_t1_time     Throttle T1 Time                      0.000 second 36.008s 
+WD_BLACK SN770 1TB@234639803238    throttle_t2_time     Throttle T2 Time                      0.000 second 36.008s 
+WD_BLACK SN770 1TB@234639803238    warning_temp_time    Warning Temp Time                     0.000 second 36.008s 
+WD_BLACK SN770 1TB@234639803238    critical_temp_time   Critical Temp Time                    0.000 second 36.008s 

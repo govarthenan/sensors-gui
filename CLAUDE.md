@@ -89,17 +89,18 @@ scripts/               Helper scripts for the developer.
 | Source | Path or tool | Needs root |
 |---|---|---|
 | CPU temperature | `/sys/class/hwmon/hwmon*/` (`k10temp`) | no |
-| CPU package power | `/sys/class/powercap/intel-rapl:0/energy_uj` | yes |
+| CPU package power | `/sys/class/powercap/intel-rapl:0/energy_uj`, through `sensors-guid` | the helper, not the screen |
 | CPU frequency | `/sys/devices/system/cpu/cpu*/cpufreq/` | no |
 | NVIDIA RTX 4090 | `nvidia-smi`, NVML | no |
 | AMD iGPU | `/sys/class/hwmon/hwmon*/` (`amdgpu`) | no |
 | NVMe temperature | `/sys/class/hwmon/hwmon*/` (`nvme`) | no |
-| NVMe SMART | `nvme-cli` / `smartctl` (installed) | yes |
+| NVMe SMART | `nvme smart-log`, through `sensors-guid` — 15 channels | the helper, not the screen |
 | DIMM temperature | `/sys/class/hwmon/hwmon*/` (`spd5118`) | no |
 | Fans, VRM, voltages | `nct6687`, patched 2026-09-22 — 9 fans, 10 voltages, 7 temperatures | no |
 | EZ Conn fan (case fans on `JAF_1`) | `fan9`, added by `driver/nct6687-ms7e47.patch` | no |
 | CMOS battery | `in13`, 3.116 V, added by the same patch | no |
 | CPU use, memory, disk, network | `psutil` and `/proc` — 96 channels | no |
 | Mouse battery | `/sys/class/power_supply/` | no |
+| The helper itself | `/run/sensors-gui.sock`, group `gova`, read-only. ADR 0005 and 0009. | no |
 
 See `docs/sensor-sources.md` for the complete list.

@@ -1,0 +1,45 @@
+# written 2026-09-22T05:22:42Z
+# command: computed from data/probes/privileged-20260922T051641Z/rapl-samples.tsv and data/probes/privileged-20260922T051641Z/turbostat.txt
+# source:  this machine, dst-gova-pc, captured 2026-09-22T05:16:41Z
+
+Power from the RAPL counter, sample to sample:
+
+domain         from   to  seconds      rise (uJ)     watts
+------------------------------------------------------------
+package-0         1    2     1.01       64730234     64.09
+package-0         2    3     1.00       62899610     62.90
+package-0         3    4     1.01       61057847     60.45
+package-0         4    5     1.00       68551905     68.55
+package-0         5    6     1.01       86375569     85.52
+package-0         6    7     1.00       71225381     71.23
+package-0         7    8     1.01       70563673     69.87
+package-0         8    9     1.00       69281039     69.28
+package-0         9   10     1.01       69974012     69.28
+package-0        OVERALL     9.05      624659270     69.02
+
+core              1    2     1.01        1629158      1.61
+core              2    3     1.00        1478363      1.48
+core              3    4     1.01        1646811      1.63
+core              4    5     1.00        1784453      1.78
+core              5    6     1.01        4242259      4.20
+core              6    7     1.00        2250432      2.25
+core              7    8     1.01         514241      0.51
+core              8    9     1.00        1139147      1.14
+core              9   10     1.01         645306      0.64
+core             OVERALL     9.05       15330170      1.69
+
+turbostat, over the same minute (its first row is the package summary,
+the second row is CPU 0):
+
+  iteration 1: PkgWatt 75.20   CorWatt 22.80 (all cores)   CPU0 CorWatt 2.55
+  iteration 2: PkgWatt 80.67   CorWatt 28.02 (all cores)   CPU0 CorWatt 3.68
+  iteration 3: PkgWatt 79.22   CorWatt 27.43 (all cores)   CPU0 CorWatt 2.07
+
+Conclusion:
+  RAPL package-0 gave 69.02 W against turbostat's 75-81 W. The same size,
+  and the difference is expected: the two did not measure the same seconds.
+
+  RAPL core gave 1.69 W. turbostat says all twelve cores drew 22.8-28.0 W
+  and CPU 0 alone drew 2.07-3.68 W. So the powercap `core` domain follows
+  ONE core, not the package cores. exp-0003 finding 2, confirmed again with
+  fresh numbers. The channel is labelled `CPU Core 0 Power` for this reason.

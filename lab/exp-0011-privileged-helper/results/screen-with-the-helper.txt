@@ -1,0 +1,97 @@
+# captured 2026-09-22T05:22:46Z on dst-gova-pc
+# command: uv run python scripts/preview-screen.py --rows 0
+# source:  this machine, dst-gova-pc, with sensors-guid running
+# Only the CPU and Storage panels are kept; the 19 new channels are all in them.
+
+┌─ CPU (59) ────────────────────────────────────────
+│ Tccd1                         51.0 °C ████████▏        ▃▃▃▃▃▃▅▃▃▅▅▅▅▅
+│ Tccd2                         39.8 °C ██████▎          ▃▃▃▃▃▃▃▃▃▃▃▃▃▄
+│ Tctl                          56.8 °C █████████        ▅▅▅▅▅▅▅▅▅▅▅▅▅▅
+│ CPU Core 0 Power               1.57 W                  ▁▁██████████▅▅
+│ CPU Package Power             68.86 W                  ▁▁████████████
+│ CPU use                           8 % █▎               ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU0 use                          0 %                  ▁▁▁▂▁▁▁▁▁▁▁▁▁▁
+│ CPU1 use                         36 % █████▊           ▂▁▃▂▁▂▂▂▂▂▂▁▁▃
+│ CPU10 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU11 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU12 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU13 use                         0 %                  ▁▁▁▁▁▁▁▂▁▁▁▁▁▁
+│ CPU14 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU15 use                         0 %                  ▁▁▂▃▃▂▁▁▁▁▁▁▁▁
+│ CPU16 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU17 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU18 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU19 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU2 use                         10 % █▌               ▁▂▁▁▂▁▂▂▃▃▂▂▁▁
+│ CPU20 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU21 use                         9 % █▍               ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU22 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU23 use                         0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU3 use                        100 % ████████████████ ▂▄▂▁▁▁▁▃▃▅▃▅██
+│ CPU4 use                          9 % █▍               ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU5 use                          0 %                  ▁▁▁▁▁▁▂▁▁▁▁▁▁▁
+│ CPU6 use                         11 % █▊               ▁▁▁▁▁▁▁▁▁▁▁▂▁▁
+│ CPU7 use                         10 % █▌               ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU8 use                         10 % █▌               ▁▁▁▁▁▁▁▁▁▁▂▂▁▁
+│ CPU9 use                          0 %                  ▁▁▁▂▁▁▁▁▁▁▁▁▁▁
+│ CPU0 frequency                5.6 GHz ███████████████▉ ▁▁▂█▆█▄███▁▁██
+│ CPU1 frequency                5.3 GHz █████████████▊   ▂▂▁▂▃██████▁▁▆
+│ CPU10 frequency               3.0 GHz                  ▁▁▁▁▁█▁▁█▁▁▁▁▁
+│ CPU11 frequency               3.0 GHz                  ▁▁▁█▁████▁▁▁▁▁
+│ CPU12 frequency               3.0 GHz                  █▁▁▁▁▁▁███▁▁▁▁
+│ CPU13 frequency               3.0 GHz                  ▁▁▁▁▁▁███▁▁▁▁▁
+│ CPU14 frequency               3.0 GHz                  ▁▄▇▁██▁▁█▁▁▁▁▁
+│ CPU15 frequency               3.0 GHz                  ▁█▁██▁▁████▁▁▁
+│ CPU16 frequency               4.4 GHz ████████▍        ██▁▁▁██████▁▁▅
+│ CPU17 frequency               5.6 GHz ███████████████▉ ▆▁▃██▁█▆▁█▁▁▁█
+│ CPU18 frequency               3.0 GHz                  ▆▁▁▁▁█▁▁▁▁▁▁▅▁
+│ CPU19 frequency               3.0 GHz                  ▁▁▁▁▁█▁▁▁▁▁▁▁▁
+│ CPU2 frequency                4.3 GHz ███████▉         ███████████▅▁▄
+│ CPU20 frequency               3.0 GHz                  ▅▁▁▁▁█▁▁▁▁▁▁▁▁
+│ CPU21 frequency               5.4 GHz ██████████████▎  ▁▁▁▁▁█▁▁█▁▁▁▁█
+│ CPU22 frequency               3.0 GHz                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU23 frequency               3.0 GHz                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ CPU3 frequency                5.7 GHz ███████████████▉ ██▇▆█▇▁██▅████
+│ CPU4 frequency                5.6 GHz ███████████████▊ █▅▁█▁▁██████▁█
+│ CPU5 frequency                5.6 GHz ███████████████▉ ▁▁▁▅▁▁██▁▇▁▁▅█
+│ CPU6 frequency                5.4 GHz ██████████████▍  ▁▁▁█▅▁▁▁█▁▁▁██
+│ CPU7 frequency                5.4 GHz ██████████████▍  ▁▁▁█▁▁▁▁█▁██▅█
+│ CPU8 frequency                5.4 GHz ██████████████▍  ▁▁▁█▁█▁▁█▁█▁▁█
+│ CPU9 frequency                5.4 GHz ██████████████▍  ▁▁▁█▁█▁▁█▁▁█▆█
+│ CPU Core 0 Energy             108.5 J                  ▁▁▅▅▅▅▅▅▅▅▅▅██
+│ CPU Package Energy             3.4 kJ                  ▁▁▅▅▅▅▅▅▅▅▅▅██
+│ Load average (1 min)              1.3                  ██████████▁▁▁▁
+│ Load average (15 min)             0.7                  ▁▁▁▁▁▁▁▁▁▁████
+│ Load average (5 min)              1.3                  ██████████▁▁▁▁
+
+┌─ Storage (28) ────────────────────────────────────────
+│ Composite                     44.9 °C ██████████▋      ▆▆▆▆▆▆▆▆▆▆▆▆▆▆  crit 87.8 °C
+│ Sensor 1                      65.8 °C ██████████▌      ▆▆▆▆▆▆▆▆▆▆▆▆▆▆
+│ Sensor 2                      41.9 °C ██████▋          ▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+│ Spare Available                 100 % ████████████████ ██████████████  49s old
+│ SSD Wear                          0 %                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Data Read                     2.4 TiB                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Data Written                  9.2 TiB                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ nvme0n1 read                  0.0 B/s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ nvme0n1 write                 0.0 B/s                  ▇▆▆▇▇▇███▁▁▁▁▁
+│ nvme0n1p1 read                0.0 B/s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ nvme0n1p1 write               0.0 B/s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ nvme0n1p2 read                0.0 B/s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ nvme0n1p2 write               0.0 B/s                  ▇▆▆▇▇▇███▁▁▁▁▁
+│ nvme0n1p3 read                0.0 B/s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ nvme0n1p3 write               0.0 B/s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ nvme0n1p4 read                0.0 B/s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ nvme0n1p4 write               0.0 B/s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+│ Critical Warning                    0                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Media Errors                        0                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Power Cycles                      150                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Throttle T1 Count                   0                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Throttle T2 Count                   0                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Unsafe Shutdowns                   31                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Critical Temp Time              0.0 s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Power-On Hours                  331 h                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Throttle T1 Time                0.0 s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Throttle T2 Time                0.0 s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+│ Warning Temp Time               0.0 s                  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁  49s old
+
+153 channels   10 Hz   2.02 ms/pass   5 hidden (h)   read-only

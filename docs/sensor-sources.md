@@ -40,16 +40,35 @@ Notes:
 
 ## B. CPU package power — RAPL
 
-| Path | Contents | Status |
-|---|---|---|
-| `/sys/class/powercap/intel-rapl:0/energy_uj` | package energy counter, µJ | **ROOT** (mode 0400) |
-| `/sys/class/powercap/intel-rapl:0:0/energy_uj` | core domain energy, µJ | **ROOT** |
+**Read since 2026-09-22, through the helper of ADR 0005.** The files still need
+root; the screen does not. See section I.
+
+| Path | Contents | Channel | Status |
+|---|---|---|---|
+| `/sys/class/powercap/intel-rapl:0/energy_uj` | package energy counter, µJ | `CPU Package Power`, `CPU Package Energy` | OK, through the helper |
+| `/sys/class/powercap/intel-rapl:0:0/energy_uj` | core domain energy, µJ | `CPU Core 0 Power`, `CPU Core 0 Energy` | OK, through the helper |
 
 The name is `intel-rapl` on AMD too. The kernel uses the same powercap
-framework. Power in watts = delta(energy) / delta(time). The counter wraps, so
-the reader must handle the wrap with `max_energy_range_uj`.
+framework. Power in watts = delta(energy) / delta(time).
 
-`turbostat` is installed (`/usr/bin/turbostat`) and also needs root.
+Three traps, all measured on this machine:
+
+1. **The `core` domain is core 0, not the cores.** On 2026-09-22 it gave
+   1.69 W while `turbostat` gave 2.07–3.68 W for CPU 0 and 22.8–28.0 W for all
+   twelve. `exp-0003` found this and `exp-0011` confirmed it with fresh
+   numbers. The label says `Core 0` for that reason.
+2. **The counter wraps, and often.** `max_energy_range_uj` is 65 532 610 987,
+   which at the 70 W this machine idles near fills in about **15 minutes**. A
+   reader that ignores the wrap reports a large negative power four times an
+   hour.
+3. **`enabled` reads 0 on both domains, and the counters count anyway.** Do not
+   use it as a health check.
+
+There is no power constraint file on this board, so there is no declared
+maximum and the channel gets no meter bar.
+
+`turbostat` is installed (`/usr/bin/turbostat`) and also needs root. It is the
+independent check, not a source the application uses.
 
 ## C. CPU frequency and state
 
@@ -117,7 +136,7 @@ protocol can give a percent. **Open question Q4.**
 |---|---|---|
 | hwmon `nvme` | 3 temperatures | OK |
 | `/proc/diskstats` | read and write counters, I/O time | OK |
-| SMART / NVMe log page 0x02 | wear, written bytes, power on hours, throttle state | **ROOT**, and `nvme-cli` and `smartmontools` are **not installed** |
+| SMART / NVMe log page 0x02 | wear, written bytes, power-on hours, throttle state | OK since 2026-09-22, through the helper. 15 channels, see section I. |
 
 ## G. Network
 
@@ -146,7 +165,43 @@ this board yet.
 
 Action: experiment `exp-0002`. See open question Q1.
 
-## I. Other, to examine later
+## I. The privileged helper — `sensors-guid`
+
+ADR 0005 and ADR 0009. A small root service reads the two sources above that
+need root and publishes them on `/run/sensors-gui.sock`, mode `0660`, group
+`gova`. The screen reads that socket and never needs root.
+
+| Source | Channels | Interval the helper reads at |
+|---|---|---|
+| RAPL, 2 domains | 4: power and energy for each | 1 s |
+| NVMe SMART, 1 drive | 15 | 60 s |
+
+The 15 SMART channels, from `nvme smart-log -o json` under nvme-cli 2.8:
+
+| Channel | Field in the log | Unit | Note |
+|---|---|---|---|
+| SSD Wear | `percent_used` | % | |
+| Spare Available | `avail_spare` | % | the drive's own threshold is 10 % |
+| Data Written | `data_units_written` | B | × 512 000; one data unit is 1000 blocks of 512 B |
+| Data Read | `data_units_read` | B | the same |
+| Power-On Hours | `power_on_hours` | h | |
+| Power Cycles | `power_cycles` | | |
+| Unsafe Shutdowns | `unsafe_shutdowns` | | see open question Q10 |
+| Media Errors | `media_errors` | | |
+| Critical Warning | `critical_warning` | | a bit field; 0 is healthy |
+| Throttle T1 / T2 Count | `thm_temp1_trans_count`, `thm_temp2_trans_count` | | |
+| Throttle T1 / T2 Time | `thm_temp1_total_time`, `thm_temp2_total_time` | s | the log counts these in **seconds** |
+| Warning Temp Time | `warning_temp_time` | s | the log counts this in **minutes**; converted |
+| Critical Temp Time | `critical_comp_time` | s | the log counts this in **minutes**; converted |
+
+**Without the helper the channels still appear**, with a dash and the reason
+"needs the helper". The catalogue is built from `name`, `model` and `serial`,
+which any user can read; only the values need root.
+
+Install: `sudo ./scripts/install-helper.sh`. Remove:
+`sudo ./scripts/uninstall-helper.sh`.
+
+## J. Other, to examine later
 
 | Source | Note | Status |
 |---|---|---|

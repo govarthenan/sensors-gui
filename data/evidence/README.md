@@ -9,7 +9,7 @@ a `lab/exp-*/results/` file, it is not established.
 | Directory | Contents |
 |---|---|
 | `data/evidence/` | Material that is not the output of one experiment: incidents, external ground truth, third-party source. |
-| `data/probes/` | Timestamped machine captures from `scripts/root-probe.sh` and `scripts/install-nct6687d.sh`. |
+| `data/probes/` | Timestamped machine captures from `scripts/root-probe.sh`, `scripts/probe-privileged.sh` and `scripts/install-nct6687d.sh`. |
 | `lab/exp-NNNN-*/results/` | The output of one experiment. It belongs to that experiment. |
 | `docs/photos/` | Photographs of the machine and of the BIOS. |
 | `docs/reference/` | Pages rendered from the motherboard manual. |

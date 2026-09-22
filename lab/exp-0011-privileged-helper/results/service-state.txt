@@ -1,0 +1,36 @@
+# captured 2026-09-22T05:22:29Z on dst-gova-pc
+# command: systemctl is-enabled/is-active/show sensors-guid.service, and stat of the socket
+# source:  this machine, dst-gova-pc, run as the ordinary user gova (id -u = 1000)
+
+$ id -un; id -Gn
+gova
+gova adm cdrom sudo dip video plugdev users lpadmin sambashare libvirt ollama docker render
+
+$ systemctl is-enabled sensors-guid.service
+enabled
+
+$ systemctl is-active sensors-guid.service
+active
+
+$ systemctl show sensors-guid.service -p MainPID -p ExecMainStartTimestamp -p NRestarts -p ProtectSystem -p CapabilityBoundingSet -p RestrictAddressFamilies -p PrivateNetwork
+MainPID=51417
+NRestarts=0
+ExecMainStartTimestamp=Tue 2026-09-22 10:51:59 +0530
+CapabilityBoundingSet=cap_chown cap_dac_override cap_dac_read_search cap_fowner cap_sys_admin
+PrivateNetwork=yes
+ProtectSystem=strict
+RestrictAddressFamilies=AF_UNIX
+
+$ stat -c '%A %U:%G %n' /run/sensors-gui.sock
+srw-rw---- root:gova /run/sensors-gui.sock
+
+$ ls -l /usr/local/lib/sensors-gui/
+total 44
+drwxr-xr-x 1 root root    56 Sep 22 10:51 __pycache__
+-rw-r--r-- 1 root root 39193 Sep 22 10:51 sensors_guid.py
+-rw-r--r-- 1 root root    65 Sep 22 10:51 sensors_guid.py.sha256
+
+# the installed copy against the repository copy
+$ sha256sum src/sensors_gui/helper/sensors_guid.py; cat /usr/local/lib/sensors-gui/sensors_guid.py.sha256
+f9e4781991b72c3b2ab69dd5ff4a7eaa3b46aba70f6057b229673ecd6648e21c  src/sensors_gui/helper/sensors_guid.py
+f9e4781991b72c3b2ab69dd5ff4a7eaa3b46aba70f6057b229673ecd6648e21c

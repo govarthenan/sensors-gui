@@ -1,0 +1,19 @@
+# captured 2026-09-22T05:16:41Z on dst-gova-pc
+# command: ls -l and cat of every /sys/class/powercap domain
+# source:  this machine, dst-gova-pc
+
+total 0
+lrwxrwxrwx 1 root root 0 Sep 22 10:38 intel-rapl -> ../../devices/virtual/powercap/intel-rapl
+lrwxrwxrwx 1 root root 0 Sep 22 10:38 intel-rapl:0 -> ../../devices/virtual/powercap/intel-rapl/intel-rapl:0
+lrwxrwxrwx 1 root root 0 Sep 22 10:38 intel-rapl:0:0 -> ../../devices/virtual/powercap/intel-rapl/intel-rapl:0/intel-rapl:0:0
+
+--- /sys/class/powercap/intel-rapl:0/
+  name                = package-0
+  max_energy_range_uj = 65532610987
+  enabled             = 0
+  mode of energy_uj   = -r-------- root:root
+--- /sys/class/powercap/intel-rapl:0:0/
+  name                = core
+  max_energy_range_uj = 65532610987
+  enabled             = 0
+  mode of energy_uj   = -r-------- root:root

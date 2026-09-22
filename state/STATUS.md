@@ -1,11 +1,14 @@
 # STATUS
 
-Last update: 2026-09-22 (end of session 4)
+Last update: 2026-09-22 (end of session 5)
 
 ## Phase
 
-**Phase 0 — Exploration.** Find every sensor. Write down what the machine has,
-what Linux exposes, and what is missing. No application code yet, only probes.
+**Phase 2 — Coverage repair. Done for the root-only sources.** The privileged
+helper of ADR 0005 runs, and the last two sources that needed root are on the
+screen. What is left of phase 2 is the sensor target list of `exp-0005`.
+
+Phases 0, 1 and 3 are done. Phase 4 (history and alarms) is next.
 
 Planned phases:
 
@@ -13,7 +16,7 @@ Planned phases:
 |---|---|---|
 | 0 | Exploration | Complete sensor catalogue for this machine. |
 | 1 | Collection layer | A Python library that reads all sources at a set rate. |
-| 2 | Coverage repair | Get the missing sources (Super-I/O fans, RAPL, SMART). |
+| 2 | Coverage repair | Get the missing sources (Super-I/O fans, RAPL, SMART). **RAPL, SMART and the fans are done.** |
 | 3 | TUI | The Textual monitor screen. **Working.** |
 | 4 | History and alarms | Store samples, show graphs, give warnings. |
 | 5 | Polish | Autostart, tray icon, settings, packaging. |
@@ -31,7 +34,7 @@ below holds the hard targets. None of them is out of scope because of effort.
 | Motherboard fans, VRM temperature and voltage rails | needs the out-of-tree `nct6687d` DKMS driver | the largest gap; 8 fans and 10 voltages |
 | Per-core and SoC power, and the real VID | needs `ryzen_smu` or `zenpower3`, which read the AMD SMU mailbox | the true CPU power picture on Zen 5 |
 | RTX 4090 hotspot temperature | NVML does not give it; it needs an I2C read of the board controller | the temperature that limits a 4090 |
-| SSD wear, TBW and throttle state | needs NVMe admin commands as root | drive health |
+| ~~SSD wear, TBW and throttle state~~ | ~~needs NVMe admin commands as root~~ | **DONE 2026-09-22**, 15 channels through the helper. `exp-0011`. |
 | Monitor data through DDC/CI | needs `ddcutil` and i2c group access | model, brightness, input |
 | Fan control (write, not read) | needs PWM write access and a safety design | a custom fan curve |
 | RGB state (MSI MYSTIC LIGHT, Logitech) | HID protocol work | completeness |
@@ -119,45 +122,63 @@ rules before any code is written. Reading comes first.
 - `exp-0004` read cost done → NVMe and SPD5118 reads cost 1.5–2 ms each and
   take 99.8 % of a pass. ADR 0006 accepted and built: a per-device read
   interval with a cache. A pass went from 10.015 ms to 0.199 ms.
+- **Session 5. Phase 2 landed: the privileged helper.** `sensors-guid` runs as
+  a systemd service, reads the RAPL energy counters and the NVMe SMART log, and
+  publishes them on `/run/sensors-gui.sock` (`srw-rw---- root:gova`). The screen
+  reads that socket and never needs root. **19 new channels, all live.**
+  ADR 0009 written. 326 tests pass. See `exp-0011`.
+- The RAPL `core` domain was confirmed a second time to be **core 0 only**: it
+  read 2.534 W where `turbostat` read 2.55 W for CPU 0, against 22.8-28.0 W for
+  all twelve cores.
+- Four defects were found by running the helper, not by the tests. The worst:
+  a failed socket bind made the **root** process delete the ordinary file in its
+  way, because `socketserver` calls `server_close()` when `server_bind()`
+  raises. Same shape as fault 1 of the thermal shutdown. Fixed, with a test.
 
 ## Waiting for Gova
 
-Nothing. Gova rebooted on 2026-09-22 and set `CPU Fan Fail Warning Control`.
+Nothing. Gova approved two root commands on 2026-09-22 through the
+`run-as-root` skill: the read-only probe and the helper install.
 
-Verified after that reboot: the patched driver loads by itself and is signed,
-`fan/pwm mask=0x1ff` (9 channels), `EZ Conn Fan` 963 RPM, `CMOS Battery`
-3.116 V, and all eight fan headers are at `enable=2`, under the board's own
-control. The application runs: 134 channels, 1.94 ms per pass.
+Verified on the machine at the end of session 5, not assumed:
+
+- `sensors-guid.service` is **enabled and active**, with 0 restarts.
+- The socket is `srw-rw---- root:gova`, and the user `gova` reads all 19
+  channels from it **with no password**.
+- The installed helper and the repository copy have the same SHA-256.
+- The application runs: **153 channels, 2.02 ms per pass, 5 hidden.**
+- From the earlier reboot, still true: the patched driver loads by itself and
+  is signed, `fan/pwm mask=0x1ff` (9 channels), `EZ Conn Fan` 963 RPM,
+  `CMOS Battery` 3.116 V, and all eight fan headers are at `enable=2`.
 
 ## Next actions
 
-1. **Map the 9 fans to the 3 headers that report.** Gova must look at the cable
-   side of the case: is there a fan hub, and which headers have cables? See
-   `docs/physical-build.md`.
+The list was renumbered on 2026-09-22. It had two items numbered 4 and two
+numbered 5, and one of them was already done.
 
-2. **Fix the four wrong voltages.** The driver needs a voltage map for
-   MS-7E47. The Z890 MS-7E32 map in the driver shows the shape of the answer.
-   Method: the `manual` module parameter exposes the raw `in0` to `in13`, and a
-   load test says which register moves with what. This is worth contributing
-   back to the driver project.
+1. **Offer the driver patch upstream.** `driver/nct6687-ms7e47.patch` applies to
+   every MSI PRO X870-P WIFI, not only this one. It adds the EZ Conn fan channel
+   and corrects the voltage map, both proved on hardware (`exp-0010`). The
+   project is <https://github.com/Fred78290/nct6687d>.
 
-3. `exp-0005` step 2 and 3 — work down the target list in
-   `lab/exp-0005-component-census/README.md`, in order:
-   Super-I/O, then the Ryzen SMU (`ryzen_smu` or `zenpower3`), then the RTX 4090
-   board over I2C, then the DDR5 PMICs, then the unknown clients `0x4f` and
-   USB `1-11`, then the Wi-Fi chip, then MYSTIC LIGHT.
+2. **Phase 4: history and alarms.** The sampler's ring buffer lives in memory
+   only, so nothing survives a restart. Every threshold is already in the specs,
+   and the hardware-given ones are marked, so an alarm never has to invent a
+   limit.
 
-4. ~~Gova looks inside the case~~ **DONE.** See `docs/physical-build.md`.
+3. `exp-0005` steps 2 and 3 — work down the target list in
+   `lab/exp-0005-component-census/README.md`, in order: the Ryzen SMU
+   (`ryzen_smu` or `zenpower3`, which would give the per-core power RAPL cannot),
+   then the RTX 4090 board over I2C, then the DDR5 PMICs, then the unknown
+   clients `0x4f` and USB `1-11`, then the Wi-Fi chip, then MYSTIC LIGHT.
+
+4. **Fix the remaining wrong voltages.** The patch corrected the map, and
+   `exp-0010` left `VDD MISC`, `CPU 1P8` and `CHIPSET Core` unaccounted for. No
+   register in the chip's voltage block is known to hold them.
 
 5. **Gova looks inside the case** (about 5 minutes). Three questions, in
-   `lab/exp-0005-component-census/README.md`, section "Step 5".
-
-4. **Phase 2, the privileged helper** (ADR 0005). It is the last big gap:
-   CPU package power from RAPL, and SSD wear, TBW, power-on hours and throttle
-   counters from NVMe SMART. Read-only, on a Unix socket, so the screen never
-   needs root.
-
-5. `exp-0006` — load test, once the fan and power sensors work.
+   `lab/exp-0005-component-census/README.md`, section "Step 5". It would say
+   which physical fans sit on the three headers that report.
 
 ## Open questions
 
@@ -172,7 +193,7 @@ control. The application runs: 134 channels, 1.94 ms per pass.
 | Q7 | What is on `nvme0n1p4` (359.2 GB, not mounted)? | inventory | Gova |
 | ~~Q8~~ | ~~How many fans, and is the cooler air or liquid?~~ **ANSWERED: 9 fans** (2 on the GPU, 3 intake, 3 top, 1 rear) and a **liquid AIO**. Which fans reach the board is still open; photographs are expected. | — | part-closed 2026-09-21 |
 | ~~Q9~~ | ~~Monitors on the integrated graphics?~~ **ANSWERED: no, they are on the RTX 4090.** Claude guessed the DRM card order instead of reading it. `card1` is the 4090. | — | closed 2026-09-21 |
-| Q10 | 28 unsafe shutdowns in 144 power cycles on the SSD. Does Gova know the cause? | health | Gova |
+| Q10 | **The screen now shows this live**: on 2026-09-22 it read 31 unsafe shutdowns in 150 power cycles, about one in five. One of them was the thermal shutdown of 2026-09-22. Does Gova know what causes the rest? (This row no longer holds a copy of the number. `HANDOFF.md` said 29 and this file said 28; both were true when written, at 145 and 144 power cycles.) | health | Gova |
 
 ## Expected fan count (Gova, 2026-09-21)
 
