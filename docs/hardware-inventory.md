@@ -11,7 +11,7 @@ each fact.
 | OS | Linux Mint 22.3 "Zena" (Ubuntu 24.04 base) | `/etc/os-release` |
 | Kernel | 7.0.0-31-generic, x86_64 | `uname -r` |
 | Motherboard | MSI PRO X870-P WIFI (MS-7E47), rev 1.1 | `/sys/devices/virtual/dmi/id/` |
-| BIOS | AMI 1.A10, 2024-08-27 | `/sys/devices/virtual/dmi/id/bios_*` |
+| BIOS | AMI `E7E47AMSI.1A10`, 2024-08-27 | `/sys/devices/virtual/dmi/id/bios_*`, BIOS screen |
 | Chipset | AMD X870 (socket AM5) | board model |
 
 ## CPU
@@ -39,9 +39,9 @@ Source: `lscpu`, `/sys/devices/system/cpu/cpu0/cpufreq/`.
 | Slot | Fitted | Size | Type | Rated | Configured | Voltage | Part | Rank | SPD hub | PMIC |
 |---|---|---|---|---|---|---|---|---|---|---|
 | DIMMA1 | no | — | — | — | — | — | — | — | — | — |
-| **DIMMA2** | yes | 32 GB | DDR5 | 5200 MT/s | **6400 MT/s** | 1.1 V | `UD5-6400` | 2 | i2c `0-0051` | i2c `0-0049` |
+| **DIMMA2** | yes | 32 GB | DDR5 | 5200 MT/s | **6400 MT/s** | 1.1 V | TEAM GROUP `UD5-6400` | 2 | i2c `0-0051` | i2c `0-0049` |
 | DIMMB1 | no | — | — | — | — | — | — | — | — | — |
-| **DIMMB2** | yes | 32 GB | DDR5 | 5200 MT/s | **6400 MT/s** | 1.1 V | `UD5-6400` | 2 | i2c `0-0053` | i2c `0-004b` |
+| **DIMMB2** | yes | 32 GB | DDR5 | 5200 MT/s | **6400 MT/s** | 1.1 V | TEAM GROUP `UD5-6400` | 2 | i2c `0-0053` | i2c `0-004b` |
 
 Both modules run above their JEDEC rating, so an EXPO or XMP profile is on.
 
@@ -192,8 +192,25 @@ out-of-tree `nct6687d` DKMS driver. `/proc/ioports` confirms it:
   0a20-0a23 : nct6687
 ```
 
-29 channels: 8 fans, 14 voltages, 7 temperatures. **Four of the voltages are
-wrong**, because the driver has no voltage map for this board. See `exp-0007`.
+29 channels: 8 fans, 14 voltages, 7 temperatures.
+
+**The BIOS reads more than Linux does.** Checked against the BIOS on
+2026-09-22 (`exp-0009`):
+
+- A **ninth fan channel, `EZ Conn Fan`**, turns at 963–1612 RPM. The case fans
+  are on the `JAF_1` EZ Conn header. Linux has no channel for it. The driver
+  supports 9 channels, but only for one other board.
+- Of the 14 voltages, **4 are correct**, 2 are correct with the wrong name
+  (`DRAM` is really `CPU VDDIO`, `AVCC3` is really `System 3.3V`), and **8 are
+  wrong**. Three rails the BIOS shows — `VDD MISC` 1.097 V, `CPU 1P8` 1.793 V
+  and `CHIPSET Core` 1.047 V — are not read by Linux at all.
+- `VBat` at 2.046 V is **not** the CMOS battery. The BIOS reports no battery
+  voltage. The cell is not known to be low.
+
+The board's own fan curve: source **CPU Core**; 0 °C → 20 %, 45 °C → 35 %,
+65 °C → 70 %, 80 °C → 100 %; step 0.1 s.
+
+**`CPU Fan Fail Warning Control` is OFF in the BIOS.** It should be on.
 
 ## Open items
 
@@ -207,6 +224,7 @@ wrong**, because the driver has no voltage map for this board. See `exp-0007`.
 5. **Unsafe shutdowns: now 29 of 145 power cycles.** Between the two probes the
    machine went through **one** power cycle, and the unsafe count rose by
    **one**. One sample is not a pattern, but it is worth watching.
-6. Which headers the 9 fans are wired to. Only a look at the cable side of the
-   case can say. See `docs/physical-build.md`.
+6. ~~Which headers the 9 fans are wired to.~~ **ANSWERED 2026-09-22: the case
+   fans are on the `JAF_1` EZ Conn header**, which the BIOS reads and Linux
+   does not. See `exp-0009`.
 7. The exact model of the MSI liquid cooler.

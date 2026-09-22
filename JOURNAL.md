@@ -303,3 +303,94 @@ Super-I/O chip is named.
 Map the voltage registers (`exp-0009`), using the driver's `manual` parameter,
 and contribute the map back. Repeat the load test on a quiet machine.
 
+---
+
+## 2026-09-22 — Session 4: a thermal shutdown, and the answer from the BIOS
+
+### The incident
+
+**`scripts/map-fans.sh` caused a thermal shutdown of Gova's machine.** It set
+the `CPU_FAN1` header to manual mode at zero, which stopped the radiator fans.
+The restore ran and **the chip rejected it**:
+
+```
+nct6687: The device rejected new configuration as invalid
+```
+
+The header stayed at `pwm1 = 0, enable = 1`. `Tctl` reached 98 °C and the board
+shut the machine down to protect itself. Gova rebooted, and everything came
+back under BIOS control.
+
+Four faults in my design, not one:
+
+1. **The restore was never verified.** It wrote the value and moved on. It
+   never read it back. On this board the driver's writes fail often, so an
+   unchecked restore was a coin toss.
+2. **The watchdog's only action was the action that was failing.** It would
+   have restored through the same rejected write path.
+3. **Mode and speed were written separately.** The mode change succeeded and
+   the speed change did not, which is the worst of both: manual control, at
+   zero.
+4. **The radiator fan header was in scope at all.** Rule 2 protected the pump.
+   On a liquid-cooled machine the radiator fan is just as critical, and it was
+   the one that stopped.
+
+**`scripts/map-fans.sh` is deleted, not fixed.** ADR 0007 is reverted: this
+project writes nothing to hardware, with no exceptions. The 2026-09-21
+amendment argued that a rule too strict to do its job gets worked around. True
+in general; wrong here. The right answer to "this rule blocks the work" was to
+**drop the work**. It was chasing a label on a fan.
+
+### The answer arrived for free
+
+Gova photographed the BIOS. It closes the question three sessions could not:
+
+**The BIOS fan list has NINE entries. Linux shows eight.** The ninth is
+`EZ Conn Fan`, turning at 963–1612 RPM. The case fans are on the `JAF_1` EZ
+Conn header, exactly as the manual hinted. There was never a hub to find,
+because an EZ Conn connection is a **cable**. The five empty `SYS_FAN` headers
+really are empty; the BIOS prints `N/A` where Linux prints `0`.
+
+The driver can already do 9 channels (`NCT6687_NUM_REG_FAN_MAX`), but enables
+the ninth only for the MEG Z890 GODLIKE. `fan_mask` alone will not do it: the
+read loops are bounded by the board entry's `fan_channels`.
+
+### The true voltage map
+
+The BIOS gave the ground truth. Of 14 Linux voltages:
+
+- **4 are correct**: `+12V`, `+5V`, `CPU Vcore`, `CPU Soc`.
+- **2 are correct with the wrong name**: `DRAM` is really **CPU VDDIO**;
+  `AVCC3` is really **System 3.3V**.
+- **8 are wrong.** Four of them read the same ~3.33 V, which is one register
+  read under four names.
+- **3 rails the BIOS shows are missing from Linux**: `VDD MISC` 1.097 V,
+  `CPU 1P8` 1.793 V, `CHIPSET Core` 1.047 V. The MSI Z890 override uses
+  registers 14 and 15, which the generic table never reads. They will be there.
+
+**Gova's CMOS battery is fine.** `VBat` at 2.046 V is not the battery; the BIOS
+lists no battery voltage.
+
+### A safety setting that was off
+
+`CPU Fan Fail Warning Control` is **OFF** in the BIOS. That is why the board
+stayed silent while the CPU fan sat at 0 RPM. It should be on.
+
+### Also from the BIOS
+
+- The memory is **TEAM GROUP**, not "Unknown".
+- The board's own fan curve: source **CPU Core**; 0 °C → 20 %, 45 °C → 35 %,
+  65 °C → 70 %, 80 °C → 100 %; step 0.1 s.
+- All four SATA ports are empty.
+
+### Next
+
+Two read-only driver changes, both worth contributing upstream because they
+apply to every MSI PRO X870-P WIFI:
+
+1. Give this board the 9-channel entry, so the EZ Conn fan appears in Linux.
+2. Map the three missing rails and correct the six wrong labels.
+
+Neither writes anything to the hardware. Both need Gova's agreement first,
+given what happened.
+

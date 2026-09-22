@@ -51,14 +51,24 @@ The board has 8 headers. Only **3** carry a tachometer signal:
 | `System Fan #1` (`fan3`) | 1291 | 153 of 255 (60 %) | one case fan |
 | `System Fan #2` to `#6` | **0** | 153 | nothing reports |
 
-So 9 fans exist and 3 signals arrive. The missing ones are explained by one of
-two things, and only a look at the back of the case can say which:
+**ANSWERED on 2026-09-22 by a photograph of the BIOS.** The BIOS fan list has
+a **ninth** entry that Linux does not show:
 
-1. **Daisy chain or splitter.** When several fans share one header, only the
-   first one returns a tachometer signal. Two radiator fans on `CPU_FAN`
-   through a splitter would give exactly one reading.
-2. **A separate fan hub.** A hub powered from SATA or Molex drives the fans and
-   returns nothing to the board.
+```
+EZ Conn Fan        1612 RPM   (963 RPM at another moment)
+```
+
+The case fans are on the **`JAF_1` EZ Conn header** on the bottom edge of the
+board. There was never a hub to find, because an EZ Conn connection is a
+**cable**, not a box. That is why Gova, looking from every angle the case
+allowed, saw nothing.
+
+The five empty `SYS_FAN` headers are genuinely empty: the BIOS prints `N/A`
+where Linux prints `0`. The two sources agree.
+
+Linux is missing that channel because the driver gives this board 8 channels.
+It supports 9, but enables the ninth only for the MEG Z890 GODLIKE. See
+`exp-0009`.
 
 **It is not a USB controller.** Every USB device is accounted for:
 
