@@ -196,3 +196,84 @@ async def test_the_refresh_rate_is_bounded_at_both_ends() -> None:
         for _ in range(10):
             await pilot.press("minus")
         assert app._hz == 0.25  # noqa: SLF001
+
+
+async def test_the_status_bar_reports_the_rate_and_the_channel_count() -> None:
+    from sensors_gui.app.status import StatusBar
+
+    app = SensorsApp([FakeCollector()])
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        status = app.query_one(StatusBar).render_status()
+    assert "3 channels" in status
+    assert "2 Hz" in status
+
+
+async def test_the_status_bar_reports_how_long_a_pass_took() -> None:
+    from sensors_gui.app.status import StatusBar
+
+    app = SensorsApp([FakeCollector()], hz=20.0)
+    async with app.run_test() as pilot:
+        await pilot.pause(0.2)
+        status = app.query_one(StatusBar).render_status()
+    assert "ms" in status
+
+
+async def test_the_status_bar_follows_a_rate_change() -> None:
+    from sensors_gui.app.status import StatusBar
+
+    app = SensorsApp([FakeCollector()], hz=2.0)
+    async with app.run_test() as pilot:
+        await pilot.press("plus")
+        await pilot.pause()
+        assert "4 Hz" in app.query_one(StatusBar).render_status()
+
+
+async def test_a_failing_channel_is_counted_in_the_status_bar() -> None:
+    from sensors_gui.app.status import StatusBar
+
+    collector = FakeCollector()
+    app = SensorsApp([collector], hz=20.0)
+    async with app.run_test() as pilot:
+        collector.values["temp1"] = None
+        await pilot.pause(0.2)
+        assert "1 failing" in app.query_one(StatusBar).render_status()
+
+
+async def test_no_failing_count_is_shown_when_everything_reads() -> None:
+    from sensors_gui.app.status import StatusBar
+
+    app = SensorsApp([FakeCollector()], hz=20.0)
+    async with app.run_test() as pilot:
+        await pilot.pause(0.2)
+        assert "failing" not in app.query_one(StatusBar).render_status()
+
+
+async def test_a_channel_hidden_by_the_filter_does_not_reach_a_panel() -> None:
+    # The seam the naming layer plugs into, so that channels the BIOS proved
+    # wrong can be kept out of the way without being deleted.
+    collector = FakeCollector()
+    app = SensorsApp([collector], keep=lambda spec: spec.group is not Group.BOARD)
+    async with app.run_test():
+        groups = [panel.group for panel in app.query(GroupPanel)]
+    assert Group.BOARD not in groups
+    assert Group.CPU in groups
+
+
+async def test_hidden_channels_are_counted_so_they_are_never_silently_lost() -> None:
+    from sensors_gui.app.status import StatusBar
+
+    app = SensorsApp([FakeCollector()], keep=lambda spec: spec.group is not Group.BOARD)
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        assert "1 hidden" in app.query_one(StatusBar).render_status()
+
+
+async def test_pressing_h_reveals_the_hidden_channels() -> None:
+    collector = FakeCollector()
+    app = SensorsApp([collector], keep=lambda spec: spec.group is not Group.BOARD)
+    async with app.run_test() as pilot:
+        await pilot.press("h")
+        await pilot.pause()
+        groups = [panel.group for panel in app.query(GroupPanel)]
+    assert Group.BOARD in groups
