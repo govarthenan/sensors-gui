@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-22 (session 4, part 2)
+Last update: 2026-09-22 (session 4, part 3)
 
 ## Phase
 
@@ -91,7 +91,9 @@ rules before any code is written. Reading comes first.
   in total: 43 hwmon, 17 NVML, 2 battery, 96 system.
 - ADR 0008 accepted: the discard of the first pass after discovery lives in the
   registry.
-- The driver patch is **ready and verified but not installed**.
+- **The driver patch is installed and confirmed.** The board gives **9 fans and
+  10 voltages**. `EZ Conn Fan` reads 963–988 RPM, matching the BIOS exactly,
+  and the **CMOS battery is healthy at 3.116 V**. See `exp-0010`.
 - **Session 3.** Corrected the GPU and monitor error. Gova gave the fan count.
 - **The motherboard driver is installed and working.** Gova ran
   `scripts/install-nct6687d.sh`. It built, was signed with the enrolled MOK and
@@ -120,20 +122,7 @@ rules before any code is written. Reading comes first.
 
 ## Waiting for Gova
 
-1. **Install the driver patch.** One command, and `run-as-root` will show it to
-   Gova before it runs:
-
-   ```
-   sudo ./scripts/patch-nct6687.sh
-   ```
-
-   It gives the **EZ Conn fan** channel and a corrected voltage map. Two of the
-   voltage mappings are **guesses** on registers 14 and 15; after the rebuild,
-   check that the channel labelled `CPU 1P8` reads about **1.793 V** and the one
-   labelled `CHIPSET Core` reads about **1.047 V**. If either is wrong, revert
-   that one line. `driver/README.md` says how.
-
-2. **In the BIOS, switch `CPU Fan Fail Warning Control` to ON.** It is the alarm
+1. **In the BIOS, switch `CPU Fan Fail Warning Control` to ON.** It is the alarm
    that was missing during the thermal shutdown.
 
 ## Next actions

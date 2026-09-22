@@ -8,6 +8,14 @@ this machine, and skips when it is not present.
 
 Expected values come from `data/evidence/bios-ground-truth-2026-09-22/linux-vs-bios.json`,
 `lab/exp-0007-nct6687-verification/README.md` and `docs/phase-3-plan.md`.
+
+**Updated 2026-09-22**, after `driver/nct6687-ms7e47.patch` was installed
+(`lab/exp-0010`). The driver now emits the corrected labels itself, so the
+renames that this layer used to perform no longer have anything to rename:
+`DRAM` and `AVCC3` do not exist any more, and the four duplicates of the 3.3 V
+rail are hidden by the driver. What is left for this layer is the same job on
+the channels that remain. The old expectations are kept in the ground-truth
+file under `history_before_patch`.
 """
 
 from __future__ import annotations
@@ -44,19 +52,23 @@ def _nct6687(channel: str, label: str, unit: Unit = Unit.VOLT) -> SensorSpec:
 # --- friendly(): renaming from the ground-truth table -----------------------
 
 
-def test_friendly_renames_dram_to_cpu_vddio() -> None:
-    spec = _nct6687("in7", "DRAM")
+def test_friendly_leaves_an_already_correct_name_alone() -> None:
+    # The driver renames DRAM to CPU VDDIO itself since the 2026-09-22 patch,
+    # so this layer must not rename it a second time.
+    spec = _nct6687("in7", "CPU VDDIO")
     assert naming.friendly(spec).label == "CPU VDDIO"
 
 
-def test_friendly_renames_avcc3_to_system_3_3v() -> None:
-    spec = _nct6687("in11", "AVCC3")
+def test_friendly_leaves_the_renamed_3_3v_rail_alone() -> None:
+    spec = _nct6687("in11", "System 3.3V")
     assert naming.friendly(spec).label == "System 3.3V"
 
 
 def test_friendly_leaves_a_wrong_voltage_label_unchanged() -> None:
-    spec = _nct6687("in5", "CPU 1P8")
-    assert naming.friendly(spec).label == "CPU 1P8"
+    # "Chipset" reads about 0.3 V, which the BIOS shows is not the chipset core
+    # rail. The driver keeps it visible on purpose so this layer can mark it.
+    spec = _nct6687("in8", "Chipset")
+    assert naming.friendly(spec).label == "Chipset"
 
 
 def test_friendly_leaves_a_correct_voltage_label_unchanged() -> None:
@@ -193,14 +205,10 @@ def test_friendly_leaves_an_unrelated_hwmon_driver_unchanged() -> None:
         ("in1", "+5V", "correct"),
         ("in3", "CPU Soc", "correct"),
         ("in4", "CPU Vcore", "correct"),
-        ("in7", "DRAM", "rename"),
-        ("in11", "AVCC3", "rename"),
-        ("in2", "+3.3V", "wrong"),
-        ("in5", "CPU 1P8", "wrong"),
-        ("in6", "CPU VDDP", "wrong"),
-        ("in12", "AVSB", "wrong"),
+        ("in7", "CPU VDDIO", "correct"),
+        ("in11", "System 3.3V", "correct"),
+        ("in13", "CMOS Battery", "correct"),
         ("in8", "Chipset", "wrong"),
-        ("in13", "VBat", "wrong"),
         ("in9", "CPU SA", "unverified"),
         ("in10", "Voltage #2", "unverified"),
     ],
@@ -318,8 +326,9 @@ def test_the_real_ground_truth_file_loads_from_the_actual_repo() -> None:
     try:
         ground_truth = naming._load_ground_truth()
         assert ground_truth is not None
-        assert "DRAM" in ground_truth.voltages
-        assert ground_truth.voltages["DRAM"].verdict == "rename"
+        assert "Chipset" in ground_truth.voltages
+        assert ground_truth.voltages["Chipset"].verdict == "wrong"
+        assert ground_truth.voltages["CMOS Battery"].verdict == "correct"
     finally:
         naming._load_ground_truth.cache_clear()
 
@@ -337,11 +346,18 @@ def test_against_the_real_nct6687_device_on_this_machine() -> None:
     friendly_labels = {naming.friendly(spec).label for spec in nct6687_specs}
     assert "CPU VDDIO" in friendly_labels
     assert "System 3.3V" in friendly_labels
+    assert "CMOS Battery" in friendly_labels
+    assert "EZ Conn Fan" in friendly_labels  # added by the 2026-09-22 driver patch
     assert "DIMM A2" not in friendly_labels  # that's a memory channel, not board
+
+    # The four duplicates of the 3.3 V rail are hidden by the driver now.
+    for gone in ("DRAM", "AVCC3", "VBat", "CPU VDDP", "AVSB"):
+        assert gone not in friendly_labels
 
     verdicts = {spec.label: naming.verdict(spec) for spec in nct6687_specs}
     assert verdicts["+12V"] == "correct"
-    assert verdicts["DRAM"] == "rename"
+    assert verdicts["CPU VDDIO"] == "correct"
+    assert verdicts["Chipset"] == "wrong"
     assert verdicts["Chipset"] == "wrong"
 
     # Every spec must survive both calls without raising, whatever it is.

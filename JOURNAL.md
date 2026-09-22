@@ -514,3 +514,66 @@ with "Registry object is not iterable".
 
 The driver install waits until Gova is back at the keyboard, because
 `run-as-root` needs a person there to type the password.
+
+---
+
+## 2026-09-22 — Session 4, part 3: the driver patch, and what it found
+
+Gova installed the patch and the machine answered both open questions. Two
+rounds were needed.
+
+**Round 1: both guesses were wrong, and one was wrong usefully.**
+
+- `fan9` at register `0x144` read a constant **0 RPM**, while the BIOS showed
+  the EZ Conn fan turning.
+- `CPU 1P8` at register 15 read a constant **0.000 V**. Nothing is there.
+- `CHIPSET Core` at register 14 read a steady **3.116 V** — not a 1.047 V
+  chipset rail, but exactly what a healthy **CR2032** gives. And the MS-7E32
+  map in this same driver puts the **CMOS battery** on register 14.
+- Both renames were confirmed exactly, and the four duplicate 3.33 V channels
+  were gone.
+
+**The fan answer was a comment in the driver's own code.** The default fan
+table says of register `0x146`: `// SYS Fan 2, EZConn on others`. The patch had
+guessed `0x144` from the one precedent, a sibling board where it is a second
+pump. `0x146` is free in the `msi_alt1` mapping because the system fans moved
+to `0x154`–`0x15E`.
+
+**Round 2, both fixes confirmed on the machine:**
+
+| Channel | Measured | The BIOS said |
+|---|---|---|
+| `fan9` **EZ Conn Fan** | 963–988 RPM | 963 and 1612 |
+| `in13` **CMOS Battery** | 3.116–3.120 V | not reported |
+
+**963 RPM against the BIOS's 963 RPM.** Gova's case fans are readable in Linux
+for the first time, and the CMOS battery turns out to be healthy — I had
+earlier warned that a 2.046 V reading was probably the wrong register, and it
+was.
+
+**The board now gives 9 fans and 10 voltages**, of which 7 are right, against
+8 fans and 14 voltages of which 4 were right.
+
+**Three lessons worth keeping**
+
+1. **A guess labelled as a guess costs nothing and can pay.** Both were wrong,
+   and one found the CMOS battery, which nobody was looking for. Each reused a
+   channel already proven wrong, so nothing that worked was at risk.
+2. **Read the code's own comments before guessing from precedent.** The fan
+   register was documented in the driver, and the first patch lost a round by
+   reasoning from a sibling board instead.
+3. **A steady wrong number is information.** Register 14 reading a constant
+   3.116 V was far more useful than the zero at register 15. `exp-0008` made
+   the same point with its distinct-value count.
+
+The correction table was rewritten to describe the patched driver, with the
+pre-patch state kept under `history_before_patch` so the reasoning can still be
+followed. The naming tests moved with it, and say why in the file.
+
+`scripts/patch-nct6687.sh` is now re-runnable: it restores the pristine backup
+when the source is already patched, which is what made round 2 possible without
+a full uninstall.
+
+**The application, live:** 134 channels, 5 hidden, 2.28 ms per pass,
+`EZ Conn Fan 964 RPM` on screen.
+

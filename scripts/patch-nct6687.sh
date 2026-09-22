@@ -184,16 +184,13 @@ diff -u --label before --label after "${OUT}/before.txt" "${OUT}/after.txt" | te
 log "(diff exit status is informational; a real diff is expected and not an error)"
 
 echo
-log "Check these by hand against the BIOS Hardware Monitor page (driver/README.md has the full table):"
-log "  fan9 'EZ Conn Fan'   expect ~960-1600 RPM"
-log "  in*  'CPU 1P8'       expect ~1.793 V  -- GUESS, may be wrong, see driver/README.md"
-log "  in*  'CHIPSET Core'  expect ~1.047 V  -- GUESS, may be wrong, see driver/README.md"
-log "  in*  'CPU VDDIO'     expect ~1.368 V  -- rename only, must match the old 'DRAM' value"
-log "  in*  'System 3.3V'   expect ~3.288 V  -- rename only, must match the old 'AVCC3' value"
-log "  in2, in6, in12 (old '+3.3V'/'CPU VDDP'/'AVSB') should no longer appear at all"
-log ""
-log "To revert: sudo ./scripts/uninstall-nct6687d.sh, then sudo ./scripts/install-nct6687d.sh"
-log "Backup of the pre-patch source: ${BACKUP}"
+log "Confirmed on this machine 2026-09-22 (lab/exp-0010). Expected values:"
+log "  fan9 'EZ Conn Fan'   ~960-1600 RPM   the case fans on header JAF_1"
+log "  in*  'CMOS Battery'  ~3.116 V        a healthy CR2032"
+log "  in*  'CPU VDDIO'     ~1.368 V        rename only; matches the old 'DRAM'"
+log "  in*  'System 3.3V'   ~3.288 V        rename only; matches the old 'AVCC3'"
+log "  in2, in5, in6, in12  should not appear; they were one rail under four names"
+log "  in8  'Chipset'       ~0.30 V, left wrong on purpose for the app to mark"
 
 chown -R "${CALLER}:${CALLER}" "${OUT}" 2>/dev/null || true
 log "done. Results: ${OUT}"

@@ -192,20 +192,29 @@ out-of-tree `nct6687d` DKMS driver. `/proc/ioports` confirms it:
   0a20-0a23 : nct6687
 ```
 
-29 channels: 8 fans, 14 voltages, 7 temperatures.
+**Patched 2026-09-22** with `driver/nct6687-ms7e47.patch`, which adds reads
+only. The board now gives **9 fans**, **10 voltages** and 7 temperatures.
+
+| Channel | Value | Note |
+|---|---|---|
+| `fan9` **EZ Conn Fan** | 963–988 RPM | the case fans on header `JAF_1`. Register `0x146`. |
+| `in13` **CMOS Battery** | **3.116 V** | healthy. Register 14. |
+| `CPU VDDIO`, `System 3.3V` | | renamed in the driver; they were `DRAM` and `AVCC3` |
+| four duplicates of the 3.3 V rail | | hidden; one rail had four names |
+
+Before the patch: 8 fans and 14 voltages, of which only 4 voltages were right.
 
 **The BIOS reads more than Linux does.** Checked against the BIOS on
 2026-09-22 (`exp-0009`):
 
-- A **ninth fan channel, `EZ Conn Fan`**, turns at 963–1612 RPM. The case fans
-  are on the `JAF_1` EZ Conn header. Linux has no channel for it. The driver
-  supports 9 channels, but only for one other board.
+- ~~A ninth fan channel Linux has no channel for.~~ **ANSWERED 2026-09-22: the
+  patch reads it. `EZ Conn Fan` gives 963–988 RPM, matching the BIOS.**
 - Of the 14 voltages, **4 are correct**, 2 are correct with the wrong name
   (`DRAM` is really `CPU VDDIO`, `AVCC3` is really `System 3.3V`), and **8 are
   wrong**. Three rails the BIOS shows — `VDD MISC` 1.097 V, `CPU 1P8` 1.793 V
   and `CHIPSET Core` 1.047 V — are not read by Linux at all.
-- `VBat` at 2.046 V is **not** the CMOS battery. The BIOS reports no battery
-  voltage. The cell is not known to be low.
+- ~~`VBat` at 2.046 V is not the CMOS battery.~~ **ANSWERED 2026-09-22: the
+  battery is on register 14 and reads 3.116 V. It is healthy.**
 
 The board's own fan curve: source **CPU Core**; 0 °C → 20 %, 45 °C → 35 %,
 65 °C → 70 %, 80 °C → 100 %; step 0.1 s.

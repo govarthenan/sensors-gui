@@ -1,0 +1,1 @@
+checking file nct6687.c
