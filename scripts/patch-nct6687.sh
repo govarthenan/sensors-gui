@@ -114,6 +114,20 @@ fi
 snapshot "${HWMON_BEFORE}" | tee "${OUT}/before.txt"
 
 # --- 2. Back up the pinned source before touching it --------------------------
+# If the source is already patched, restore the OLDEST backup first, so that a
+# corrected patch can be applied to a pristine tree. Without this, re-running
+# after a fix fails the dry-run and there is no way forward but a full
+# uninstall and reinstall.
+if grep -q "nct6687_ms7e47" "${SRC_DIR}/nct6687.c" 2>/dev/null; then
+    PRISTINE="$(ls -1 "${SRC_DIR}"/nct6687.c.orig-* 2>/dev/null | head -1)"
+    if [ -n "${PRISTINE}" ] && ! grep -q "nct6687_ms7e47" "${PRISTINE}"; then
+        log "source is already patched; restoring the pristine copy ${PRISTINE}"
+        cp -a "${PRISTINE}" "${SRC_DIR}/nct6687.c" || fail "could not restore ${PRISTINE}"
+    else
+        fail "source is already patched and no pristine backup was found. Run scripts/uninstall-nct6687d.sh then scripts/install-nct6687d.sh, and try again."
+    fi
+fi
+
 log "--- backup ---"
 BACKUP="${SRC_DIR}/nct6687.c.orig-${STAMP}"
 cp -a "${SRC_DIR}/nct6687.c" "${BACKUP}" || fail "could not back up ${SRC_DIR}/nct6687.c"

@@ -1,69 +1,86 @@
---- a/nct6687.c	2026-09-22 10:09:42.973217517 +0530
-+++ b/nct6687.c	2026-09-22 10:11:07.287083682 +0530
-@@ -333,6 +333,62 @@
+--- a/nct6687.c
++++ b/nct6687.c
+@@ -333,6 +333,52 @@
  	{ .channel = 13, .reg = 14, .multiplier = 1, .label = "CMOS Battery" },
  };
  
 +/*
-+ * MSI PRO X870-P WIFI (MS-7E47) voltage mapping, from BIOS ground truth
-+ * (sensors-gui project, lab/exp-0009-bios-ground-truth, BIOS E7E47AMSI.1A10,
-+ * captured 2026-09-22). A channel that keeps its generic register/multiplier
-+ * is a confirmed rename; a channel whose register changed is a GUESS, marked
-+ * below and unverified against hardware.
++ * MSI PRO X870-P WIFI (MS-7E47) voltage mapping.
 + *
-+ * Confirmed correct value, wrong generic name (register/multiplier kept):
-+ *   channel 7  (was "DRAM")  -> "CPU VDDIO",   BIOS 1.368 V, exact match.
-+ *   channel 11 (was "AVCC3") -> "System 3.3V", BIOS 3.288 V, exact match.
++ * Built from the BIOS Hardware Monitor (BIOS E7E47AMSI.1A10, photographed
++ * 2026-09-22) and then corrected by measuring the patched driver on the
++ * machine. See lab/exp-0009 and lab/exp-0010 in the sensors-gui project.
 + *
-+ * GUESS, UNVERIFIED. Registers 14 and 15 are the only two voltage registers
-+ * the generic table never reads. The BIOS shows two rails Linux does not
-+ * read at all: "CPU 1P8" 1.793 V and "CHIPSET Core" 1.047 V. The MS-7E32
-+ * (Z890) override above is the only hardware precedent available: it shows
-+ * register 15 holding a ~1.8 V rail on a sibling MSI board (labelled
-+ * "+1.8V" there), which is why CPU 1P8 is guessed onto register 15 here.
-+ * There is no equivalent precedent for register 14, so the CHIPSET Core
-+ * guess on register 14 is weaker still. Both guesses reuse channels that
-+ * already read a confirmed-wrong register with no better generic-table
-+ * value (5 and 9), so no working reading is lost if a guess is wrong.
++ * Confirmed: the generic table gives the right value under the wrong name for
++ * two channels. Register and multiplier are unchanged; only the label moves.
++ *   channel 7  "DRAM"  -> "CPU VDDIO",   BIOS 1.368 V, exact match.
++ *   channel 11 "AVCC3" -> "System 3.3V", BIOS 3.288 V, exact match.
 + *
-+ * Gova: after the rebuild, find the in* files labelled "CPU 1P8" and
-+ * "CHIPSET Core" (grep the in*_label files under the driver's hwmon
-+ * directory in /sys/class/hwmon, or use the `sensors` output) and compare
-+ * their value against the BIOS Hardware Monitor page. Expect ~1.793 V and
-+ * ~1.047 V. A reading that is 0,
-+ * saturated, or clearly not that value means the guess is wrong for that
-+ * register; revert that one line (put reg 9 back under "CPU 1P8" / reg 5
-+ * back under "Chipset") rather than leaving a wrong number under a
-+ * confident-looking name.
++ * Measured: register 14 reads a steady 3.116 V. The generic table never reads
++ * it. The BIOS reports no battery voltage, so this cannot be checked against
++ * the BIOS directly, but two things point the same way: the MS-7E32 override
++ * above maps register 14 to "CMOS Battery" on a sibling MSI board, and
++ * 3.116 V is what a healthy CR2032 gives. Channel 13 is moved onto it. Its
++ * old register 13 read 2.046 V, which the BIOS shows is not a rail it knows.
 + *
-+ * A third rail the BIOS shows, "VDD MISC" 1.097 V, has no known register on
-+ * this board. Registers 14 and 15 are already spent on the two guesses
-+ * above and no other free register is known, so VDD MISC is not mapped.
++ * Measured and rejected: register 15 reads a constant 0. An earlier version
++ * of this table guessed it held the 1.8 V rail the BIOS calls "CPU 1P8"
++ * (1.793 V). It does not. Channel 5 is left on its generic register and
++ * hidden as a duplicate instead.
 + *
-+ * Confirmed wrong, no better value known, left as-is for the application
-+ * layer to mark: channel 13 "VBat" reads 2.046 V; the BIOS confirms this is
-+ * not the CMOS battery and reports no battery voltage on this board at all.
++ * Still unmapped: the BIOS shows "VDD MISC" 1.097 V, "CPU 1P8" 1.793 V and
++ * "CHIPSET Core" 1.047 V. No register in this chip's voltage block is known
++ * to hold them. Registers 14 and 15 were the only untried ones, and both are
++ * now accounted for.
 + *
-+ * hidden_voltage_mask (below) hides channels 2, 6 and 12 ("+3.3V",
-+ * "CPU VDDP", "AVSB"). Before channel 5 was reused above, all four of
-+ * these channels -- registers 9, 10, 11 and 12 -- read the same ~3.33 V.
-+ * None is known to correspond to a real rail on this board, so the three
-+ * that keep their original (now known-duplicate) register are hidden
-+ * rather than shown three times over under confident-looking names. They
-+ * stay readable with the `manual=1` module parameter; see
-+ * nct6687_is_visible().
++ * Channel 8 keeps its generic register 5 under the generic name "Chipset".
++ * It reads about 0.31 V, which the BIOS shows is not the chipset core rail.
++ * It is left visible and wrong here on purpose, so that the application layer
++ * can mark it, rather than the driver hiding a live reading of something.
++ *
++ * hidden_voltage_mask hides channels 2, 5, 6 and 12 ("+3.3V", "CPU 1P8",
++ * "CPU VDDP", "AVSB"). All four read registers 11, 9, 10 and 12, which give
++ * the same ~3.33 V: one rail reported four times under four confident names.
++ * The real 3.3 V rail is channel 11 on register 8. The four stay readable
++ * with the manual=1 module parameter; see nct6687_is_visible().
 + */
 +static const struct voltage_reg_override nct6687_voltage_ms7e47_overrides[] = {
-+	{ .channel = 5, .reg = 15, .multiplier = 1, .label = "CPU 1P8" },      /* GUESS: reg 9 -> 15 */
-+	{ .channel = 7, .reg = 3, .multiplier = 2, .label = "CPU VDDIO" },     /* confirmed rename */
-+	{ .channel = 8, .reg = 14, .multiplier = 1, .label = "CHIPSET Core" }, /* GUESS: reg 5 -> 14, renamed */
-+	{ .channel = 11, .reg = 8, .multiplier = 1, .label = "System 3.3V" },  /* confirmed rename */
++	{ .channel = 7, .reg = 3, .multiplier = 2, .label = "CPU VDDIO" },      /* confirmed */
++	{ .channel = 11, .reg = 8, .multiplier = 1, .label = "System 3.3V" },   /* confirmed */
++	{ .channel = 13, .reg = 14, .multiplier = 1, .label = "CMOS Battery" }, /* measured, see above */
 +};
 +
  static struct voltage_reg nct6687_voltage_config_active[NCT6687_NUM_REG_VOLTAGE];
  
  static const char *const nct6687_manual_voltage_labels[] = {
-@@ -401,6 +457,16 @@
+@@ -382,14 +428,22 @@
+ 	{.reg_rpm = 0x156, .reg_pwm = 0xE01, .reg_pwm_write = 0xC10, .label = "System Fan #5"},
+ 	{.reg_rpm = 0x154, .reg_pwm = 0xE00, .reg_pwm_write = 0xBF8, .label = "System Fan #6"},
+ 	/*
+-	 * Tachometer-only channel: second pump header (PUMP_SYS Fan 2 in BIOS).
+-	 * 0x144 is unused in this mapping since the system fans moved to
+-	 * 0x154-0x15E. No PWM control path has been verified for it, so
+-	 * reg_pwm/reg_pwm_write are left at 0 and no pwm attribute is created.
++	 * Tachometer-only channel. 0x144 is unused in this mapping since the
++	 * system fans moved to 0x154-0x15E. No PWM control path has been
++	 * verified for it, so reg_pwm/reg_pwm_write are left at 0 and no pwm
++	 * attribute is created.
++	 *
++	 * The register is board-specific: on the MEG Z890 GODLIKE it is the
++	 * second pump header, and on the MSI PRO X870-P WIFI it is the EZ Conn
++	 * header. A board that needs a different one sets fan9_reg_rpm in its
++	 * board_data; 0x144 stays the default so the GODLIKE is unchanged.
+ 	 */
+ 	{.reg_rpm = 0x144, .reg_pwm = 0, .reg_pwm_write = 0, .label = "Pump Fan #2"},
+ };
+ 
++/* Writable copy of the active fan table, for a board-specific 9th register. */
++static struct nct6687_fan_config nct6687_fan_config_board[NCT6687_NUM_REG_FAN_MAX];
++
+ enum nct6687_fan_config_type {
+ 	FAN_CONFIG_DEFAULT = 0,
+ 	FAN_CONFIG_MSI_ALT1, // some MSI B850, X870, and Z890 boards
+@@ -401,6 +455,21 @@
  	unsigned int hidden_voltage_mask;
  	const struct voltage_reg_override *voltage_overrides;
  	unsigned int voltage_override_count;
@@ -77,10 +94,15 @@
 +	 * changing the shared array.
 +	 */
 +	const char *fan9_label;
++	/*
++	 * Register holding the ninth channel's tachometer, when it is not the
++	 * default 0x144. Zero means "leave the shared table alone".
++	 */
++	u16 fan9_reg_rpm;
  };
  
  static const struct nct6687_board_data nct6687_msi_alt_default = {
-@@ -422,6 +488,25 @@
+@@ -422,6 +491,33 @@
  	.voltage_override_count = ARRAY_SIZE(nct6687_voltage_ms7e32_overrides),
  };
  
@@ -98,7 +120,15 @@
 +	.fan_channels = NCT6687_NUM_REG_FAN_MAX,
 +	.default_fan_mask = NCT6687_FAN_MASK_ALL,
 +	.fan9_label = "EZ Conn Fan",
-+	.hidden_voltage_mask = BIT(2) | BIT(6) | BIT(12),
++	/*
++	 * MEASURED 2026-09-22: 0x144 read a constant 0 RPM on this board while
++	 * the BIOS showed the EZ Conn fan turning at 963-1612 RPM. The default
++	 * fan table in this driver documents 0x146 as "SYS Fan 2, EZConn on
++	 * others", and 0x146 is free in the msi_alt1 mapping because the system
++	 * fans moved to 0x154-0x15E.
++	 */
++	.fan9_reg_rpm = 0x146,
++	.hidden_voltage_mask = BIT(2) | BIT(5) | BIT(6) | BIT(12),
 +	.voltage_overrides = nct6687_voltage_ms7e47_overrides,
 +	.voltage_override_count = ARRAY_SIZE(nct6687_voltage_ms7e47_overrides),
 +};
@@ -106,7 +136,7 @@
  #define NCT6687_DMI_BOARD(_name) { \
  	.matches = { DMI_MATCH(DMI_BOARD_NAME, _name) }, \
  }
-@@ -468,7 +553,10 @@
+@@ -468,7 +564,10 @@
  	NCT6687_DMI_BOARD("X870 GAMING PLUS WIFI (MS-7E47)"),
  	NCT6687_DMI_BOARD("X870E GAMING PLUS WIFI (MS-7E70)"),
  	NCT6687_DMI_BOARD("MAG X870 TOMAHAWK WIFI (MS-7E51)"),
@@ -118,7 +148,7 @@
  	NCT6687_DMI_BOARD("PRO X870E-P WIFI (MS-7E70)"),
  	NCT6687_DMI_BOARD("MAG X870E TOMAHAWK WIFI (MS-7E59)"),
  	NCT6687_DMI_BOARD("MAG X870E TOMAHAWK MAX WIFI PZ (MS-7E84)"),
-@@ -1456,7 +1544,12 @@
+@@ -1456,7 +1555,12 @@
  	case hwmon_fan:
  		if (attr != hwmon_fan_label)
  			return -EOPNOTSUPP;
@@ -132,3 +162,23 @@
  		return 0;
  	case hwmon_temp:
  		if (attr != hwmon_temp_label)
+@@ -1969,6 +2073,19 @@
+ 	}
+ 
+ 	/*
++	 * A board whose ninth tachometer is not at the shared table's default
++	 * gets its own copy of that table with the one register replaced.
++	 */
++	if (nct6687_board && nct6687_board->fan9_reg_rpm &&
++	    nct6687_fan_channels > NCT6687_NUM_REG_FAN) {
++		memcpy(nct6687_fan_config_board, nct6687_fan_config_active,
++		       sizeof(nct6687_fan_config_board));
++		nct6687_fan_config_board[NCT6687_NUM_REG_FAN].reg_rpm =
++			nct6687_board->fan9_reg_rpm;
++		nct6687_fan_config_active = nct6687_fan_config_board;
++	}
++
++	/*
+ 	 * Board is known now: resolve the sentinel for every path that did not
+ 	 * already set an effective mask (default mapping, non-dual-pump boards).
+ 	 */

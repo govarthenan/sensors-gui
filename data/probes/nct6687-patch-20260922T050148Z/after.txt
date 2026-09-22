@@ -1,0 +1,20 @@
+  fan1   CPU Fan            1837 RPM
+  fan2   Pump Fan           1472 RPM
+  fan3   System Fan #1      1263 RPM
+  fan4   System Fan #2      0 RPM
+  fan5   System Fan #3      0 RPM
+  fan6   System Fan #4      0 RPM
+  fan7   System Fan #5      0 RPM
+  fan8   System Fan #6      0 RPM
+  fan9   EZ Conn Fan        0 RPM
+  in0    +12V               12.120 V
+  in1    +5V                5.050 V
+  in3    CPU Soc            1.310 V
+  in4    CPU Vcore          1.168 V
+  in5    CPU 1P8            0.000 V
+  in7    CPU VDDIO          1.368 V
+  in8    CHIPSET Core       3.116 V
+  in9    CPU SA             0.806 V
+  in10   Voltage #2         1.528 V
+  in11   System 3.3V        3.292 V
+  in13   VBat               2.044 V
