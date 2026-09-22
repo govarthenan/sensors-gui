@@ -11,6 +11,12 @@ __pycache__/
 .env
 tmp/
 
+# The handoff note stays on this machine. It is the working picture of one
+# person's desktop, and it names the machine, the drive and the build. Gova
+# decided on 2026-09-22 that it must not reach the remote; it was purged from
+# the whole history at the same time, before the first push.
+HANDOFF.md
+
 # Large raw captures. Keep small samples only.
 data/probes/*.raw
 data/probes/*.bin
