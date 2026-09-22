@@ -729,3 +729,228 @@ export class StatTile {
     this.spark.update(values, state);
   }
 }
+
+// --- CoreBars -----------------------------------------------------------------
+
+/**
+ * One column for each core or thread, side by side, like a level meter.
+ *
+ * Gova's idea, 2026-09-22. It answers a question 24 rows of numbers cannot:
+ * is the load spread across the cores, or pinned to one? It is a bar chart
+ * comparing one measure across a category, which is the right form for that
+ * question, so the usual rules apply and they matter more here than usual.
+ *
+ *   - **One scale for every column**, from the spec, never from the largest
+ *     value on screen. A column half full means half of 100 %, always.
+ *   - **The order is the hardware's order and never the values' order.** A
+ *     display that re-sorted itself by magnitude would flicker and would
+ *     destroy the identity of each column.
+ *   - **No rainbow.** The reference picture runs a spectrum across the
+ *     columns, which paints position as if it were meaning. Every column here
+ *     carries the same hue, and colour is left free to carry state.
+ *   - **The grouping is read from the machine.** The two threads of a core sit
+ *     together and the two dies are apart, from
+ *     `data/probes/2026-09-22-cpu-topology.txt`. A guess would put two
+ *     different cores side by side.
+ */
+const MAX_BAR = 16; // the widest a column may be, so the leftover of a slot is air
+const MAX_SLOT = 26; // the furthest apart two columns may stand
+
+export class CoreBars {
+  /**
+   * @param {object} options the shape of the display
+   * @param {Array<{label: string, channel: object, group: string}>} options.columns
+   *   one entry for each column, in hardware order
+   * @param {number} options.high the top of the scale, the same for every column
+   * @param {string} options.unit the symbol to show after a value
+   * @param {boolean} [options.segmented] draw each column as discrete blocks
+   * @param {number} [options.height] the height of the plot in pixels
+   */
+  constructor(options) {
+    this.columns = options.columns;
+    this.high = options.high;
+    this.unit = options.unit ?? "";
+    this.segmented = options.segmented ?? false;
+    this.height = options.height ?? 150;
+    this.width = 640;
+    this.values = this.columns.map(() => null);
+    this.hoverAt = null;
+
+    this.element = document.createElement("figure");
+    this.element.className = "cores";
+    this.element.innerHTML = `
+      <div class="cores-plot">
+        <canvas class="cores-canvas"></canvas>
+        <div class="cores-tip" hidden></div>
+      </div>
+      `;
+    this.canvas = this.element.querySelector(".cores-canvas");
+    this.tip = this.element.querySelector(".cores-tip");
+    this.plot = this.element.querySelector(".cores-plot");
+
+    this.observer = new ResizeObserver(() => this.draw());
+    this.observer.observe(this.plot);
+
+    this.plot.addEventListener("mousemove", (event) => {
+      const box = this.canvas.getBoundingClientRect();
+      this.hoverAt = event.clientX - box.left;
+      this.draw();
+    });
+    this.plot.addEventListener("mouseleave", () => {
+      this.hoverAt = null;
+      this.tip.hidden = true;
+      this.draw();
+    });
+
+  }
+
+  /** Take one set of values, in column order, and redraw. */
+  update(values) {
+    this.values = values;
+    this.draw();
+  }
+
+  /** Where each column sits, and how wide it is. */
+  layout(width) {
+    const pad = { left: 34, right: 6, top: 8, bottom: 30 };
+    const plotWidth = width - pad.left - pad.right;
+    // A gap of one column's slot between blocks, so the two dies read apart.
+    const blocks = [...new Set(this.columns.map((column) => column.group))].length;
+    const slots = this.columns.length + (blocks - 1);
+    // A slot is capped too. On a 2500 px screen an uncapped slot is 100 px
+    // wide, and twenty-four columns that far apart stop reading as one
+    // display. What is left over becomes margin, and the block is centred.
+    const slot = Math.min(plotWidth / slots, MAX_SLOT);
+    const used = slot * slots;
+    const start = pad.left + (plotWidth - used) / 2;
+    const positions = [];
+    let cursor = start;
+    let previous = null;
+    for (const column of this.columns) {
+      if (previous !== null && column.group !== previous) cursor += slot;
+      positions.push(cursor);
+      cursor += slot;
+      previous = column.group;
+    }
+    return { pad, plotWidth, slot, positions, start, used };
+  }
+
+  /** Draw the whole display. */
+  draw() {
+    const measured = this.plot.clientWidth;
+    if (measured > 0) this.width = Math.max(measured, 260);
+    const { width, height } = this;
+    const context = prepare(this.canvas, width, height);
+    const { pad, plotWidth, slot, positions, start, used } = this.layout(width);
+    const plotHeight = height - pad.top - pad.bottom;
+    // A column is capped rather than filling its slot: the leftover is air,
+    // and 24 columns filling a 2500 px screen read as blocks, not as a level
+    // meter. A 2 px gap of surface does the separating, so no column needs a
+    // border drawn around it.
+    const barWidth = Math.max(Math.min(slot - 2, MAX_BAR), 2);
+    const inset = (slot - barWidth) / 2;
+
+    context.strokeStyle = token("--grid");
+    context.lineWidth = 1;
+    context.fillStyle = token("--ink-muted");
+    context.font = `11px ${token("--sans")}`;
+    context.textAlign = "right";
+    context.textBaseline = "middle";
+    for (const fraction of [0, 0.25, 0.5, 0.75, 1]) {
+      const y = Math.round(pad.top + plotHeight * (1 - fraction)) + 0.5;
+      context.beginPath();
+      context.moveTo(start, y);
+      context.lineTo(start + used, y);
+      context.stroke();
+      context.fillText(scaleLabel(this.high * fraction, { symbol: "", decimals: 0, unit: "none" }), start - 7, y);
+    }
+
+    const colour = token("--series");
+    for (const [index, column] of this.columns.entries()) {
+      const value = this.values[index];
+      if (value === null || value === undefined) continue;
+      const fraction = Math.min(Math.max(value / this.high, 0), 1);
+      const x = positions[index] + inset;
+      context.fillStyle = colour;
+      if (this.segmented) {
+        this.drawSegments(context, x, barWidth, pad, plotHeight, fraction);
+      } else {
+        const barHeight = Math.max(fraction * plotHeight, fraction > 0 ? 1 : 0);
+        context.fillRect(x, pad.top + plotHeight - barHeight, barWidth, barHeight);
+      }
+    }
+
+    context.fillStyle = token("--ink-muted");
+    context.font = `10px ${token("--sans")}`;
+    context.textAlign = "center";
+    context.textBaseline = "top";
+    for (const [index, column] of this.columns.entries()) {
+      if (column.tick === false) continue;
+      context.fillText(column.tick ?? "", positions[index] + slot / 2, pad.top + plotHeight + 3);
+    }
+
+    this.drawBlockNames(context, positions, slot, pad, plotHeight);
+    this.drawHover(context, positions, barWidth, slot, inset, pad, plotHeight);
+  }
+
+  /**
+   * Name each block of columns, under the middle of the block it names.
+   *
+   * This says what the gap between the blocks means, so the display needs no
+   * legend: the reader sees two dies because there are two groups.
+   */
+  drawBlockNames(context, positions, slot, pad, plotHeight) {
+    context.fillStyle = token("--ink-muted");
+    context.font = `11px ${token("--sans")}`;
+    context.textAlign = "center";
+    context.textBaseline = "top";
+    const seen = new Map();
+    for (const [index, column] of this.columns.entries()) {
+      const at = seen.get(column.group) ?? { first: positions[index], last: positions[index] };
+      at.last = positions[index];
+      seen.set(column.group, at);
+    }
+    for (const [name, at] of seen) {
+      context.fillText(name, (at.first + at.last + slot) / 2, pad.top + plotHeight + 16);
+    }
+  }
+
+  /** Draw one column as discrete blocks, the way a level meter does. */
+  drawSegments(context, x, barWidth, pad, plotHeight, fraction) {
+    const count = 20; // one block for each 5 % of the scale, so a block means something
+    const gap = 2;
+    const blockHeight = (plotHeight - gap * (count - 1)) / count;
+    const lit = Math.round(fraction * count);
+    for (let step = 0; step < lit; step += 1) {
+      const y = pad.top + plotHeight - (step + 1) * blockHeight - step * gap;
+      context.fillRect(x, y, barWidth, blockHeight);
+    }
+  }
+
+  /** Show which column the pointer is on, and what it reads. */
+  drawHover(context, positions, barWidth, slot, inset, pad, plotHeight) {
+    if (this.hoverAt === null) {
+      this.tip.hidden = true;
+      return;
+    }
+    let found = -1;
+    for (const [index, x] of positions.entries()) {
+      // The whole slot is the target, not the column: a 14 px column is a
+      // hard thing to put a pointer on.
+      if (this.hoverAt >= x && this.hoverAt <= x + slot) found = index;
+    }
+    if (found < 0) {
+      this.tip.hidden = true;
+      return;
+    }
+    const column = this.columns[found];
+    const value = this.values[found];
+    context.strokeStyle = token("--ink-muted");
+    context.lineWidth = 1;
+    context.strokeRect(positions[found] + inset - 1.5, pad.top - 0.5, barWidth + 3, plotHeight + 1);
+    this.tip.hidden = false;
+    this.tip.textContent = `${column.label}: ${value === null ? "—" : `${value.toFixed(0)} ${this.unit}`}`;
+    this.tip.style.left = `${Math.min(positions[found] + inset, this.width - 160)}px`;
+    this.tip.style.top = "0px";
+  }
+}

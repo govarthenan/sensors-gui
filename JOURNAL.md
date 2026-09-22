@@ -1180,3 +1180,97 @@ does not move while the data fits it.
 
 Checkpoint 3: the graphics card, in full. It is the reference every other
 group is built against.
+
+---
+
+## 2026-09-22 — Session 8: Gova's core display, and the processor leads
+
+**Gova's words, verbatim**
+
+> What do you think about using a component similar to a bar chart sound
+> visualizer to display cpu load for all the cores?
+> Something like this [image]. Use the image to reference the idea only. Not
+> the colors or the design language.
+> ---
+> 1. Yes, the cpu is better.
+> 2. We'll add more information as we derive them from other components as we
+> develop the other screen as well.
+
+**The answer: yes, with three conditions.** The form underneath the idea is a
+bar chart comparing one measure across a category, which is the right form for
+the question "is the load spread, or pinned to one core?" — a question that 24
+rows of numbers cannot answer at a glance. The conditions are what keeps it a
+measurement rather than a decoration:
+
+1. **No rainbow.** The reference picture runs a spectrum across the columns,
+   which paints *position* as if it were meaning. The `dataviz` skill is
+   explicit: colour follows the entity, never its rank. Every column carries
+   the same hue, and colour is left free to carry state.
+2. **The order is the hardware's and never the values'.** A display that
+   re-sorted itself by magnitude would flicker and would destroy the identity
+   of each column.
+3. **One scale for every column, from the spec.** A column half full means
+   half of 100 %, always — never half of the largest value on screen.
+
+**The grouping had to be read from the machine, and a guess would have been
+wrong.** `/sys/devices/system/cpu/cpuN/topology/` says a thread's sibling is
+**12 away**, not next to it: `cpu0` and `cpu12` are one core. Pairing `cpu0`
+with `cpu1` would have put two different cores side by side and made a busy
+core look half idle. The probe is
+`data/probes/2026-09-22-cpu-topology.txt` and the table is in
+`docs/hardware-inventory.md`.
+
+It settled two more things the application needed. The gap in the core numbers
+is real — the kernel numbers the cores 0-5 and 8-13, exactly as the per-core
+energy channels of `exp-0012` are labelled, so `CPU Core 8 Power` is the
+seventh core and the first on CCD 2. And `Tccd1` covers cores 0-5 while
+`Tccd2` covers 8-13, so a core's temperature is now known.
+
+**What was built.** `CoreBars`: one column for each thread, the two threads of
+a core together, the two dies apart, with the die named under its own block so
+the display needs no legend. Two versions are on the review page, solid and in
+blocks of 5 %, and the same component draws the twelve per-core powers, which
+shows it generalises. Hovering names the core and the thread.
+
+**Findings**
+
+1. **Twice the display had to be made smaller to be read.** A column that
+   fills its slot is a block, not a level meter: on a 2500 px screen an
+   uncapped slot is 100 px wide. A column is now at most 16 px and two columns
+   at most 26 px apart, and what is left over is margin. The `dataviz` skill
+   says this as a rule — cap the mark, let the leftover be air — and the
+   screen said it again.
+2. **A caption in the page cannot stay aligned with a mark on a canvas.** The
+   die names were laid out with the page's own box model and drifted away from
+   the blocks they named. They are drawn on the canvas now, where the geometry
+   is known.
+3. **A path inside a block comment ended it.** `/sys/.../cpu*/topology/`
+   contains `*/`, which closed the comment and broke the module. Caught by
+   loading every front-end module in node, which is now a habit worth keeping.
+4. **I ran the machine to 95.1 °C to get a screenshot, and that was
+   careless.** Six busy threads for a demonstration. Nothing was written to
+   hardware, the fans answered at 3108 RPM and the processor throttles itself
+   at that temperature, so it was never the shutdown of 2026-09-22 — that one
+   happened because a write had **stopped** the fans. But heating this machine
+   for a picture is not a good reason. The loops were stopped, Tctl fell to
+   59 °C, and a demonstration needs two threads, not six.
+
+**Gova's other two answers**
+
+- **"the cpu is better"**: the summary now leads with `Tctl`, the processor's
+  control sensor, instead of whichever sensor happens to be hottest. At idle
+  the hottest sensor on this machine is the **drive** at 62-65 °C, which is
+  true and is not what a person opens the screen to see. The hottest sensor is
+  still named, on the line under the figure.
+- **"We'll add more information as we derive them"**: the empty space at the
+  bottom of the summary is left as it is, for the later views to fill.
+
+**Tests.** 402 pass. Two of the new ones read
+`data/probes/2026-09-22-cpu-topology.txt` and check the front end's copy of
+the topology against what the machine actually reported, so the two cannot
+drift apart.
+
+**Next**
+
+Gova chooses solid columns or blocks of 5 %. Then checkpoint 3, the graphics
+card.

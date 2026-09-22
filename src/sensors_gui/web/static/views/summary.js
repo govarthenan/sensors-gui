@@ -92,7 +92,12 @@ export function summaryView(catalogue, stream) {
   const temperatures = catalogue
     .byUnit("celsius")
     .filter((channel) => !channel.hidden && channel.label in WHERE);
-  const hot = card("Hottest part now", "every temperature on the machine, compared");
+  // Gova, 2026-09-22: the processor leads, not whichever sensor happens to be
+  // hottest. At idle the hottest sensor on this machine is the drive, which
+  // is true and is not what a person opens the screen to see. The hottest
+  // sensor is still named, on the line below.
+  const leadChannel = catalogue.byLabel("Tctl");
+  const hot = card("Processor temperature", "every temperature on the machine, beside it");
   hot.element.classList.add("card-hero");
   hot.body.innerHTML = `
     <div class="hero">
@@ -100,7 +105,9 @@ export function summaryView(catalogue, stream) {
       <div class="hero-where">—</div>
       <div class="hero-state"><i></i><span></span></div>
     </div>
+    <div class="hero-hottest">—</div>
     <div class="hero-rest"></div>`;
+  const heroHottest = hot.body.querySelector(".hero-hottest");
   const heroValue = hot.body.querySelector(".hero-value");
   const heroWhere = hot.body.querySelector(".hero-where");
   const heroIcon = hot.body.querySelector(".hero-state i");
@@ -124,21 +131,33 @@ export function summaryView(catalogue, stream) {
         hottest = { channel, reading };
       }
     }
-    if (hottest === null) {
-      heroValue.textContent = "—";
-      heroWhere.textContent = "no temperature could be read";
-      return;
+
+    const lead = leadChannel === null ? null : stream.value(leadChannel);
+    if (leadChannel === null) {
+      setText(heroValue, "—");
+      setText(heroWhere, "Tctl is not on this machine");
+    } else {
+      const state = stateOf(lead, leadChannel, stream.extra(leadChannel));
+      setText(heroValue, formatValue(lead, leadChannel));
+      setText(heroWhere, `Tctl — ${WHERE.Tctl}`);
+      if (hot.element.dataset.state !== state) hot.element.dataset.state = state;
+      setText(heroIcon, STATES[state].icon);
+      heroIcon.style.color = colourOf(state);
+      setText(
+        heroWord,
+        leadChannel.warn === null && leadChannel.critical === null
+          ? "k10temp publishes no threshold for this sensor"
+          : STATES[state].word,
+      );
     }
-    const state = stateOf(hottest.reading, hottest.channel);
-    setText(heroValue, formatValue(hottest.reading, hottest.channel));
-    setText(heroWhere, `${hottest.channel.label} — ${WHERE[hottest.channel.label]}`);
-    hot.element.dataset.state = state;
-    setText(heroIcon, STATES[state].icon);
-    heroIcon.style.color = colourOf(state);
-    heroWord.textContent =
-      hottest.channel.warn === null && hottest.channel.critical === null
-        ? "no threshold is published for this sensor"
-        : STATES[state].word;
+
+    setText(
+      heroHottest,
+      hottest === null
+        ? "no temperature could be read"
+        : `Hottest sensor on the machine: ${formatValue(hottest.reading, hottest.channel)} — ` +
+          `${hottest.channel.label}, ${WHERE[hottest.channel.label]}`,
+    );
   });
 
   // --- power ---------------------------------------------------------------

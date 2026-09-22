@@ -205,3 +205,33 @@
 .tile.is-quiet .tile-icon {
   opacity: 0.45;
 }
+
+/* --- CoreBars --------------------------------------------------------------- */
+
+.cores {
+  margin: 0;
+  width: 100%;
+}
+
+.cores-plot {
+  position: relative;
+}
+
+.cores-canvas {
+  display: block;
+}
+
+.cores-tip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+

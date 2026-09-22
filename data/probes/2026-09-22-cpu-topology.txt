@@ -1,0 +1,42 @@
+# CPU topology of dst-gova-pc
+#
+# Date:    2026-09-22
+# Host:    dst-gova-pc
+# Kernel:  7.0.0-31-generic
+# CPU:     AMD Ryzen 9 9900X (12 cores, 24 threads, 2 CCDs)
+# Source:  /sys/devices/system/cpu/cpu*/topology/
+# Command:
+#   for c in /sys/devices/system/cpu/cpu[0-9]*; do
+#     n=$(basename "$c" | tr -d 'cpu')
+#     printf '%-4s %-8s %-7s %s\n' "$n" "$(cat $c/topology/core_id)" \
+#       "$(cat $c/topology/die_id)" "$(cat $c/topology/thread_siblings_list)"
+#   done | sort -n -k1
+#
+# This read touches only sysfs files the kernel publishes. Nothing is
+# written. ADR 0007.
+#
+cpu  core_id  die_id  thread_siblings_list
+0    0        0       0,12
+1    1        0       1,13
+2    2        0       2,14
+3    3        0       3,15
+4    4        0       4,16
+5    5        0       5,17
+6    8        1       6,18
+7    9        1       7,19
+8    10       1       8,20
+9    11       1       9,21
+10   12       1       10,22
+11   13       1       11,23
+12   0        0       0,12
+13   1        0       1,13
+14   2        0       2,14
+15   3        0       3,15
+16   4        0       4,16
+17   5        0       5,17
+18   8        1       6,18
+19   9        1       7,19
+20   10       1       8,20
+21   11       1       9,21
+22   12       1       10,22
+23   13       1       11,23

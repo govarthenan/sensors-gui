@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-22 (session 8, checkpoint 2 built, waiting for Gova)
+Last update: 2026-09-22 (session 8, checkpoint 2 built, core display under review)
 
 ## Phase
 
@@ -15,9 +15,15 @@ spike's dial and line chart "sub par", so the widget set was rebuilt and shown
 again. Gova chose the meter over the dial and accepted the chart, so the dial
 was removed.
 
-**Checkpoint 2 is built and waiting for Gova**: the shell, the navigation, the
-summary view, the colour meaning and the status bar. Checkpoint 3, the
-graphics card in full, starts after Gova reviews it.
+**Checkpoint 2 is built**: the shell, the navigation, the summary view, the
+colour meaning and the status bar. Gova answered two questions on it — the
+processor leads the summary instead of whichever sensor is hottest, and the
+empty space is left for the later views to fill.
+
+**One component is under review**: Gova's idea of a level-meter display of
+every core. It is built, on the review page at `/gallery`, in two versions —
+solid columns and blocks of 5 %. Gova picks one, then checkpoint 3, the
+graphics card in full.
 
 **The command.** This is the one `docs/gui-goal.md` section 5 rule 2 asks for:
 
@@ -270,6 +276,18 @@ rules before any code is written. Reading comes first.
   honesty rules: no meter without a published scale, no state without a
   published threshold, and an axis that keeps a floor.
 
+- **Session 8. The core topology is read from the machine, not guessed.**
+  `/sys/devices/system/cpu/cpuN/topology/` says a thread's sibling is **12
+  away**: `cpu0` and `cpu12` are one core. It also confirms that the kernel
+  numbers the cores 0-5 and 8-13, exactly as the per-core energy channels are
+  labelled, and that `Tccd1` covers cores 0-5 and `Tccd2` covers 8-13.
+  `data/probes/2026-09-22-cpu-topology.txt`, and the table is in
+  `docs/hardware-inventory.md`. Two tests hold the front end's copy against
+  the probe.
+- **`CoreBars` built, from Gova's idea**: one column for each thread, the two
+  threads of a core together, the two dies apart. One hue, never a spectrum;
+  the hardware's order, never the values'; one scale for every column.
+
 - **Published.** The project is at <https://github.com/govarthenan/sensors-gui>,
   **private**, 32 signed commits, 223 files. A sweep for credentials and
   personal data ran first and found nothing critical. The 8 hardware
@@ -316,10 +334,11 @@ Verified on the machine at the end of session 6, not assumed:
 **The GUI stream comes first.** Everything below it was the list before
 `docs/gui-goal.md` arrived, and none of it blocks the GUI.
 
-0. **Checkpoint 2: wait for Gova.** The shell, the navigation, the summary
-   view, the colour meaning and the status bar are built and running. The
-   screenshots are in `lab/exp-0015-gui-checkpoints/results/`, at 2560, at
-   1280 and at 1000 wide.
+0. **The core display: wait for Gova.** Solid columns or blocks of 5 %, at
+   `/gallery` section 3, and in
+   `lab/exp-0015-gui-checkpoints/results/2026-09-22-core-display-review.png`.
+   Checkpoint 2 itself is built; its screenshots are in the same folder, at
+   2560, 1280 and 1000 wide.
 
 0b. **Then checkpoint 3: the graphics card, in full.** Every RTX 4090 channel,
    grouped, visualised, with a tooltip on each one and the card diagram.

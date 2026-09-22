@@ -29,6 +29,39 @@ each fact.
 
 Source: `lscpu`, `/sys/devices/system/cpu/cpu0/cpufreq/`.
 
+### Which thread belongs to which core, and which core to which CCD
+
+Read from the machine on 2026-09-22, not inferred. Full output and the
+command: `data/probes/2026-09-22-cpu-topology.txt`.
+
+| CCD | `die_id` | `core_id` | The two threads of that core | Its temperature | Its power channel |
+|---|---|---|---|---|---|
+| CCD 1 | 0 | 0 | `cpu0`, `cpu12` | `Tccd1` | `CPU Core 0 Power` |
+| CCD 1 | 0 | 1 | `cpu1`, `cpu13` | `Tccd1` | `CPU Core 1 Power` |
+| CCD 1 | 0 | 2 | `cpu2`, `cpu14` | `Tccd1` | `CPU Core 2 Power` |
+| CCD 1 | 0 | 3 | `cpu3`, `cpu15` | `Tccd1` | `CPU Core 3 Power` |
+| CCD 1 | 0 | 4 | `cpu4`, `cpu16` | `Tccd1` | `CPU Core 4 Power` |
+| CCD 1 | 0 | 5 | `cpu5`, `cpu17` | `Tccd1` | `CPU Core 5 Power` |
+| CCD 2 | 1 | 8 | `cpu6`, `cpu18` | `Tccd2` | `CPU Core 8 Power` |
+| CCD 2 | 1 | 9 | `cpu7`, `cpu19` | `Tccd2` | `CPU Core 9 Power` |
+| CCD 2 | 1 | 10 | `cpu8`, `cpu20` | `Tccd2` | `CPU Core 10 Power` |
+| CCD 2 | 1 | 11 | `cpu9`, `cpu21` | `Tccd2` | `CPU Core 11 Power` |
+| CCD 2 | 1 | 12 | `cpu10`, `cpu22` | `Tccd2` | `CPU Core 12 Power` |
+| CCD 2 | 1 | 13 | `cpu11`, `cpu23` | `Tccd2` | `CPU Core 13 Power` |
+
+Three things this settles, all of which the application needed:
+
+1. **A thread's sibling is 12 away, not next to it.** `cpu0` and `cpu12` are
+   one core. Pairing `cpu0` with `cpu1` would put two different cores side by
+   side and make a core look half idle when it is busy.
+2. **The gap in the core numbers is real.** The kernel numbers the cores 0-5
+   and 8-13, which is exactly how the per-core energy registers of `exp-0012`
+   are labelled, so `CPU Core 8 Power` is the seventh core and the first on
+   CCD 2.
+3. **`Tccd1` covers `core_id` 0-5 and `Tccd2` covers 8-13.** A core's
+   temperature is the temperature of its die, and the application can now say
+   which die a core is on.
+
 ## Memory
 
 | Item | Value |

@@ -7,7 +7,9 @@
  * rather than faked.
  */
 
-import { Meter, STATES, StatTile, Trace, colourOf, hasScale } from "/static/widgets.js";
+import { CoreBars, Meter, STATES, StatTile, Trace, colourOf, hasScale } from "./widgets.js";
+import { corePowerColumns, threadColumns } from "./topology.js";
+import { Catalogue } from "./stream.js";
 
 const HISTORY = 300;
 
@@ -67,6 +69,28 @@ function build() {
     state.widgets.push(() => trace.update(seriesOf(channel.i), state.history.length / state.catalogue.hz));
   }
 
+  // Gova's idea, 2026-09-22: one column for each core, read like a level
+  // meter. Two versions, so the choice between them can be seen.
+  const threads = threadColumns(state.catalogue);
+  const powers = corePowerColumns(state.catalogue);
+  const displays = [
+    ["cores-solid", new CoreBars({ columns: threads, high: 100, unit: "%", segmented: false, height: 170 })],
+    ["cores-segmented", new CoreBars({ columns: threads, high: 100, unit: "%", segmented: true, height: 170 })],
+  ];
+  for (const [where, bars] of displays) {
+    $(where).appendChild(bars.element);
+    state.widgets.push((frame) => bars.update(threads.map((column) => frame.v[column.channel.i] ?? null)));
+  }
+  if (powers.length) {
+    // The top of this scale is not published by the hardware, so it is taken
+    // from what exp-0012 measured under an all-core load: 103.98 W over
+    // twelve cores. The caption says so, because an unpublished scale must
+    // never look like a published one.
+    const power = new CoreBars({ columns: powers, high: 12, unit: "W", segmented: false, height: 140 });
+    $("cores-power").appendChild(power.element);
+    state.widgets.push((frame) => power.update(powers.map((column) => frame.v[column.channel.i] ?? null)));
+  }
+
   const legend = $("legend");
   for (const [name, meaning] of Object.entries(STATES)) {
     const item = document.createElement("span");
@@ -100,7 +124,7 @@ function onFrame(frame) {
 
 /** Fetch the catalogue, build the page and open the stream. */
 async function start() {
-  state.catalogue = await (await fetch("/api/catalogue")).json();
+  state.catalogue = new Catalogue(await (await fetch("/api/catalogue")).json());
   for (const channel of state.catalogue.channels) state.byLabel.set(channel.label, channel);
   $("shown").textContent = state.catalogue.shown;
   $("hidden").textContent = state.catalogue.hidden;

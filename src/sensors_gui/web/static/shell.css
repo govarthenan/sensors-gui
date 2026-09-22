@@ -203,6 +203,12 @@ main {
   font-size: 10px;
 }
 
+.hero-hottest {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
 .hero-rest {
   margin-top: 14px;
   display: grid;

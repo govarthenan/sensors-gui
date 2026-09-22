@@ -211,3 +211,61 @@ def test_the_ends_of_a_scale_lose_the_decimals_of_their_unit(tmp_path: Path) -> 
         tmp_path,
     )
     assert answer == ["0", "480"]
+
+
+# --- the core display ---------------------------------------------------------
+
+TOPOLOGY = WIDGETS.parent / "topology.js"
+PROBE = Path(__file__).resolve().parents[1] / "data/probes/2026-09-22-cpu-topology.txt"
+
+
+def topology_from_the_probe() -> dict[int, list[int]]:
+    """Return core_id -> its two threads, read from the recorded probe.
+
+    The probe is what the machine said on 2026-09-22. The front end holds a
+    copy of the same table, and this is what keeps the two the same.
+    """
+    pairs: dict[int, list[int]] = {}
+    for line in PROBE.read_text().splitlines():
+        if line.startswith("#") or line.startswith("cpu ") or not line.strip():
+            continue
+        thread, core_id, _die, siblings = line.split()
+        pairs.setdefault(int(core_id), sorted(int(part) for part in siblings.split(",")))
+        assert int(thread) in pairs[int(core_id)]
+    return pairs
+
+
+@NEEDS_NODE
+def test_the_front_end_pairs_the_threads_the_way_the_machine_reported(tmp_path: Path) -> None:
+    """A thread's sibling is 12 away, not next to it.
+
+    Pairing `cpu0` with `cpu1` would put two different cores side by side and
+    make a busy core look half idle. The machine's own answer is in
+    `data/probes/2026-09-22-cpu-topology.txt`.
+    """
+    script = tmp_path / "cores.mjs"
+    script.write_text(f"import {{ CORES }} from {json.dumps(str(TOPOLOGY))};\nconsole.log(JSON.stringify(CORES));\n")
+    finished = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=60, check=True)
+    from_front_end = {row["core"]: sorted(row["threads"]) for row in json.loads(finished.stdout)}
+    assert from_front_end == topology_from_the_probe()
+
+
+@NEEDS_NODE
+def test_every_core_is_on_the_die_the_machine_put_it_on(tmp_path: Path) -> None:
+    script = tmp_path / "dies.mjs"
+    script.write_text(
+        f"import {{ CORES }} from {json.dumps(str(TOPOLOGY))};\n"
+        "console.log(JSON.stringify(CORES.map((c) => [c.core, c.die])));\n"
+    )
+    finished = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=60, check=True)
+    from_front_end = dict(json.loads(finished.stdout))
+
+    from_probe: dict[int, int] = {}
+    for line in PROBE.read_text().splitlines():
+        if line.startswith("#") or line.startswith("cpu ") or not line.strip():
+            continue
+        _thread, core_id, die, _siblings = line.split()
+        # The probe counts dies from zero and the display names them from one,
+        # because the temperature channels are Tccd1 and Tccd2.
+        from_probe[int(core_id)] = int(die) + 1
+    assert from_front_end == from_probe

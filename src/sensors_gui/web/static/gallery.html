@@ -75,7 +75,34 @@
 <div class="row" id="hero"></div>
 <div class="row" id="tiles"></div>
 
-<h2>3 · Change over time</h2>
+<h2>3 · Every core at once</h2>
+<p class="note">
+  Gova's idea, 2026-09-22: one column for each thread, read like a level meter. It answers a
+  question that 24 rows of numbers cannot — is the load spread, or pinned to one core? The
+  two threads of a core stand together and the two dies stand apart, from
+  <code>data/probes/2026-09-22-cpu-topology.txt</code>; a guess would have put
+  <code>cpu0</code> beside <code>cpu1</code>, which are two different cores. The order is the
+  hardware's and never the values', and every column carries the same hue: a spectrum across
+  the columns would paint position as if it were meaning.
+</p>
+<div class="card" style="width: 100%">
+  <div class="label">solid columns — the height is the value</div>
+  <div id="cores-solid"></div>
+</div>
+<div class="card" style="width: 100%; margin-top: 16px">
+  <div class="label">blocks of 5 % — the look of the reference picture</div>
+  <div id="cores-segmented"></div>
+</div>
+<div class="card" style="width: 100%; margin-top: 16px">
+  <div class="label">
+    the same display, a different measure: the power of each core, from the energy registers
+    (exp-0012). The scale runs to 12 W a core, which the hardware does not publish — it is
+    what exp-0012 measured under an all-core load, 103.98 W over twelve cores.
+  </div>
+  <div id="cores-power"></div>
+</div>
+
+<h2>4 · Change over time</h2>
 <p class="note">
   The vertical axis keeps a floor and only moves when the data leaves it, so a quarter-degree
   wobble does not fill the box and the line does not jump while the value stands still. Put
@@ -83,7 +110,7 @@
 </p>
 <div class="row" id="traces"></div>
 
-<h2>4 · What a colour means</h2>
+<h2>5 · What a colour means</h2>
 <p class="note">
   One colour for each state, the same everywhere. The colour never travels alone: the
   validator in the <code>dataviz</code> skill reports that warning, serious and critical are
