@@ -7,13 +7,17 @@ The goal is complete coverage of every sensor on this machine and every
 connected component, with correct labels and correct units for this exact
 hardware.
 
-Status: exploration. See `state/STATUS.md`.
+It reads **158 channels** from this machine and shows 134 of them. It only
+reads; it never writes to hardware.
+
+Status: working. See `HANDOFF.md`, then `state/STATUS.md`.
 
 ## Documents
 
 | File | Contents |
 |---|---|
-| `CLAUDE.md` | How to work on this project. Read it first. |
+| `HANDOFF.md` | **The whole picture in one file. Start here.** |
+| `CLAUDE.md` | How to work on this project. |
 | `state/STATUS.md` | Current phase, next actions, open questions. |
 | `JOURNAL.md` | Dated log of events, findings and decisions. |
 | `docs/hardware-inventory.md` | The components of this PC. |

@@ -577,3 +577,53 @@ a full uninstall.
 **The application, live:** 134 channels, 5 hidden, 2.28 ms per pass,
 `EZ Conn Fan 964 RPM` on screen.
 
+---
+
+## 2026-09-22 — End of session 4: verified after a reboot, and handed off
+
+**Gova rebooted and set `CPU Fan Fail Warning Control`.** That was the last
+thing outstanding.
+
+**Verified on the machine after that reboot**, not assumed:
+
+- The patched `nct6687` loads by itself at boot and is signed with the enrolled
+  MOK.
+- `fan/pwm mask=0x1ff` — nine channels, so the ninth survived.
+- `fan9 EZ Conn Fan` 963 RPM. `in13 CMOS Battery` 3.116 V.
+- **All eight fan headers are at `enable=2`**, under the board's own control.
+  No manual mode is left anywhere, and `/etc/modprobe.d/nct6687-force.conf`
+  does not exist. The machine carries nothing from the thermal shutdown.
+- The application runs: **134 channels, 1.94 ms per pass.**
+
+**`HANDOFF.md` written.** It is the one file to read to pick this up cold: what
+runs and how, what the machine is, the 158 channels read and the seven things
+still unread, where every document lives, and the rules learned the hard way —
+the writing rule, the Secure Boot trap, the two times guessing beat reading,
+and why the screen has to be rendered and looked at.
+
+**`scripts/preview-screen.py` added.** The reboot cleared the scratchpad and
+took the throwaway preview script with it, which was a good argument for making
+it permanent. A terminal application cannot be looked at from a session with no
+terminal, and every screen defect that mattered was found by looking rather
+than by testing.
+
+**Where the project stands at the end of session 4**
+
+| | |
+|---|---|
+| Channels read | **158** — 43 hwmon, 17 NVML, 2 battery, 96 system |
+| Channels on screen | 134, with 5 hidden and one key to reveal them |
+| Cost of a pass | about 2 ms |
+| Tests | 279, no mocks |
+| Experiments | 10 |
+| Decision records | 8 |
+
+**The one big gap left** is the privileged helper of ADR 0005: CPU package
+power from RAPL, and SSD wear, TBW and power-on hours from NVMe SMART. Both
+need root, both are read-only, and the design is already written down.
+
+Session 4 covered a lot of ground and cost Gova one thermal shutdown, caused by
+my own script. The rule that came out of it — this project writes nothing to
+hardware — is now in `CLAUDE.md` in capitals, and the answer that script was
+chasing came from a photograph of the BIOS a few hours later, for free.
+

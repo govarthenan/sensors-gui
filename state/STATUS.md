@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-22 (session 4, part 3)
+Last update: 2026-09-22 (end of session 4)
 
 ## Phase
 
@@ -122,8 +122,12 @@ rules before any code is written. Reading comes first.
 
 ## Waiting for Gova
 
-1. **In the BIOS, switch `CPU Fan Fail Warning Control` to ON.** It is the alarm
-   that was missing during the thermal shutdown.
+Nothing. Gova rebooted on 2026-09-22 and set `CPU Fan Fail Warning Control`.
+
+Verified after that reboot: the patched driver loads by itself and is signed,
+`fan/pwm mask=0x1ff` (9 channels), `EZ Conn Fan` 963 RPM, `CMOS Battery`
+3.116 V, and all eight fan headers are at `enable=2`, under the board's own
+control. The application runs: 134 channels, 1.94 ms per pass.
 
 ## Next actions
 

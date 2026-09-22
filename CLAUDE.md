@@ -19,6 +19,9 @@ Target qualities:
 
 Work happens over many sessions. To continue correctly:
 
+0. **If you are picking this up cold, read `HANDOFF.md` first.** It is the one
+   file that gives the whole picture: what runs, what the machine is, what is
+   still unread, and the rules learned the hard way.
 1. Read `state/STATUS.md` — current phase, next actions, open questions.
 2. Read `JOURNAL.md` — the last two or three entries.
 3. Read `docs/hardware-inventory.md` and `docs/sensor-sources.md` for facts
@@ -57,6 +60,9 @@ scripts/               Helper scripts for the developer.
   system Python.
 - **Record everything.** A finding, an experiment or a decision that is not in
   `docs/`, `lab/` or `JOURNAL.md` does not exist.
+- **Run the thing and look at it.** Four screen defects were found by rendering
+  the application and none by the tests. Use
+  `uv run python scripts/preview-screen.py --rows 0 --all`.
 - **One experiment, one folder.** Each `lab/exp-NNNN-*` folder has a README.md
   with three parts: Question, Method, Result.
 - **Decisions get an ADR.** Use `docs/decisions/NNNN-<slug>.md`.
@@ -90,7 +96,10 @@ scripts/               Helper scripts for the developer.
 | NVMe temperature | `/sys/class/hwmon/hwmon*/` (`nvme`) | no |
 | NVMe SMART | `nvme-cli` / `smartctl` (installed) | yes |
 | DIMM temperature | `/sys/class/hwmon/hwmon*/` (`spd5118`) | no |
-| Fans, VRM, voltages | `nct6687` (installed 2026-09-21) — 29 channels | no |
-| **EZ Conn fan** | **not readable in Linux**; the BIOS sees it | — |
+| Fans, VRM, voltages | `nct6687`, patched 2026-09-22 — 9 fans, 10 voltages, 7 temperatures | no |
+| EZ Conn fan (case fans on `JAF_1`) | `fan9`, added by `driver/nct6687-ms7e47.patch` | no |
+| CMOS battery | `in13`, 3.116 V, added by the same patch | no |
+| CPU use, memory, disk, network | `psutil` and `/proc` — 96 channels | no |
+| Mouse battery | `/sys/class/power_supply/` | no |
 
 See `docs/sensor-sources.md` for the complete list.
