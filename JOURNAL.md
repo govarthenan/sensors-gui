@@ -476,9 +476,41 @@ kernel's headers. `/usr/src` is untouched. The install script requires root,
 backs the source up, dry-runs before applying, and **never opens a `pwm` file
 at all**.
 
+**All four streams landed, and the application runs.**
+
+- **Stream B**: `Registry` and `Sampler`. ADR 0008 accepted — the discard of
+  the first pass after discovery lives in the registry, not the sampler,
+  because it belongs to a hardware event rather than to a particular reader.
+  The sampler's loop computes each deadline from a fixed monotonic start, so it
+  does not drift, and skips a missed deadline instead of firing catch-up
+  passes.
+- **Stream C**: the naming layer and two new collectors. The machine went from
+  60 channels to **158**: 43 hwmon, 17 NVML, 2 battery, 96 system.
+- **Integration**: 152 channels on screen, 6 hidden, **2.22 ms per pass**.
+
+**Four defects that only running it could find**
+
+1. **The hide filter never fired.** The screen applied the naming layer and
+   *then* asked the filter, but `verdict()` matches on the label, so a renamed
+   sensor came back `unknown` instead of `wrong`. Four channels the BIOS proved
+   wrong sat on screen while the status bar claimed they were hidden. The
+   filter now judges the sensor as the driver reported it.
+2. **Sparklines lied about scale.** Auto-scaling to the window made a quarter
+   of a degree of DIMM wobble fill the full height, so a rock-steady sensor
+   looked violent. A sparkline now uses the same scale as its bar.
+3. **A label was 27 characters in a 24-character column** and was shown cut in
+   half.
+4. **Twenty snap `loop` devices buried the one real drive** under forty rows of
+   zeros. Storage went from 29 rows to 13.
+
+None of these would have been caught by a unit test. They needed the thing to
+be run and looked at.
+
+**One integration trap worth remembering:** Textual's `App` already owns an
+attribute called `_registry`, so naming ours the same silently broke `compose`
+with "Registry object is not iterable".
+
 **Next**
 
-Collect the two remaining streams — `Registry` and `Sampler`, and the naming
-layer with two new collectors — then integrate. The driver install waits until
-Gova is back at the keyboard, because `run-as-root` needs a person there to
-type the password.
+The driver install waits until Gova is back at the keyboard, because
+`run-as-root` needs a person there to type the password.

@@ -14,7 +14,7 @@ Planned phases:
 | 0 | Exploration | Complete sensor catalogue for this machine. |
 | 1 | Collection layer | A Python library that reads all sources at a set rate. |
 | 2 | Coverage repair | Get the missing sources (Super-I/O fans, RAPL, SMART). |
-| 3 | TUI | The Textual monitor screen. **In progress.** |
+| 3 | TUI | The Textual monitor screen. **Working.** |
 | 4 | History and alarms | Store samples, show graphs, give warnings. |
 | 5 | Polish | Autostart, tray icon, settings, packaging. |
 
@@ -85,6 +85,13 @@ rules before any code is written. Reading comes first.
   channels the BIOS proved wrong.
 - Gova offered the `run-as-root` skill, so privileged commands can be run with
   Gova approving each one at the desktop password prompt.
+- **All four phase 3 streams landed.** The application runs:
+  `uv run python -m sensors_gui`. **152 channels on screen, 6 hidden,
+  2.22 ms per pass, 283 tests pass.** The machine now reads **158 channels**
+  in total: 43 hwmon, 17 NVML, 2 battery, 96 system.
+- ADR 0008 accepted: the discard of the first pass after discovery lives in the
+  registry.
+- The driver patch is **ready and verified but not installed**.
 - **Session 3.** Corrected the GPU and monitor error. Gova gave the fan count.
 - **The motherboard driver is installed and working.** Gova ran
   `scripts/install-nct6687d.sh`. It built, was signed with the enrolled MOK and
@@ -152,15 +159,10 @@ rules before any code is written. Reading comes first.
 5. **Gova looks inside the case** (about 5 minutes). Three questions, in
    `lab/exp-0005-component-census/README.md`, section "Step 5".
 
-4. Phase 1, next parts of the collection layer:
-   - `collectors/power_supply.py` — the Logitech G305 battery.
-   - `collectors/system.py` — CPU use and frequency, memory, disk and network
-     counters.
-   - `collectors/nvme_smart.py` and the RAPL reader, through the helper of
-     ADR 0005.
-   - `registry.py` and `sampler.py`.
-   - Friendly names: `spd5118@...0-0051` must show as "DIMM A2", and the
-     `r8169` PHY must sit in the `network` group, not in `other`.
+4. **Phase 2, the privileged helper** (ADR 0005). It is the last big gap:
+   CPU package power from RAPL, and SSD wear, TBW, power-on hours and throttle
+   counters from NVMe SMART. Read-only, on a Unix socket, so the screen never
+   needs root.
 
 5. `exp-0006` — load test, once the fan and power sensors work.
 
