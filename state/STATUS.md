@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-22 (session 4)
+Last update: 2026-09-22 (session 4, part 2)
 
 ## Phase
 
@@ -14,7 +14,7 @@ Planned phases:
 | 0 | Exploration | Complete sensor catalogue for this machine. |
 | 1 | Collection layer | A Python library that reads all sources at a set rate. |
 | 2 | Coverage repair | Get the missing sources (Super-I/O fans, RAPL, SMART). |
-| 3 | TUI | The Textual monitor screen. |
+| 3 | TUI | The Textual monitor screen. **In progress.** |
 | 4 | History and alarms | Store samples, show graphs, give warnings. |
 | 5 | Polish | Autostart, tray icon, settings, packaging. |
 
@@ -76,7 +76,15 @@ rules before any code is written. Reading comes first.
   Of 14 board voltages, 4 are correct, 2 are misnamed and 8 are wrong; 3 rails
   the BIOS reads are missing from Linux. The correction table is at
   `data/evidence/bios-ground-truth-2026-09-22/linux-vs-bios.json`.
-- `data/evidence/` created, with an index and rules.
+- `data/evidence/` created, with an index and rules. `CLAUDE.md` updated.
+- **Phase 3 started.** `docs/phase-3-plan.md` fixes the file ownership and the
+  interfaces for four parallel streams.
+- **Stream D done**: the Textual screen. 60 channels render, 1.06 ms per pass,
+  140 tests pass. Group panels, bars only where a real scale exists,
+  temperature and fan display conventions, a status bar, and a seam for hiding
+  channels the BIOS proved wrong.
+- Gova offered the `run-as-root` skill, so privileged commands can be run with
+  Gova approving each one at the desktop password prompt.
 - **Session 3.** Corrected the GPU and monitor error. Gova gave the fan count.
 - **The motherboard driver is installed and working.** Gova ran
   `scripts/install-nct6687d.sh`. It built, was signed with the enrolled MOK and

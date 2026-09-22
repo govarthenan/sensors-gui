@@ -394,3 +394,68 @@ apply to every MSI PRO X870-P WIFI:
 Neither writes anything to the hardware. Both need Gova's agreement first,
 given what happened.
 
+---
+
+## 2026-09-22 — Session 4, part 2: evidence in order, then phase 3 begins
+
+**Gova asked for the records to be in order before the next phase.** Three gaps
+were open, and all three are now closed:
+
+1. **The thermal shutdown had no record outside the conversation**, and the
+   machine had rebooted, so the state was gone. Recovered from the journal of
+   the boot that died and written up in
+   `data/evidence/2026-09-22-thermal-shutdown/`. The last thing the kernel ever
+   logged in that boot was another write rejection, and the journal then stops
+   four minutes before the boot officially ends — which is what a hard power cut
+   looks like.
+2. **The BIOS ground truth existed only as prose.** It is now structured data
+   the application can read: `bios-readings.json`, and `linux-vs-bios.json`,
+   which gives every `nct6687` channel a verdict of correct, rename, wrong or
+   unverified.
+3. **The driver source was quoted from `/usr/src`**, which is not evidence
+   because it will be gone. The extracts are copied and pinned to the commit.
+
+`data/evidence/README.md` is the index, with four rules: copy rather than link,
+say where it came from, keep what disproves a claim, and keep large files out of
+git. `CLAUDE.md` now carries all of it, including the rule in capitals that this
+project writes nothing to hardware.
+
+**Phase 3 started, with four streams in parallel.** Gova agreed to parallel
+agents. `docs/phase-3-plan.md` fixes the file ownership and the interfaces
+first, so the streams cannot tread on each other. `model.py`, the collector
+protocol, the cache and the two existing collectors are frozen for the round.
+
+**Stream D, the Textual screen, is done and committed.**
+
+- `app/meters.py` holds the drawing decisions as plain functions with plain
+  tests, because that is the part most likely to be wrong in a way a person
+  notices. A bar is only drawn when there is a real scale; a clock speed with
+  no known maximum gets none, rather than a made-up proportion.
+- Temperature and fan speed get a display **convention** (0–100 °C, 0–3000 RPM)
+  used only when the hardware declares nothing, because `k10temp` declares no
+  limits and the `nct6687` limits are not usable. A declared limit always wins.
+  Without this, most of the screen had no bar at all.
+- A sensor with no threshold is never drawn as an alarm, however high it reads.
+  That is the direct lesson of the `nct6687` min/max bug.
+- The first reading after discovery is taken and thrown away (`exp-0007`
+  finding 4).
+- The status bar shows what is hidden as a **number**, reachable with one key.
+  A channel kept out of the way must never be silently lost — the same
+  reasoning as the rule that a 0 RPM fan header stays on the screen.
+- A real bug the tests caught: Textual's `remove()` is asynchronous, so
+  rebuilding the panels mounted a second panel with the same id before the first
+  had gone. The rebuild now awaits the removal.
+
+Verified headless against the real machine: 60 channels, **1.06 ms per pass**.
+
+**Gova offered the `run-as-root` skill**, which escalates one command through
+the desktop's own password prompt. That unblocks installing the driver patch.
+It does **not** change ADR 0007: installing a driver that adds sensor reads is
+not writing to hardware, and the fan control question stays closed.
+
+**Next**
+
+Collect the three running streams — the driver patch, `Registry` and `Sampler`,
+and the naming layer with two new collectors — then integrate. The driver
+install waits until Gova is back at the keyboard.
+
