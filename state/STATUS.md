@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-22 (session 8, checkpoint 1 accepted, widgets under review)
+Last update: 2026-09-22 (session 8, checkpoint 2 built, waiting for Gova)
 
 ## Phase
 
@@ -11,9 +11,13 @@ visualisation.
 
 Gova accepted the stack on 2026-09-22 (ADR 0012): a local web application on
 `127.0.0.1`, shown in a Chrome application window. Gova then called the
-spike's dial and line chart "sub par", so the widget set was rebuilt before
-anything was stamped across 175 channels, and it is now waiting for a second
-answer. Checkpoint 2, the shell and the summary view, starts after that.
+spike's dial and line chart "sub par", so the widget set was rebuilt and shown
+again. Gova chose the meter over the dial and accepted the chart, so the dial
+was removed.
+
+**Checkpoint 2 is built and waiting for Gova**: the shell, the navigation, the
+summary view, the colour meaning and the status bar. Checkpoint 3, the
+graphics card in full, starts after Gova reviews it.
 
 **The command.** This is the one `docs/gui-goal.md` section 5 rule 2 asks for:
 
@@ -247,6 +251,25 @@ rules before any code is written. Reading comes first.
 - The application costs **0.035 cores at 1 Hz and 0.179 cores at 10 Hz**,
   which is 0.75 % of this machine at the higher rate.
 
+- **Session 8, checkpoint 2: the shell and the summary view.** Gova chose the
+  meter over the dial (*"Go with the meter. And yes, much better now."*), so
+  the dial was removed. The shell has a header with the rate and pause
+  controls, all eleven views in the navigation, and a status bar carrying
+  everything section 4.5 asks for. A view that is not built yet says which
+  checkpoint builds it.
+- The summary gives the machine on one screen: the hottest part with every
+  temperature beside it, measured power with the note that the total cannot
+  be read, the loads that publish a real scale, two charts, memory, storage
+  health, every fan, the helper's channels and the colour meaning.
+- **Three defects found by opening it, none by a test**: the chart had a fixed
+  width and ran under the next card, the card titles wrapped, and a third of
+  the screen was empty.
+- **A fifth of the cost was a wasted call.** Writing text only when it changed
+  took the view from 0.2147 to **0.1720 cores** at 10 Hz.
+- **400 tests pass.** Eleven run the real `widgets.js` in node and hold the
+  honesty rules: no meter without a published scale, no state without a
+  published threshold, and an axis that keeps a floor.
+
 - **Published.** The project is at <https://github.com/govarthenan/sensors-gui>,
   **private**, 32 signed commits, 223 files. A sweep for credentials and
   personal data ran first and found nothing critical. The 8 hardware
@@ -293,18 +316,18 @@ Verified on the machine at the end of session 6, not assumed:
 **The GUI stream comes first.** Everything below it was the list before
 `docs/gui-goal.md` arrived, and none of it blocks the GUI.
 
-0. **The widget review: wait for Gova.** The stack is accepted and
-   `src/sensors_gui/web/` is built: the service on a worker thread, the
-   catalogue, the WebSocket frames, and the widget set. Two questions are
-   open, both in `lab/exp-0015-gui-checkpoints/results/`:
-   - a meter or a dial for a headline value;
-   - whether the rebuilt line chart is right.
-   Do not stamp the widgets across 175 channels before Gova answers, and do
-   not start checkpoint 2 before that either.
+0. **Checkpoint 2: wait for Gova.** The shell, the navigation, the summary
+   view, the colour meaning and the status bar are built and running. The
+   screenshots are in `lab/exp-0015-gui-checkpoints/results/`, at 2560, at
+   1280 and at 1000 wide.
 
-0b. **Then checkpoint 2**: the shell, the navigation between views, the
-   whole-machine summary, the colour meaning and the status bar. No detail
-   views.
+0b. **Then checkpoint 3: the graphics card, in full.** Every RTX 4090 channel,
+   grouped, visualised, with a tooltip on each one and the card diagram.
+   `docs/gui-goal.md` calls it the reference for every other group, so Gova's
+   feedback on it is applied everywhere before the later groups are built.
+   The tooltip needs a long description for each channel, which the model does
+   not carry yet; that is the one addition to the collection layer the brief
+   allows.
 
 1. **Offer the driver patch upstream.** `driver/nct6687-ms7e47.patch` applies to
    every MSI PRO X870-P WIFI, not only this one. It adds the EZ Conn fan channel

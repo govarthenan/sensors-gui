@@ -7,16 +7,16 @@
  *   formatValue  the same text the Python model produces, so the GUI and the
  *                terminal screen never disagree about a number
  *   stateOf      value + spec -> one of five states, and one colour each
- *   Meter        a value against a real limit. The default form.
- *   Dial         the same thing drawn round, for one hero value per view
+ *   Meter        a value against a real limit. Gova chose this form on
+ *                2026-09-22, over a dial; ADR 0012.
  *   Trace        a line over the ring buffer, with a stable axis
  *   Sparkline    the same line, small, inside a row
  *
  * Three rules are kept everywhere:
  *
- *   1. A meter, a dial or a bar is drawn ONLY where the spec carries a real
- *      scale. 66 of the 175 channels on this machine do. The rest get a
- *      number and a line, because a scale that is invented is a lie.
+ *   1. A meter is drawn ONLY where the spec carries a real scale. 66 of the
+ *      175 channels on this machine do. The rest get a number and a line,
+ *      because a scale that is invented is a lie.
  *   2. A vertical axis never runs from zero to "whatever it is now". It keeps
  *      a floor, so a quarter-degree wobble does not look violent, and it only
  *      moves when the data leaves it.
@@ -150,6 +150,20 @@ export function splitValue(value, spec) {
   const cut = whole.lastIndexOf(" ");
   if (cut < 0) return { text: whole, unit: "" };
   return { text: whole.slice(0, cut), unit: whole.slice(cut + 1) };
+}
+
+/**
+ * Write text into an element, but only when it is not already there.
+ *
+ * At 10 Hz with 175 channels this runs about 1750 times a second, and most
+ * of those values did not change between two passes. Writing the same text
+ * again still costs the browser work.
+ *
+ * @param {HTMLElement} element where the text goes
+ * @param {string} text what it should say
+ */
+export function setText(element, text) {
+  if (element.textContent !== text) element.textContent = text;
 }
 
 // --- state -------------------------------------------------------------------
@@ -366,126 +380,12 @@ export class Meter {
    */
   update(value, extra = {}) {
     const state = stateOf(value, this.spec, extra);
-    this.element.dataset.state = state;
-    this.valueText.textContent = formatValue(value, this.spec);
+    if (this.element.dataset.state !== state) this.element.dataset.state = state;
+    setText(this.valueText, formatValue(value, this.spec));
     const low = this.spec.low ?? 0;
     const top = scaleTop(this.spec);
     const fraction = value === null || top === null || top <= low ? 0 : (value - low) / (top - low);
     this.fill.style.width = `${Math.min(Math.max(fraction, 0), 1) * 100}%`;
-  }
-}
-
-// --- Dial ---------------------------------------------------------------------
-
-/**
- * The same value against the same limit, drawn round.
- *
- * The `dataviz` skill puts "a single ratio against a limit" on a meter, not on
- * a dial, so this is kept for **one** hero value in a view at most, and never
- * for a row. It is drawn on canvas: a track, a filled arc, tick marks, a
- * coloured band for the part of the scale above the warning threshold, and
- * the number inside.
- */
-export class Dial {
-  /**
-   * @param {object} spec the channel
-   * @param {number} size the width and height in CSS pixels
-   */
-  constructor(spec, size = 200) {
-    this.spec = spec;
-    this.size = size;
-    this.element = document.createElement("div");
-    this.element.className = "dial";
-    this.element.dataset.state = "normal";
-    this.element.innerHTML = `
-      <canvas class="dial-canvas"></canvas>
-      <div class="dial-centre">
-        <div class="dial-value"></div>
-        <div class="dial-unit"></div>
-      </div>
-      <div class="dial-label"></div>
-    `;
-    this.canvas = this.element.querySelector(".dial-canvas");
-    this.valueText = this.element.querySelector(".dial-value");
-    this.unitText = this.element.querySelector(".dial-unit");
-    this.unitText.textContent = spec.symbol;
-    this.element.querySelector(".dial-label").textContent = spec.label;
-    this.element.style.setProperty("--dial-size", `${size}px`);
-  }
-
-  /** Show one reading. */
-  update(value, extra = {}) {
-    const state = stateOf(value, this.spec, extra);
-    this.element.dataset.state = state;
-    const shown = splitValue(value, this.spec);
-    this.valueText.textContent = shown.text;
-    this.unitText.textContent = shown.unit;
-
-    const size = this.size;
-    const context = prepare(this.canvas, size, size);
-    const centre = size / 2;
-    const radius = size / 2 - 14;
-    const start = Math.PI * 0.75;
-    const sweep = Math.PI * 1.5;
-    const low = this.spec.low ?? 0;
-    const top = scaleTop(this.spec);
-    const fraction = value === null || top === null || top <= low ? 0 : (value - low) / (top - low);
-    const held = Math.min(Math.max(fraction, 0), 1);
-
-    context.lineCap = "round";
-    context.lineWidth = 10;
-    context.strokeStyle = colourOf(state);
-    context.globalAlpha = 0.16;
-    context.beginPath();
-    context.arc(centre, centre, radius, start, start + sweep);
-    context.stroke();
-    context.globalAlpha = 1;
-
-    // The part of the scale above the warning threshold, on the track itself.
-    for (const [name, at] of [
-      ["warning", this.spec.warn],
-      ["critical", this.spec.critical],
-    ]) {
-      if (at === null || at === undefined || top === null || at <= low || at > top) continue;
-      const fraction_ = (at - low) / (top - low);
-      context.strokeStyle = name === "critical" ? token("--critical") : token("--warning");
-      context.globalAlpha = 0.28;
-      context.lineWidth = 6;
-      context.beginPath();
-      context.arc(centre, centre, radius, start + sweep * fraction_, start + sweep);
-      context.stroke();
-      context.globalAlpha = 1;
-    }
-
-    // Tick marks, so the scale can be read without a second label.
-    context.strokeStyle = token("--axis");
-    context.lineWidth = 1;
-    for (let step = 0; step <= 10; step += 1) {
-      const angle = start + sweep * (step / 10);
-      const inner = radius - (step % 5 === 0 ? 11 : 8);
-      context.beginPath();
-      context.moveTo(centre + Math.cos(angle) * inner, centre + Math.sin(angle) * inner);
-      context.lineTo(centre + Math.cos(angle) * (radius - 6), centre + Math.sin(angle) * (radius - 6));
-      context.stroke();
-    }
-
-    if (value !== null) {
-      context.lineWidth = 10;
-      context.strokeStyle = colourOf(state);
-      context.beginPath();
-      context.arc(centre, centre, radius, start, start + sweep * held);
-      context.stroke();
-    }
-
-    // The scale labels sit in the gap at the bottom of the arc, outside the
-    // ring. Drawn under the arc they collided with it and with the band.
-    context.fillStyle = token("--ink-muted");
-    context.font = `11px ${token("--sans")}`;
-    context.textBaseline = "middle";
-    context.textAlign = "right";
-    context.fillText(scaleLabel(low, this.spec), centre - 12, size - 8);
-    context.textAlign = "left";
-    context.fillText(scaleLabel(top, this.spec), centre + 12, size - 8);
   }
 }
 
@@ -506,7 +406,8 @@ export class Trace {
    */
   constructor(spec, options = {}) {
     this.spec = spec;
-    this.width = options.width ?? 420;
+    this.minWidth = options.width ?? 420;
+    this.width = this.minWidth;
     this.height = options.height ?? 160;
     this.axis = null;
     this.values = [];
@@ -529,6 +430,11 @@ export class Trace {
     this.canvas = this.element.querySelector(".trace-canvas");
     this.tip = this.element.querySelector(".trace-tip");
     this.plot = this.element.querySelector(".trace-plot");
+
+    // The card decides the width; the chart follows it. Without this a chart
+    // wider than its cell runs under the next card.
+    this.observer = new ResizeObserver(() => this.draw());
+    this.observer.observe(this.plot);
 
     this.plot.addEventListener("mousemove", (event) => {
       const box = this.canvas.getBoundingClientRect();
@@ -563,8 +469,10 @@ export class Trace {
     this.draw();
   }
 
-  /** Draw the whole figure. */
+  /** Draw the whole figure, at whatever width the box now has. */
   draw() {
+    const measured = this.plot.clientWidth;
+    if (measured > 0) this.width = Math.max(measured, 220);
     const { width, height, values } = this;
     const context = prepare(this.canvas, width, height);
     const pad = this.padding;
@@ -808,14 +716,14 @@ export class StatTile {
   /** Show one reading and its history. */
   update(value, values, extra = {}) {
     const state = stateOf(value, this.spec, extra);
-    this.element.dataset.state = state;
-    this.valueText.textContent = formatValue(value, this.spec);
-    this.icon.textContent = STATES[state].icon;
+    if (this.element.dataset.state !== state) this.element.dataset.state = state;
+    setText(this.valueText, formatValue(value, this.spec));
+    setText(this.icon, STATES[state].icon);
     // A state that is simply "normal" needs no word; anything else must say
     // what it is, because the colour alone is not enough. And on a channel
     // with no threshold at all, "normal" says nothing, so nothing is shown.
     const judged = this.spec.warn !== null || this.spec.critical !== null;
-    this.word.textContent = state === "normal" ? "" : (extra.error ?? STATES[state].word);
+    setText(this.word, state === "normal" ? "" : (extra.error ?? STATES[state].word));
     this.element.classList.toggle("is-quiet", state === "normal");
     this.icon.hidden = state === "normal" && !judged;
     this.spark.update(values, state);

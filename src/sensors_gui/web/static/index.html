@@ -5,25 +5,34 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%231a1a19'/%3E%3Cpath d='M2 11 L5 11 L7 5 L9 13 L11 8 L14 8' stroke='%233987e5' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <title>sensors-gui</title>
 <link rel="stylesheet" href="/static/tokens.css">
-<style>
-  body {
-    margin: 0; background: var(--plane); color: var(--ink);
-    font: 14px/1.5 var(--sans); display: grid; place-items: center; height: 100vh;
-  }
-  main { max-width: 56ch; padding: 24px; }
-  h1 { font-size: 20px; font-weight: 600; margin: 0 0 8px; }
-  p { color: var(--ink-secondary); margin: 0 0 12px; }
-  a { color: var(--series); }
-</style>
+<link rel="stylesheet" href="/static/widgets.css">
+<link rel="stylesheet" href="/static/shell.css">
 </head>
 <body>
-<main>
-  <h1>sensors-gui</h1>
-  <p>
-    The application shell is built at checkpoint 2. The widgets it is made of are
-    ready for review now.
-  </p>
-  <p><a href="/gallery">Open the component review</a></p>
-</main>
+
+<header>
+  <div class="brand">sensors-gui<span id="machine">—</span></div>
+  <div class="controls">
+    <button id="slower" title="Halve the sample rate, down to 0.25 Hz">Slower</button>
+    <button id="faster" title="Double the sample rate, up to 10 Hz">Faster</button>
+    <button id="pause" title="Stop reading. The collectors stay open.">Pause</button>
+  </div>
+</header>
+
+<nav id="nav"></nav>
+
+<main id="stage"></main>
+
+<footer>
+  <span>channels <b id="counts">—</b></span>
+  <span>rate <b id="rate">—</b></span>
+  <span>pass <b id="pass">—</b></span>
+  <span>paint <b id="paint">—</b></span>
+  <span>last sample <b id="sampled">—</b></span>
+  <span id="link" data-state="unavailable">—</span>
+  <span class="read-only" title="ADR 0007: this application never writes to hardware.">read only</span>
+</footer>
+
+<script type="module" src="/static/app.js"></script>
 </body>
 </html>

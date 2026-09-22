@@ -1111,3 +1111,72 @@ and four charts on every frame; a real view draws less. Recorded in
 
 Gova picks the meter or the dial for a headline value, and says whether the
 line chart is now right. Then checkpoint 2, the shell and the summary view.
+
+---
+
+## 2026-09-22 — Session 8, checkpoint 2: the shell and the summary view
+
+**Gova's feedback on the widget review, verbatim**
+
+> Go with the meter. And yes, much better now.
+
+**What that settled, and what was done**
+
+- The meter is the form for a value against a limit. **The dial was removed**
+  from the widget set, from the gallery and from the code. The screenshot in
+  `lab/exp-0015-gui-checkpoints/results/` keeps the record of what it was.
+- The line chart is accepted as it stands.
+
+**What was built**
+
+The shell and the summary view, which is checkpoint 2.
+
+- **The shell**: a header with the rate and pause controls, a navigation list
+  of all eleven views, a stage that holds one view, and a status bar. The
+  address after `#` says which view is on screen, so a view opens directly and
+  the back button works. Only the view on screen is painted.
+- **Every view that is not built yet is listed and says which checkpoint
+  builds it.** An empty page would have been the other choice, and it would
+  have hidden the plan.
+- **The summary view**: the hottest part of the machine with every temperature
+  beside it, the power that can be measured with a note that total system
+  power cannot be, the four loads that publish a real scale, two charts,
+  memory, storage health, every fan with the reason five headers read zero,
+  the channels that come through the root helper, and what each colour means.
+- **The status bar** carries all of section 4.5: channels shown and hidden,
+  the rate, the median and the maximum pass, the paint time, the time of the
+  last sample, whether the helper answers, and that the application is read
+  only.
+
+**Findings**
+
+1. **Three defects, all found by opening the page, none by a test.** The line
+   chart had a fixed width and ran underneath the card beside it; the card
+   titles wrapped because the note beside them would not give way; and the
+   view left a third of the screen empty. The chart now measures the box it is
+   in and redraws when the box changes.
+2. **A fifth of the cost was one wasted call.** The view cost 0.2147 cores at
+   10 Hz. Writing text into an element only when the text is different brought
+   it to **0.1720**. At 10 Hz with 175 channels that call happens about 1750
+   times a second, and most values do not change between two passes.
+3. **The hottest part of this machine at idle is the drive, not the
+   processor.** `Sensor 1` on the SN770 read 62-65 °C while `Tctl` was near 50.
+   The summary says so, and it also says that neither sensor publishes a
+   threshold, so the application does not judge it.
+
+**What the summary costs**
+
+| Rate | Python | Chrome | Total | Of the machine |
+|---|---|---|---|---|
+| 1 Hz | 0.0107 | 0.0200 | **0.0307 cores** | 0.13 % |
+| 10 Hz | 0.0403 | 0.1317 | **0.1720 cores** | 0.72 % |
+
+**Tests.** 400 pass, no mocks. Eleven of them run the real `widgets.js` in
+node and hold the rules that matter: a meter only where the hardware publishes
+a scale, a state only from a published threshold, an axis with a floor that
+does not move while the data fits it.
+
+**Next**
+
+Checkpoint 3: the graphics card, in full. It is the reference every other
+group is built against.

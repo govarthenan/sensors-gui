@@ -95,46 +95,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* --- Dial ------------------------------------------------------------------ */
-
-.dial {
-  position: relative;
-  width: var(--dial-size, 200px);
-  text-align: center;
-}
-
-.dial-canvas {
-  display: block;
-}
-
-.dial-centre {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 44%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.dial-value {
-  font-size: 34px;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1;
-}
-
-.dial-unit {
-  font-size: 13px;
-  color: var(--ink-muted);
-  margin-top: 2px;
-}
-
-.dial-label {
-  font-size: 13px;
-  color: var(--ink-secondary);
-  margin-top: 4px;
-}
-
 /* --- Trace ----------------------------------------------------------------- */
 
 .trace {
@@ -143,7 +103,9 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px 12px 8px;
-  width: max-content;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .trace figcaption {

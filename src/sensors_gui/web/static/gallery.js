@@ -7,11 +7,11 @@
  * rather than faked.
  */
 
-import { Dial, Meter, STATES, StatTile, Trace, colourOf, hasScale } from "/static/widgets.js";
+import { Meter, STATES, StatTile, Trace, colourOf, hasScale } from "/static/widgets.js";
 
 const HISTORY = 300;
 
-/** Channels with a real scale, for the meters and the dials. */
+/** Channels with a real scale, for the meters. */
 const WITH_SCALE = ["GPU edge", "GPU power", "GPU use", "DIMM A2", "CPU use", "SSD Wear"];
 
 /** Channels with no published scale, for the stat tiles. */
@@ -48,12 +48,6 @@ function build() {
     $("meters").appendChild(card);
     state.widgets.push((frame) => meter.update(frame.v[channel.i], extraOf(frame, channel.i)));
 
-    const dial = new Dial(channel, 190);
-    const dialCard = document.createElement("div");
-    dialCard.className = "card";
-    dialCard.appendChild(dial.element);
-    $("dials").appendChild(dialCard);
-    state.widgets.push((frame) => dial.update(frame.v[channel.i], extraOf(frame, channel.i)));
   }
 
   for (const label of WITHOUT_SCALE) {

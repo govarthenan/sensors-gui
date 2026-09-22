@@ -58,21 +58,14 @@
 
 <h2>1 · A value against a real limit</h2>
 <p class="note">
-  The meter is the default form. The track is the fill's own hue, so the state reads across
-  the whole bar; the hairlines on the track are the thresholds the hardware publishes, so the
-  room that is left can be seen without reading a number.
+  The meter is the form for a value against a limit, chosen by Gova on 2026-09-22. The track
+  is the fill's own hue, so the state reads across the whole bar; the hairlines on the track
+  are the thresholds the hardware publishes, so the room that is left can be seen without
+  reading a number.
 </p>
 <div class="row" id="meters"></div>
 
-<h2>2 · The same values, drawn round</h2>
-<p class="note">
-  The <code>dataviz</code> skill puts "a single ratio against a limit" on a meter, not on a
-  dial, so a dial is kept for at most one hero value in a view. Both are here so the choice
-  is yours, not mine.
-</p>
-<div class="row" id="dials"></div>
-
-<h2>3 · A value with no published scale</h2>
+<h2>2 · A value with no published scale</h2>
 <p class="note">
   109 of the 175 channels on this machine publish no maximum, and only 5 publish a threshold.
   For those, the widget shows the number and the line and <b>draws no bar</b>, because a
@@ -82,7 +75,7 @@
 <div class="row" id="hero"></div>
 <div class="row" id="tiles"></div>
 
-<h2>4 · Change over time</h2>
+<h2>3 · Change over time</h2>
 <p class="note">
   The vertical axis keeps a floor and only moves when the data leaves it, so a quarter-degree
   wobble does not fill the box and the line does not jump while the value stands still. Put
@@ -90,7 +83,7 @@
 </p>
 <div class="row" id="traces"></div>
 
-<h2>5 · What a colour means</h2>
+<h2>4 · What a colour means</h2>
 <p class="note">
   One colour for each state, the same everywhere. The colour never travels alone: the
   validator in the <code>dataviz</code> skill reports that warning, serious and critical are
@@ -99,9 +92,10 @@
 <div class="legend" id="legend"></div>
 
 <div class="pick">
-  <b>What I need from you.</b> Section 1 or section 2 for a headline value, and whether the
-  line chart in section 4 is now right. I use whatever you pick for all 175 channels, so it
-  is cheaper to change it here than later.
+  <b>Accepted by Gova on 2026-09-22.</b> The meter is the form for a value against a limit,
+  over a dial, and the line chart is accepted as it is. The dial that was here has been
+  removed; the screenshot in <code>lab/exp-0015-gui-checkpoints/results/</code> keeps the
+  record of what it looked like.
 </div>
 
 <script type="module" src="/static/gallery.js"></script>

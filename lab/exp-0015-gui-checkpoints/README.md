@@ -80,5 +80,45 @@ The review page is the heaviest thing the application will draw for its size:
 it redraws six dials, six meters, six sparklines and four charts on every
 frame. A real view draws less.
 
-**Two questions are open for Gova**: a meter or a dial for a headline value,
-and whether the line chart is right now.
+**Gova's answers, 2026-09-22**: *"Go with the meter. And yes, much better
+now."* So the meter is the form for a value against a limit, the line chart is
+accepted as it is, and the dial was removed from the widget set. This
+screenshot keeps the record of what it looked like.
+
+### Checkpoint 2 — the shell and the summary view, 2026-09-22
+
+| File | What it shows |
+|---|---|
+| `2026-09-22-checkpoint-2-summary-2560.png` | the summary, maximised at 2560 x 1440 |
+| `2026-09-22-checkpoint-2-summary-1280.png` | the same at half the width, which the brief requires not to break |
+| `2026-09-22-checkpoint-2-summary-1000-tabs.png` | narrower still: the navigation becomes a row of tabs |
+| `2026-09-22-checkpoint-2-view-not-built-yet.png` | a view that is not built yet, saying which checkpoint builds it |
+| `2026-09-22-checkpoint-2-overhead.json` | what the summary costs, at 1 Hz and at 10 Hz |
+
+What is in it: the hottest part of the machine with every temperature beside
+it, the power that can be measured with a note on what cannot, the four loads
+that publish a real scale, two charts, memory, storage health, every fan with
+the reason five headers read zero, the channels that come through the root
+helper, and what each colour means.
+
+The status bar carries what section 4.5 asks for: the channel count, the
+hidden count, the rate, the median and the maximum pass, the paint time, the
+time of the last sample, whether the helper answers, and that the application
+is read only.
+
+**Three defects were found by opening it, and none by a test.** The line chart
+had a fixed width and ran under the card beside it; the card titles wrapped
+because the note beside them would not give way; and the view left a third of
+the screen empty, which a second chart now uses.
+
+### What the summary costs
+
+| Rate | Python | Chrome | Total | Of the machine |
+|---|---|---|---|---|
+| 1 Hz | 0.0107 | 0.0200 | **0.0307** | 0.13 % |
+| 10 Hz | 0.0403 | 0.1317 | **0.1720** | 0.72 % |
+
+It was **0.2147 cores** at 10 Hz before one change: the widgets now write text
+only when the text is different. At 10 Hz with 175 channels that call happens
+about 1750 times a second, and most values do not change between two passes.
+Three lines, and a fifth of the cost went away.

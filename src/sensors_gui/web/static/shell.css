@@ -1,0 +1,345 @@
+/*
+ * The shell: the header, the navigation, the stage and the status bar.
+ *
+ * The screen is 2560 x 1440. The layout must be usable maximised there and
+ * must not break at half that width, so the navigation turns into a row of
+ * tabs below 1200 px and the cards reflow.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--plane);
+  color: var(--ink);
+  font: 14px/1.45 var(--sans);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 220px 1fr;
+  grid-template-areas:
+    "head head"
+    "nav  stage"
+    "foot foot";
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- header ---------------------------------------------------------------- */
+
+header {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.brand {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.brand span {
+  color: var(--ink-muted);
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.controls {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink-secondary);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+button:hover {
+  color: var(--ink);
+  border-color: var(--ink-muted);
+}
+
+/* --- navigation ------------------------------------------------------------ */
+
+nav {
+  grid-area: nav;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding: 12px 10px;
+  overflow-y: auto;
+}
+
+nav a {
+  display: block;
+  padding: 7px 12px;
+  border-radius: 7px;
+  color: var(--ink-secondary);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+nav a:hover {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+nav a.is-current {
+  background: color-mix(in srgb, var(--series) 18%, transparent);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* A view that is not built yet is still listed, and says so by being quiet. */
+nav a.nav-later {
+  color: var(--ink-muted);
+}
+
+/* --- the stage ------------------------------------------------------------- */
+
+main {
+  grid-area: stage;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--gap);
+  align-items: start;
+}
+
+.view-card {
+  padding: 16px 18px;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  margin: 0 0 12px;
+}
+
+/* The title keeps its line; the note beside it is what gives way. */
+.card-title > span:first-child {
+  white-space: nowrap;
+}
+
+.card-note {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-muted);
+  text-align: right;
+  min-width: 0;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* The hero card is wider than one column, because it holds every temperature.
+   So is a card holding a chart: a line needs width to say anything. */
+.card-hero,
+.card-wide {
+  grid-column: span 2;
+}
+
+.view-card .trace {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.hero {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-value {
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.hero-where {
+  color: var(--ink-secondary);
+}
+
+.hero-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-secondary);
+}
+
+.hero-state i {
+  font-style: normal;
+  font-size: 10px;
+}
+
+.hero-rest {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 2px 20px;
+}
+
+/* --- a line of label and value --------------------------------------------- */
+
+.fact {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.fact-label {
+  color: var(--ink-secondary);
+}
+
+.fact-value {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fact-small {
+  font-size: 12px;
+}
+
+.fact-strong {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* A fan header that reads zero stays on screen and goes quiet, never away. */
+.fact-quiet .fact-value {
+  color: var(--ink-muted);
+}
+
+/* Something the machine cannot give, with the reason. Never a zero. */
+.absent {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+/* --- the legend ------------------------------------------------------------ */
+
+.legend-body {
+  gap: 8px;
+}
+
+.legend-item {
+  display: grid;
+  grid-template-columns: 14px 78px 1fr;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.legend-item i {
+  font-style: normal;
+  font-size: 10px;
+}
+
+.legend-item b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.legend-item em {
+  color: var(--ink-muted);
+  font-style: normal;
+}
+
+/* --- the status bar --------------------------------------------------------- */
+
+footer {
+  grid-area: foot;
+  display: flex;
+  gap: 26px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 8px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+footer b {
+  color: var(--ink-secondary);
+  font-weight: 400;
+}
+
+footer [data-state] {
+  color: var(--state);
+}
+
+footer .read-only {
+  margin-left: auto;
+  color: var(--ink-muted);
+}
+
+/* --- half the width --------------------------------------------------------- */
+
+@media (max-width: 1200px) {
+  body {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "head"
+      "nav"
+      "stage"
+      "foot";
+    grid-template-rows: auto auto 1fr auto;
+  }
+
+  nav {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+  }
+
+  nav a {
+    white-space: nowrap;
+  }
+
+  .card-hero {
+    grid-column: span 1;
+  }
+}
