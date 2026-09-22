@@ -203,13 +203,17 @@ Verified on the machine at the end of session 6, not assumed:
 - The application runs: **166 channels, 1.95 ms per pass, 5 hidden.**
 - `CPU Core 0 (RAPL) Power` and `CPU Core 0 Power` read **1.624 W each**, from
   two different parts of the processor.
-- The `msr` module loads at boot. **Checked in session 7, and the answer is
-  half yes.** The machine rebooted at 10:38:49 on 2026-09-22 and
-  `systemd-modules-load` did insert `msr` — but from
-  `/etc/modules-load.d/libvirt-msr.conf`, which libvirt installed on
-  2026-06-24. Our own `/etc/modules-load.d/sensors-gui.conf` was written at
-  11:32:16, **after** that boot, so it has still not been through one. There is
-  a safety net under it, and the check stays open for the next reboot.
+- The `msr` module loads at boot. **CLOSED in session 7. No reboot is needed
+  to prove it.** Three separate files ask for the same module, and
+  `systemd-analyze cat-config modules-load.d` shows all three in the merged
+  configuration: `/usr/lib/modules-load.d/fwupd-msr.conf` (fwupd),
+  `/etc/modules-load.d/libvirt-msr.conf` (libvirt, 2026-06-24) and our
+  `/etc/modules-load.d/sensors-gui.conf`. At the boot of 10:38:47 on
+  2026-09-22, `systemd-modules-load` inserted `msr` from the other two, which
+  proves the mechanism works on this machine. Our own file was written at
+  11:32:16, after that boot, so only the file is untried — not the method, and
+  not the result. Two other packages hold the module up even if our file were
+  deleted.
 - From the earlier reboot, still true: the patched driver loads by itself and
   is signed, `fan/pwm mask=0x1ff` (9 channels), `EZ Conn Fan` 963 RPM,
   `CMOS Battery` 3.116 V, and all eight fan headers are at `enable=2`.
