@@ -453,9 +453,32 @@ the desktop's own password prompt. That unblocks installing the driver patch.
 It does **not** change ADR 0007: installing a driver that adds sensor reads is
 not writing to hardware, and the fan control question stays closed.
 
+**Stream A, the driver patch, is done and committed. Not installed.**
+
+Two read-only changes to `nct6687d`, both from the BIOS ground truth:
+
+- A board entry for MS-7E47 with 9 fan channels and a new `fan9_label` field,
+  so this board can name register `0x144` "EZ Conn Fan" without disturbing the
+  MEG Z890 GODLIKE, which is the only other board using that register.
+- A voltage override table: two confirmed renames (`DRAM` → `CPU VDDIO`,
+  `AVCC3` → `System 3.3V`, both exact value matches), three duplicate channels
+  hidden, and **two guesses** — register 15 as `CPU 1P8` and register 14 as
+  `CHIPSET Core`.
+
+The two guesses are the only risk, and they are labelled `GUESS` in the source,
+in `driver/README.md` and in the script's output, each with the value to expect
+and the one line to revert. Each reuses a channel already proven wrong, so
+nothing that worked is lost either way.
+
+I verified the patch myself rather than trusting the report: it applies cleanly
+to a copy of the pinned source and builds a real `nct6687.ko` against this
+kernel's headers. `/usr/src` is untouched. The install script requires root,
+backs the source up, dry-runs before applying, and **never opens a `pwm` file
+at all**.
+
 **Next**
 
-Collect the three running streams — the driver patch, `Registry` and `Sampler`,
-and the naming layer with two new collectors — then integrate. The driver
-install waits until Gova is back at the keyboard.
-
+Collect the two remaining streams — `Registry` and `Sampler`, and the naming
+layer with two new collectors — then integrate. The driver install waits until
+Gova is back at the keyboard, because `run-as-root` needs a person there to
+type the password.

@@ -111,6 +111,24 @@ rules before any code is written. Reading comes first.
   take 99.8 % of a pass. ADR 0006 accepted and built: a per-device read
   interval with a cache. A pass went from 10.015 ms to 0.199 ms.
 
+## Waiting for Gova
+
+1. **Install the driver patch.** One command, and `run-as-root` will show it to
+   Gova before it runs:
+
+   ```
+   sudo ./scripts/patch-nct6687.sh
+   ```
+
+   It gives the **EZ Conn fan** channel and a corrected voltage map. Two of the
+   voltage mappings are **guesses** on registers 14 and 15; after the rebuild,
+   check that the channel labelled `CPU 1P8` reads about **1.793 V** and the one
+   labelled `CHIPSET Core` reads about **1.047 V**. If either is wrong, revert
+   that one line. `driver/README.md` says how.
+
+2. **In the BIOS, switch `CPU Fan Fail Warning Control` to ON.** It is the alarm
+   that was missing during the thermal shutdown.
+
 ## Next actions
 
 1. **Map the 9 fans to the 3 headers that report.** Gova must look at the cable
