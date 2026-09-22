@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-21 (session 3)
+Last update: 2026-09-22 (session 4)
 
 ## Phase
 
@@ -67,6 +67,16 @@ rules before any code is written. Reading comes first.
   on this machine. A DKMS module still loads, because a MOK is enrolled.
 - `exp-0005` started, from Gova's idea: a census of every component, then a
   coverage matrix. Step 1 done: 111 components, 18 with a known source.
+- **Session 4.** A script that wrote fan control values caused a **thermal
+  shutdown** at 98 °C. It is deleted, ADR 0007 is reverted, and the project now
+  writes nothing to hardware. Full record in
+  `data/evidence/2026-09-22-thermal-shutdown/`.
+- `exp-0009`: Gova's BIOS photographs gave **ground truth**. The case fans are
+  on the **`JAF_1` EZ Conn header**, which the BIOS reads and Linux does not.
+  Of 14 board voltages, 4 are correct, 2 are misnamed and 8 are wrong; 3 rails
+  the BIOS reads are missing from Linux. The correction table is at
+  `data/evidence/bios-ground-truth-2026-09-22/linux-vs-bios.json`.
+- `data/evidence/` created, with an index and rules.
 - **Session 3.** Corrected the GPU and monitor error. Gova gave the fan count.
 - **The motherboard driver is installed and working.** Gova ran
   `scripts/install-nct6687d.sh`. It built, was signed with the enrolled MOK and

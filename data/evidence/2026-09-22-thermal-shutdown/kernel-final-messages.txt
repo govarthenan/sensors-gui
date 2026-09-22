@@ -1,0 +1,63 @@
+# The last 60 kernel messages of boot -3, before the machine died.
+# Captured on: 2026-09-22T10:03:21+05:30
+
+Sep 21 17:59:04 dst-gova-pc kernel: br-57647376d1ef: port 5(vethd5b6fdf) entered blocking state
+Sep 21 17:59:04 dst-gova-pc kernel: br-57647376d1ef: port 5(vethd5b6fdf) entered disabled state
+Sep 21 17:59:04 dst-gova-pc kernel: vethd5b6fdf: entered allmulticast mode
+Sep 21 17:59:04 dst-gova-pc kernel: vethd5b6fdf: entered promiscuous mode
+Sep 21 17:59:04 dst-gova-pc kernel: eth0: renamed from veth4989a61
+Sep 21 17:59:04 dst-gova-pc kernel: br-57647376d1ef: port 5(vethd5b6fdf) entered blocking state
+Sep 21 17:59:04 dst-gova-pc kernel: br-57647376d1ef: port 5(vethd5b6fdf) entered forwarding state
+Sep 21 18:00:07 dst-gova-pc kernel: br-57647376d1ef: port 4(veth3ecea6f) entered disabled state
+Sep 21 18:00:07 dst-gova-pc kernel: veth08d4af7: renamed from eth0
+Sep 21 18:00:07 dst-gova-pc kernel: br-57647376d1ef: port 4(veth3ecea6f) entered disabled state
+Sep 21 18:00:07 dst-gova-pc kernel: veth3ecea6f (unregistering): left allmulticast mode
+Sep 21 18:00:07 dst-gova-pc kernel: veth3ecea6f (unregistering): left promiscuous mode
+Sep 21 18:00:07 dst-gova-pc kernel: br-57647376d1ef: port 4(veth3ecea6f) entered disabled state
+Sep 22 00:00:00 dst-gova-pc kernel: audit: type=1400 audit(1790015400.115:143): apparmor="DENIED" operation="capable" class="cap" profile="/usr/sbin/cupsd" pid=1465105 comm="cupsd" capability=12  capname="net_admin"
+Sep 22 08:56:09 dst-gova-pc kernel: usb 1-4: new full-speed USB device number 7 using xhci_hcd
+Sep 22 08:56:09 dst-gova-pc kernel: usb 1-4: New USB device found, idVendor=046d, idProduct=c358, bcdDevice=67.01
+Sep 22 08:56:09 dst-gova-pc kernel: usb 1-4: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+Sep 22 08:56:09 dst-gova-pc kernel: usb 1-4: Product: G515 TKL
+Sep 22 08:56:09 dst-gova-pc kernel: usb 1-4: Manufacturer: Logitech
+Sep 22 08:56:09 dst-gova-pc kernel: usb 1-4: SerialNumber: D7C09260
+Sep 22 08:56:09 dst-gova-pc kernel: input: Logitech G515 TKL as /devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-4/1-4:1.0/0003:046D:C358.0009/input/input35
+Sep 22 08:56:09 dst-gova-pc kernel: hid-generic 0003:046D:C358.0009: input,hidraw0: USB HID v1.11 Keyboard [Logitech G515 TKL] on usb-0000:0e:00.0-4/input0
+Sep 22 08:56:09 dst-gova-pc kernel: input: Logitech G515 TKL Mouse as /devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-4/1-4:1.1/0003:046D:C358.000A/input/input36
+Sep 22 08:56:09 dst-gova-pc kernel: input: Logitech G515 TKL Consumer Control as /devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-4/1-4:1.1/0003:046D:C358.000A/input/input37
+Sep 22 08:56:09 dst-gova-pc kernel: input: Logitech G515 TKL System Control as /devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-4/1-4:1.1/0003:046D:C358.000A/input/input38
+Sep 22 08:56:09 dst-gova-pc kernel: hid-generic 0003:046D:C358.000A: input,hidraw1: USB HID v1.11 Mouse [Logitech G515 TKL] on usb-0000:0e:00.0-4/input1
+Sep 22 08:56:09 dst-gova-pc kernel: hid-generic 0003:046D:C358.000B: hiddev0,hidraw2: USB HID v1.11 Device [Logitech G515 TKL] on usb-0000:0e:00.0-4/input2
+Sep 22 08:56:27 dst-gova-pc kernel: usb 1-5: new full-speed USB device number 8 using xhci_hcd
+Sep 22 08:56:28 dst-gova-pc kernel: usb 1-5: New USB device found, idVendor=046d, idProduct=c53f, bcdDevice=44.01
+Sep 22 08:56:28 dst-gova-pc kernel: usb 1-5: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Sep 22 08:56:28 dst-gova-pc kernel: usb 1-5: Product: USB Receiver
+Sep 22 08:56:28 dst-gova-pc kernel: usb 1-5: Manufacturer: Logitech
+Sep 22 08:56:28 dst-gova-pc kernel: logitech-djreceiver 0003:046D:C53F.000C: hidraw3: USB HID v1.11 Keyboard [Logitech USB Receiver] on usb-0000:0e:00.0-5/input0
+Sep 22 08:56:28 dst-gova-pc kernel: logitech-djreceiver 0003:046D:C53F.000D: hiddev1,hidraw4: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-0000:0e:00.0-5/input1
+Sep 22 08:56:28 dst-gova-pc kernel: logitech-djreceiver 0003:046D:C53F.000E: hiddev2,hidraw5: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:0e:00.0-5/input2
+Sep 22 08:56:28 dst-gova-pc kernel: logitech-djreceiver 0003:046D:C53F.000E: device of type eQUAD Lightspeed 1.1 (0x0d) connected on slot 1
+Sep 22 08:56:28 dst-gova-pc kernel: input: Logitech G305 as /devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-5/1-5:1.2/0003:046D:C53F.000E/0003:046D:4074.000F/input/input39
+Sep 22 08:56:28 dst-gova-pc kernel: logitech-hidpp-device 0003:046D:4074.000F: input,hidraw7: USB HID v1.11 Keyboard [Logitech G305] on usb-0000:0e:00.0-5/input2:1
+Sep 22 08:56:28 dst-gova-pc kernel: logitech-hidpp-device 0003:046D:4074.000F: HID++ 4.2 device connected.
+Sep 22 09:06:48 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:49 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:49 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:50 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:50 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:50 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:51 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:51 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:51 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:51 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid

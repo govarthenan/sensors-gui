@@ -1,0 +1,151 @@
+# Extracts from nct6687.c, kept so that later work does not depend on the
+# checkout in /usr/src still being there or still being this version.
+#
+# Source:  https://github.com/Fred78290/nct6687d
+# Commit:  5f12dd1  (2026-09-15, "Merge pull request #216 from damachine/nct")
+# Copied:  2026-09-22T10:03:53+05:30
+
+## 1. Fan channel constants -- why the EZ Conn fan is not visible in Linux
+
+#define NCT6687_NUM_REG_VOLTAGE ARRAY_SIZE(nct6687_voltage_definition)
+#define NCT6687_NUM_REG_TEMP 7
+#define NCT6687_NUM_REG_FAN 8
+
+/*
+ * Some boards expose extra tachometer-only inputs that have no PWM control
+ * path (e.g. MSI MEG Z890 GODLIKE has a second pump header readable at 0x144
+ * in the msi_alt1 mapping). Those channels get fanN_input/fanN_label but no
+ * pwmN attribute, so all PWM/control arrays stay at NCT6687_NUM_REG_FAN.
+ */
+#define NCT6687_NUM_REG_FAN_MAX 9
+#define NCT6687_NUM_REG_PWM 8
+
+/*
+ * Default mask covers the eight PWM-capable channels. Boards that expose the
+ * tachometer-only ninth channel get that bit added once detected.
+ */
+#define NCT6687_FAN_MASK_ALL GENMASK(NCT6687_NUM_REG_FAN_MAX - 1, 0)
+#define NCT6687_FAN_MASK_DEFAULT GENMASK(NCT6687_NUM_REG_FAN - 1, 0)
+/* PWM channels never exceed NCT6687_NUM_REG_FAN */
+#define NCT6687_TEMP_MASK_ALL GENMASK(NCT6687_NUM_REG_TEMP - 1, 0)
+
+
+## 2. Board data structures. Only the MEG Z890 GODLIKE gets 9 fan channels.
+
+};
+
+struct nct6687_board_data {
+	unsigned int fan_channels;
+	unsigned int default_fan_mask;
+	unsigned int hidden_voltage_mask;
+	const struct voltage_reg_override *voltage_overrides;
+	unsigned int voltage_override_count;
+};
+
+static const struct nct6687_board_data nct6687_msi_alt_default = {
+	.fan_channels = NCT6687_NUM_REG_FAN,
+	.default_fan_mask = NCT6687_FAN_MASK_DEFAULT,
+};
+
+/* MEG Z890 GODLIKE also exposes a verified second pump tachometer. */
+static const struct nct6687_board_data nct6687_msi_alt_dual_pump = {
+	.fan_channels = NCT6687_NUM_REG_FAN_MAX,
+	.default_fan_mask = NCT6687_FAN_MASK_ALL,
+};
+
+static const struct nct6687_board_data nct6687_ms7e32 = {
+	.fan_channels = NCT6687_NUM_REG_FAN,
+	.default_fan_mask = NCT6687_FAN_MASK_DEFAULT,
+	.hidden_voltage_mask = BIT(7),
+	.voltage_overrides = nct6687_voltage_ms7e32_overrides,
+	.voltage_override_count = ARRAY_SIZE(nct6687_voltage_ms7e32_overrides),
+};
+
+#define NCT6687_DMI_BOARD(_name) { \
+
+## 3. The generic voltage table, and the only board-specific override
+
+struct voltage_reg {
+	u16 reg;
+	u16 multiplier;
+	const char *label;
+};
+
+struct voltage_reg_override {
+	unsigned int channel;
+	u16 reg;
+	u16 multiplier;
+	const char *label;
+};
+
+/* Default voltage register definitions for NCT6687D */
+static const struct voltage_reg nct6687_voltage_definition[] = {
+	[0] = { .reg = 0, .multiplier = 12, .label = "+12V" },
+	[1] = { .reg = 1, .multiplier = 5, .label = "+5V" },
+	[2] = { .reg = 11, .multiplier = 1, .label = "+3.3V" },
+	[3] = { .reg = 2, .multiplier = 1, .label = "CPU Soc" },
+	[4] = { .reg = 4, .multiplier = 1, .label = "CPU Vcore" },
+	[5] = { .reg = 9, .multiplier = 1, .label = "CPU 1P8" },
+	[6] = { .reg = 10, .multiplier = 1, .label = "CPU VDDP" },
+	[7] = { .reg = 3, .multiplier = 2, .label = "DRAM" },
+	[8] = { .reg = 5, .multiplier = 1, .label = "Chipset" },
+	[9] = { .reg = 6, .multiplier = 1, .label = "CPU SA" },
+	[10] = { .reg = 7, .multiplier = 1, .label = "Voltage #2" },
+	[11] = { .reg = 8, .multiplier = 1, .label = "AVCC3" },
+	[12] = { .reg = 12, .multiplier = 1, .label = "AVSB" },
+	[13] = { .reg = 13, .multiplier = 1, .label = "VBat" },
+};
+
+/* MSI Z890 MS-7E32 voltage mapping adapted from LibreHardwareMonitor. */
+static const struct voltage_reg_override nct6687_voltage_ms7e32_overrides[] = {
+	{ .channel = 2, .reg = 8, .multiplier = 1, .label = "+3.3V" },
+	{ .channel = 3, .reg = 2, .multiplier = 1, .label = "CPU Vcore" },
+	{ .channel = 4, .reg = 3, .multiplier = 1, .label = "VIN5" },
+	{ .channel = 5, .reg = 4, .multiplier = 2, .label = "VDIMM" },
+	{ .channel = 6, .reg = 5, .multiplier = 1, .label = "Chipset" },
+	{ .channel = 8, .reg = 7, .multiplier = 1, .label = "VIN7" },
+	{ .channel = 9, .reg = 13, .multiplier = 1, .label = "VTT" },
+	{ .channel = 10, .reg = 15, .multiplier = 1, .label = "+1.8V" },
+	{ .channel = 11, .reg = 11, .multiplier = 1, .label = "+3V Standby" },
+	{ .channel = 13, .reg = 14, .multiplier = 1, .label = "CMOS Battery" },
+};
+
+static struct voltage_reg nct6687_voltage_config_active[NCT6687_NUM_REG_VOLTAGE];
+
+static const char *const nct6687_manual_voltage_labels[] = {
+	"in0", "in1", "in2", "in3", "in4", "in5", "in6",
+	"in7", "in8", "in9", "in10", "in11", "in12", "in13",
+};
+
+
+## 4. This board in the DMI table -- fans and temperatures only, no voltage map
+
+469-	NCT6687_DMI_BOARD("X870E GAMING PLUS WIFI (MS-7E70)"),
+470-	NCT6687_DMI_BOARD("MAG X870 TOMAHAWK WIFI (MS-7E51)"),
+471:	NCT6687_DMI_BOARD("PRO X870-P WIFI (MS-7E47)"),
+472-	NCT6687_DMI_BOARD("PRO X870E-P WIFI (MS-7E70)"),
+473-	NCT6687_DMI_BOARD("MAG X870E TOMAHAWK WIFI (MS-7E59)"),
+474-	NCT6687_DMI_BOARD("MAG X870E TOMAHAWK MAX WIFI PZ (MS-7E84)"),
+475-	NCT6687_DMI_BOARD("MPG X870E CARBON WIFI (MS-7E49)"),
+
+## 5. pwm_enable modes (1 = manual, 2 = automatic)
+
+ *
+ * The driver previously reported 99 for the auto state and rejected any
+ * write other than 1 or 99. That made standard userspace (lm-sensors
+ * `fancontrol`, ventd, etc.) trip on `-EINVAL` when restoring auto mode
+ * on shutdown. Both values are accepted when writing pwm_enable;
+ * reads always return the ABI-conforming 1 or 2.
+ */
+enum pwm_enable {
+	manual_mode = 1,
+	auto_mode = 2,
+};
+
+/*
+ * Legacy auto-mode value historically reported / accepted by this
+ * driver. Still accepted for callers that scripted around the old
+ * behaviour; never reported when reading pwm_enable.
+ */
+#define NCT6687_LEGACY_AUTO_MODE 99
+

@@ -1,0 +1,40 @@
+# The state Claude observed after the incident, in the boot that followed.
+# These are verbatim tool outputs from the session, kept because the
+# machine has since been rebooted and the state is gone.
+# Recorded on: 2026-09-22T10:03:21+05:30
+
+## 1. First observation, 2026-09-22, in the session
+
+  pwm1  = 0    enable=1   CPU Fan          0 RPM
+  pwm2  = 128  enable=2   Pump Fan         1065 RPM
+  pwm3  = 128  enable=1   System Fan #1    1065 RPM
+  pwm4  = 128  enable=1   System Fan #2    0 RPM
+  pwm5  = 128  enable=1   System Fan #3    0 RPM
+  pwm6  = 128  enable=1   System Fan #4    0 RPM
+  pwm7  = 128  enable=1   System Fan #5    0 RPM
+  pwm8  = 128  enable=1   System Fan #6    0 RPM
+
+  module parameters: fan_config=msi_alt1  fan_mask=255  temp_mask=127
+
+## 2. Temperatures, first reading
+  Tctl      97 C
+  VRM MOS   38 C
+  System    38 C
+  NVMe      42 C
+  CPU Fan   0 RPM   (pwm1=0 enable=1)
+  Pump      1058 RPM
+  Sys Fan 1 1075 RPM
+
+## 3. Temperatures, about one minute later
+  Tctl 98 C   Tccd1 92 C
+  CPU Fan 0 RPM (pwm1=0 enable=1)
+  Pump    1057 RPM
+  SysFan1 1066 RPM
+
+## 4. After the reboot, everything back under BIOS control
+  uptime: up 5 minutes
+  Tctl 54 C
+  CPU Fan            1976 RPM  pwm=128  enable=2
+  Pump Fan           1461 RPM  pwm=255  enable=2
+  System Fan #1      1297 RPM  pwm=153  enable=2
+  System Fan #2..#6     0 RPM  pwm=153  enable=2

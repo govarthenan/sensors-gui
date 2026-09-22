@@ -43,7 +43,9 @@ docs/
   decisions/             Decision records, one file for each decision (ADR).
 lab/                   Experiments. One folder for each experiment.
   exp-NNNN-<slug>/       README.md (question, method, result), code, results/.
-data/probes/           Raw captures from the machine. Large files are ignored.
+data/probes/           Timestamped machine captures from scripts/.
+data/evidence/         Material a claim rests on: incidents, external ground
+                       truth, third-party source. See data/evidence/README.md.
 src/sensors_gui/       Application code.
 tests/                 Tests (pytest).
 scripts/               Helper scripts for the developer.
@@ -59,8 +61,19 @@ scripts/               Helper scripts for the developer.
   with three parts: Question, Method, Result.
 - **Decisions get an ADR.** Use `docs/decisions/NNNN-<slug>.md`.
 - **Do not guess hardware facts.** Read the machine. Put the command and its
-  output in the document.
-- **Root access:** some sensors need root (RAPL energy, SMART data, Super-IO).
+  output in the document. A claim with no file under `data/` or
+  `lab/exp-*/results/` behind it is not established.
+- **Copy evidence, never link to it.** A path under `/usr/src`, `/tmp` or
+  `/proc` is not evidence; it will be gone. Every evidence file carries the
+  command, the date and the source in its first lines.
+- **Keep what disproves a claim.** When a later experiment corrects an earlier
+  one, both stay, and the correction is written into each.
+- **THIS PROJECT WRITES NOTHING TO HARDWARE.** No exceptions, no conditions.
+  See ADR 0007 and `data/evidence/2026-09-22-thermal-shutdown/`. A script that
+  wrote fan control values stopped the CPU radiator fans, could not start them
+  again, and the machine shut itself down at 98 °C. Reading is safe. Writing is
+  not. If a question can only be answered by writing, drop the question.
+- **Root access:** some sensors need root (RAPL energy, SMART data, Super-I/O).
   Ask Gova before you install a kernel module or change permissions.
 - **No mocks in tests** unless Gova asks for them.
 - Commits use Conventional Commits. Attribute Govarthenan, never Claude.
@@ -75,8 +88,9 @@ scripts/               Helper scripts for the developer.
 | NVIDIA RTX 4090 | `nvidia-smi`, NVML | no |
 | AMD iGPU | `/sys/class/hwmon/hwmon*/` (`amdgpu`) | no |
 | NVMe temperature | `/sys/class/hwmon/hwmon*/` (`nvme`) | no |
-| NVMe SMART | `nvme-cli` / `smartctl` (not installed yet) | yes |
+| NVMe SMART | `nvme-cli` / `smartctl` (installed) | yes |
 | DIMM temperature | `/sys/class/hwmon/hwmon*/` (`spd5118`) | no |
-| Fans, VRM, voltages | Nuvoton Super-I/O — **no driver yet** | yes |
+| Fans, VRM, voltages | `nct6687` (installed 2026-09-21) — 29 channels | no |
+| **EZ Conn fan** | **not readable in Linux**; the BIOS sees it | — |
 
 See `docs/sensor-sources.md` for the complete list.

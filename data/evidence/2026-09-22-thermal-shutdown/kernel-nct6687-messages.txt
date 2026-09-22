@@ -1,0 +1,45 @@
+# Kernel messages: boot -3 (2026-09-21 12:51:56 +0530 -> 2026-09-22 09:10:52 +0530)
+#
+# This is the boot in which scripts/map-fans.sh ran and the machine shut
+# itself down at about 98 C. Captured after the fact with:
+#     journalctl -b -3 -k --no-pager | grep -i nct6687
+# Captured on: 2026-09-22T10:03:20+05:30
+#
+# NOTE: the log ends at 09:06:53 with a write rejection. The boot list says
+# the boot ended at 09:10:52. The gap means the journal stopped being
+# written, which is what a hard power cut looks like.
+
+Sep 21 16:40:30 dst-gova-pc kernel: nct6687: Detected MSI board requiring msi_alt1 fan configuration
+Sep 21 16:40:31 dst-gova-pc kernel: nct6687: Found NCT6687D or compatible chip at 0x004e:0x0a20
+Sep 21 16:40:31 dst-gova-pc kernel: nct6687 nct6687.2592: Detected MSI board; using alternative fan configuration (msi_alt1)
+Sep 21 16:40:31 dst-gova-pc kernel: nct6687 nct6687.2592: MSI fan brute force mode: disabled
+Sep 21 16:40:31 dst-gova-pc kernel: nct6687 nct6687.2592: active fan config=msi_alt1, SYS_FAN reg_rpm=0x015E/0x015C/0x015A
+Sep 21 16:40:31 dst-gova-pc kernel: nct6687 nct6687.2592: enabled channels: fan/pwm mask=0xff, temp mask=0x7f
+Sep 21 16:40:31 dst-gova-pc kernel: nct6687 nct6687.2592: NCT6687D EC firmware version 0.0 build 08/22/24
+Sep 21 16:55:10 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 21 16:55:20 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 21 16:55:30 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 21 16:55:40 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 21 16:55:50 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 21 16:56:00 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:48 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:49 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:49 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:50 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:50 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:50 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:51 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:51 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:51 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:51 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:52 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid
+Sep 22 09:06:53 dst-gova-pc kernel: nct6687: The device rejected new configuration as invalid

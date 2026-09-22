@@ -1,0 +1,77 @@
+{
+  "captured_at": "2026-09-22T09:21:00+05:30",
+  "source": "MSI Click BIOS, Hardware Monitor and EZ Mode, photographed by Gova",
+  "photographs": [
+    "docs/photos/bios/01-temps-and-voltages.jpg",
+    "docs/photos/bios/02-fan-curve.jpg",
+    "docs/photos/bios/03-fan-list-ez-conn.jpg",
+    "docs/photos/bios/04-board-and-bios-version.jpg",
+    "docs/photos/bios/05-ez-mode-overview.jpg",
+    "docs/photos/bios/06-fan-profile.jpg",
+    "docs/photos/bios/07-fan-profile-full.jpg"
+  ],
+  "board": {
+    "name": "PRO X870-P WIFI (MS-7E47)",
+    "bios_version": "E7E47AMSI.1A10",
+    "bios_build_date": "2024-08-27",
+    "board_temperature_c": 41,
+    "cpu_fan_fail_warning_control": "OFF"
+  },
+  "temperatures_c": {
+    "CPU Core": 46,
+    "System": 38,
+    "MOS": 40,
+    "Chipset A": 38
+  },
+  "voltages_v": {
+    "System 12V": 12.096,
+    "System 5V": 5.050,
+    "System 3.3V": 3.288,
+    "CPU VDDIO": 1.368,
+    "CPU Core": 1.340,
+    "CPU NB/SOC": 1.312,
+    "VDD MISC": 1.097,
+    "CPU 1P8": 1.793,
+    "CHIPSET Core": 1.047
+  },
+  "fans_rpm": {
+    "note": "two readings were photographed at different moments",
+    "CPU Fan 1": [3125, 1986],
+    "PUMP SYS Fan 1": [1445, 1449],
+    "SYS Fan 1": [1732, 1213],
+    "SYS Fan 2": null,
+    "SYS Fan 3": null,
+    "SYS Fan 4": null,
+    "SYS Fan 5": null,
+    "SYS Fan 6": null,
+    "EZ Conn Fan": [1612, 963]
+  },
+  "fan_curve": {
+    "mode": "Smart Fan",
+    "drive": "PWM",
+    "fan_type_auto_detect": true,
+    "temperature_source": "CPU Core",
+    "step_up_time_s": 0.1,
+    "step_down_time_s": 0.1,
+    "points": [
+      {"temp_c": 0, "duty_percent": 20},
+      {"temp_c": 45, "duty_percent": 35},
+      {"temp_c": 65, "duty_percent": 70},
+      {"temp_c": 80, "duty_percent": 100}
+    ]
+  },
+  "memory": {
+    "total_mb": 65536,
+    "speed": "DDR5-6400",
+    "slots": {
+      "A1": null,
+      "A2": {"vendor": "TEAM GROUP INC.", "size_mb": 32768},
+      "B1": null,
+      "B2": {"vendor": "TEAM GROUP INC.", "size_mb": 32768}
+    }
+  },
+  "storage": {
+    "M2_1": "WD_BLACK SN770 1TB",
+    "SATA_A1": null, "SATA_A2": null, "SATA_A3": null, "SATA_A4": null
+  }
+}

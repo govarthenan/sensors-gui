@@ -1,0 +1,38 @@
+{
+  "purpose": "The correction table. Maps each nct6687 Linux channel to what the BIOS says it really is, so the application can label, rename or hide it.",
+  "captured_at": "2026-09-22",
+  "evidence": "lab/exp-0009-bios-ground-truth/README.md",
+  "driver": "nct6687d, commit 5f12dd1, generic voltage table (no map exists for MS-7E47)",
+  "voltages": [
+    {"linux_label": "+12V",       "linux_v": 12.120, "bios_label": "System 12V",   "bios_v": 12.096, "verdict": "correct"},
+    {"linux_label": "+5V",        "linux_v": 5.050,  "bios_label": "System 5V",    "bios_v": 5.050,  "verdict": "correct"},
+    {"linux_label": "CPU Vcore",  "linux_v": 1.340,  "bios_label": "CPU Core",     "bios_v": 1.340,  "verdict": "correct"},
+    {"linux_label": "CPU Soc",    "linux_v": 1.312,  "bios_label": "CPU NB/SOC",   "bios_v": 1.312,  "verdict": "correct"},
+    {"linux_label": "DRAM",       "linux_v": 1.368,  "bios_label": "CPU VDDIO",    "bios_v": 1.368,  "verdict": "rename", "rename_to": "CPU VDDIO"},
+    {"linux_label": "AVCC3",      "linux_v": 3.288,  "bios_label": "System 3.3V",  "bios_v": 3.288,  "verdict": "rename", "rename_to": "System 3.3V"},
+    {"linux_label": "+3.3V",      "linux_v": 3.332,  "bios_label": null, "bios_v": null, "verdict": "wrong", "why": "the real 3.3 V rail is what Linux calls AVCC3"},
+    {"linux_label": "CPU 1P8",    "linux_v": 3.332,  "bios_label": null, "bios_v": null, "verdict": "wrong", "why": "the real CPU 1P8 is 1.793 V"},
+    {"linux_label": "CPU VDDP",   "linux_v": 3.328,  "bios_label": null, "bios_v": null, "verdict": "wrong", "why": "one of four channels giving the same ~3.33 V"},
+    {"linux_label": "AVSB",       "linux_v": 3.332,  "bios_label": null, "bios_v": null, "verdict": "wrong", "why": "one of four channels giving the same ~3.33 V"},
+    {"linux_label": "Chipset",    "linux_v": 0.324,  "bios_label": null, "bios_v": null, "verdict": "wrong", "why": "the real CHIPSET Core is 1.047 V"},
+    {"linux_label": "CPU SA",     "linux_v": 0.792,  "bios_label": null, "bios_v": null, "verdict": "unverified", "why": "no BIOS equivalent"},
+    {"linux_label": "Voltage #2", "linux_v": 1.528,  "bios_label": null, "bios_v": null, "verdict": "unverified", "why": "unnamed in the driver too"},
+    {"linux_label": "VBat",       "linux_v": 2.046,  "bios_label": null, "bios_v": null, "verdict": "wrong", "why": "NOT the CMOS battery. The BIOS reports no battery voltage. The MSI Z890 map puts the battery at register 14, not 13."}
+  ],
+  "voltages_missing_from_linux": [
+    {"bios_label": "VDD MISC",     "bios_v": 1.097, "note": "probably on register 14 or 15, which the generic table never reads"},
+    {"bios_label": "CPU 1P8",      "bios_v": 1.793, "note": "the MSI Z890 override maps +1.8V to register 15"},
+    {"bios_label": "CHIPSET Core", "bios_v": 1.047, "note": "the driver's 'Chipset' at 0.324 V is a different register"}
+  ],
+  "fans": [
+    {"linux_channel": "fan1", "linux_label": "CPU Fan",       "bios_label": "CPU Fan 1",      "verdict": "correct"},
+    {"linux_channel": "fan2", "linux_label": "Pump Fan",      "bios_label": "PUMP SYS Fan 1", "verdict": "correct"},
+    {"linux_channel": "fan3", "linux_label": "System Fan #1", "bios_label": "SYS Fan 1",      "verdict": "correct"},
+    {"linux_channel": "fan4", "linux_label": "System Fan #2", "bios_label": "SYS Fan 2", "verdict": "empty header", "note": "BIOS prints N/A, Linux prints 0. They agree."},
+    {"linux_channel": "fan5", "linux_label": "System Fan #3", "bios_label": "SYS Fan 3", "verdict": "empty header"},
+    {"linux_channel": "fan6", "linux_label": "System Fan #4", "bios_label": "SYS Fan 4", "verdict": "empty header"},
+    {"linux_channel": "fan7", "linux_label": "System Fan #5", "bios_label": "SYS Fan 5", "verdict": "empty header"},
+    {"linux_channel": "fan8", "linux_label": "System Fan #6", "bios_label": "SYS Fan 6", "verdict": "empty header"},
+    {"linux_channel": null,   "linux_label": null,            "bios_label": "EZ Conn Fan",    "verdict": "MISSING FROM LINUX", "bios_rpm": [1612, 963], "note": "The case fans are on the JAF_1 EZ Conn header. The driver supports a 9th tachometer-only channel at register 0x144 in the msi_alt1 mapping, but enables it only for the MEG Z890 GODLIKE."}
+  ]
+}
