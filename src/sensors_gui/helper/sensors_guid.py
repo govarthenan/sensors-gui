@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """sensors-guid — the privileged, read-only sensor helper of ADR 0005.
 
-Two sensor sources on `dst-gova-pc` need root, and only these two:
+Three sensor sources on `dst-gova-pc` need root, and only these three:
 
 | Source | Why root | Evidence |
 |---|---|---|
-| RAPL CPU energy | `intel-rapl:*/energy_uj` is mode `0400 root` | the probe below |
-| NVMe SMART log | `/dev/nvme0` is mode `0600 root` | the probe below |
+| RAPL CPU energy | `intel-rapl:*/energy_uj` is mode `0400 root` | `privileged-20260922T051641Z` |
+| NVMe SMART log | `/dev/nvme0` is mode `0600 root` | `privileged-20260922T051641Z` |
+| Per-core energy | `/dev/cpu/N/msr` is `0600 root`, and needs CAP_SYS_RAWIO | `core-energy-20260922T055615Z` |
 
-The probe is `data/probes/privileged-20260922T051641Z/`, captured by
-`scripts/probe-privileged.sh` on 2026-09-22.
+The probes are under `data/probes/`, captured by `scripts/probe-privileged.sh`
+and `scripts/probe-core-energy.sh` on 2026-09-22. `exp-0011` and `exp-0012`
+hold what they showed.
 
 This helper runs as root, reads those two, and publishes the numbers on a Unix
 domain socket that the user's screen can read. The screen itself never needs
@@ -58,6 +60,7 @@ client may only ask for all of it.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import errno
 import grp
 import json
@@ -78,7 +81,7 @@ from pathlib import Path
 from typing import Any
 
 PROTOCOL_VERSION = 1
-HELPER_VERSION = "1.0"
+HELPER_VERSION = "1.1"
 
 DEFAULT_SOCKET_PATH = Path("/run/sensors-gui.sock")
 DEFAULT_SOCKET_GROUP = "gova"
@@ -219,6 +222,10 @@ def _rapl_label(name: str, parent_name: str | None) -> str:
     1.69 W while `turbostat` gave 2.55 W for CPU 0 and 22.80 W for all cores.
     So it is labelled "Core 0", never "Cores".
 
+    Since `exp-0012` the same core is also read from its own register, and the
+    two agreed to 0.001 W the first time they were shown side by side. Two rows
+    with one label would be unreadable, so this one says where it comes from.
+
     Args:
         name: The domain's own `name` file.
         parent_name: The `name` of the package above it, or None at the top.
@@ -233,7 +240,7 @@ def _rapl_label(name: str, parent_name: str | None) -> str:
             return f"CPU Package {name.removeprefix('package-')}"
         return f"CPU {name}"
     if name == "core":
-        return "CPU Core 0"
+        return "CPU Core 0 (RAPL)"
     if name == "uncore":
         return "CPU Uncore"
     if name == "dram":
@@ -366,6 +373,335 @@ class RaplSampler:
     def values(self) -> dict[tuple[str, str], Value]:
         """Return the last value of every channel."""
         return dict(self._values)
+
+
+# --- source 3: per-core energy MSRs ------------------------------------------
+#
+# `exp-0012`, 2026-09-22. The powercap `core` domain above is **core 0 only**.
+# The processor holds one energy counter for EACH core, and any root process
+# may read it. Nothing is written to get it: `os.pread` on `/dev/cpu/N/msr` is
+# a read, and the answer matched `turbostat` to 0.1 % under an all-core load.
+#
+# The route the plan used to name — `ryzen_smu` or `zenpower3` — writes a
+# command word into the SMU mailbox to obtain the same numbers. That is a write
+# to hardware, which ADR 0007 forbids with no exceptions. This route removes
+# the question.
+#
+# The MSR numbers are not from memory. They are in this kernel's own header,
+# `/usr/src/linux-headers-$(uname -r)/arch/x86/include/asm/msr-index.h`:
+#
+#   0xc0010299  MSR_AMD_RAPL_POWER_UNIT     bits 12:8 hold ESU
+#   0xc001029a  MSR_AMD_CORE_ENERGY_STATUS  one counter for each core
+#
+# Reading them needs CAP_SYS_RAWIO, which `man 7 capabilities` states for
+# "open devices for accessing x86 model-specific registers", and it needs the
+# `msr` module, which `scripts/install-helper.sh` makes load at boot.
+
+MSR_AMD_RAPL_POWER_UNIT = 0xC0010299
+MSR_AMD_CORE_ENERGY_STATUS = 0xC001029A
+
+# The counter is a 32-bit field inside a 64-bit register, and it wraps. At the
+# 104 W this machine reached in `exp-0012`, one core counter wraps about every
+# ten minutes. A reader that ignores that reports a large negative power.
+CORE_COUNTER_SPAN = 1 << 32
+
+# Bits 12:8 of the unit register hold ESU. One count is 1/2**ESU joules. This
+# machine reads ESU = 16, so 15.2588 microjoules.
+ENERGY_UNIT_SHIFT = 8
+ENERGY_UNIT_MASK = 0x1F
+
+# These MSRs arrived with Zen (family 17h). The check keeps the helper quiet on
+# any other processor instead of reading a register that means something else
+# there.
+AMD_VENDOR = "AuthenticAMD"
+MIN_AMD_FAMILY = 0x17
+
+DEFAULT_CPU_SYS_ROOT = Path("/sys/devices/system/cpu")
+DEFAULT_MSR_ROOT = Path("/dev/cpu")
+
+CORE_ENERGY_DEVICE = "cpu-cores"
+
+
+@dataclass(slots=True)
+class _Core:
+    """One physical core, and the state needed to turn energy into power."""
+
+    core_id: int
+    cpu: int
+    msr_path: Path
+    fd: int | None = None
+    last_counts: int | None = None
+    last_read_at: float | None = None
+
+
+def read_cpu_vendor_and_family(cpuinfo_path: Path) -> tuple[str | None, int | None]:
+    """Return the vendor and the family of the first processor in a cpuinfo file.
+
+    Args:
+        cpuinfo_path: The file to read, normally `/proc/cpuinfo`.
+
+    Returns:
+        The vendor string and the family number. Either is None when the file
+        does not give it.
+    """
+    vendor: str | None = None
+    family: int | None = None
+    text = _read_text(cpuinfo_path)
+    if text is None:
+        return None, None
+    for line in text.splitlines():
+        key, separator, value = line.partition(":")
+        if not separator:
+            continue
+        key = key.strip()
+        value = value.strip()
+        if key == "vendor_id" and vendor is None:
+            vendor = value
+        elif key == "cpu family" and family is None:
+            try:
+                family = int(value)
+            except ValueError:
+                family = None
+        if vendor is not None and family is not None:
+            break
+    return vendor, family
+
+
+def _first_thread_of_each_core(cpu_sys_root: Path) -> list[tuple[int, int]]:
+    """Return (core id, thread) for one thread of every physical core.
+
+    The counter is per core, so reading both threads of a core would read the
+    same register twice. `exp-0012` proved this: with one thread busy, exactly
+    one core counter moved.
+
+    Args:
+        cpu_sys_root: The directory that holds `cpu0`, `cpu1` and so on.
+
+    Returns:
+        The pairs, ordered by core id.
+    """
+    first_thread: dict[int, int] = {}
+    if not cpu_sys_root.is_dir():
+        return []
+    for entry in cpu_sys_root.iterdir():
+        if not re.fullmatch(r"cpu\d+", entry.name):
+            continue
+        cpu = int(entry.name.removeprefix("cpu"))
+        core_id = _read_int(entry / "topology" / "core_id")
+        if core_id is None:
+            continue
+        if core_id not in first_thread or cpu < first_thread[core_id]:
+            first_thread[core_id] = cpu
+    return [(core_id, first_thread[core_id]) for core_id in sorted(first_thread)]
+
+
+class CoreEnergySampler:
+    """Read the per-core energy MSRs and turn them into power.
+
+    Like RAPL, the register gives a counter that only climbs. Power is the rise
+    divided by the time it took, so the first sample can give no power at all.
+    """
+
+    def __init__(
+        self,
+        cpu_sys_root: Path = DEFAULT_CPU_SYS_ROOT,
+        msr_root: Path = DEFAULT_MSR_ROOT,
+        cpuinfo_path: Path = Path("/proc/cpuinfo"),
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
+        """Create the sampler.
+
+        Args:
+            cpu_sys_root: The sysfs directory that holds the CPU topology.
+            msr_root: The directory that holds `0/msr`, `1/msr` and so on.
+            cpuinfo_path: The file that names the vendor and the family.
+            clock: The source of time. It must not go backwards.
+        """
+        self.cpu_sys_root = Path(cpu_sys_root)
+        self.msr_root = Path(msr_root)
+        self.cpuinfo_path = Path(cpuinfo_path)
+        self.clock = clock
+        self._cores: list[_Core] = []
+        self._values: dict[tuple[str, str], Value] = {}
+        self._joules_per_count: float | None = None
+        self._unit_error: str | None = None
+
+    # --- discovery ----------------------------------------------------------
+
+    def discover(self) -> list[Channel]:
+        """Find every core that has an MSR node, and return its channels.
+
+        This reads the vendor, the family and the topology, which any user may
+        read, and it checks that the MSR node exists. It does not open it, so a
+        client with no root can call this and learn what it is missing.
+        """
+        self._cores = []
+        self._close_all()
+
+        vendor, family = read_cpu_vendor_and_family(self.cpuinfo_path)
+        if vendor != AMD_VENDOR or family is None or family < MIN_AMD_FAMILY:
+            logger.info(
+                "no per-core energy channels: vendor %r family %r is not AMD family 0x%x or later",
+                vendor,
+                family,
+                MIN_AMD_FAMILY,
+            )
+            return []
+
+        channels: list[Channel] = []
+        for core_id, cpu in _first_thread_of_each_core(self.cpu_sys_root):
+            msr_path = self.msr_root / str(cpu) / "msr"
+            if not msr_path.exists():
+                logger.warning("no %s; the msr module is not loaded, so core %d cannot be read", msr_path, core_id)
+                continue
+            self._cores.append(_Core(core_id=core_id, cpu=cpu, msr_path=msr_path))
+            channels.append(
+                Channel(
+                    device=f"{CORE_ENERGY_DEVICE}.core-{core_id}",
+                    channel="power",
+                    label=f"CPU Core {core_id} Power",
+                    group="cpu",
+                    unit="watt",
+                    low=0.0,
+                    origin=f"{msr_path}:{MSR_AMD_CORE_ENERGY_STATUS:#x}",
+                )
+            )
+
+        if not channels:
+            return []
+
+        # The sum. It is the number the powercap tree cannot give, because its
+        # `core` domain is core 0 alone.
+        channels.append(
+            Channel(
+                device=CORE_ENERGY_DEVICE,
+                channel="power",
+                label="CPU Cores Power",
+                group="cpu",
+                unit="watt",
+                low=0.0,
+                origin=f"the sum of {len(self._cores)} core counters at {MSR_AMD_CORE_ENERGY_STATUS:#x}",
+            )
+        )
+        logger.info("core energy: %d cores, %d channels", len(self._cores), len(channels))
+        return channels
+
+    # --- reading ------------------------------------------------------------
+
+    def sample(self) -> None:
+        """Read every core counter once and work out the power since the last read."""
+        now = self.clock()
+        if not self._cores:
+            return
+
+        unit = self._energy_unit()
+        if unit is None:
+            for core in self._cores:
+                self._values[(f"{CORE_ENERGY_DEVICE}.core-{core.core_id}", "power")] = Value(
+                    None, self._unit_error, now
+                )
+            self._values[(CORE_ENERGY_DEVICE, "power")] = Value(None, self._unit_error, now)
+            return
+
+        total: float | None = 0.0
+        for core in self._cores:
+            watts, error = self._core_watts(core, unit, now)
+            self._values[(f"{CORE_ENERGY_DEVICE}.core-{core.core_id}", "power")] = Value(watts, error, now)
+            if watts is None or total is None:
+                total = None
+            else:
+                total += watts
+
+        if total is None:
+            self._values[(CORE_ENERGY_DEVICE, "power")] = Value(None, "not every core gave a value", now)
+        else:
+            self._values[(CORE_ENERGY_DEVICE, "power")] = Value(total, None, now)
+
+    def _core_watts(self, core: _Core, joules_per_count: float, now: float) -> tuple[float | None, str | None]:
+        """Return the power of one core, or the reason there is none."""
+        counts, error = self._read_msr(core, MSR_AMD_CORE_ENERGY_STATUS)
+        if counts is None:
+            return None, error
+        counts &= CORE_COUNTER_SPAN - 1
+
+        if core.last_counts is None or core.last_read_at is None:
+            core.last_counts = counts
+            core.last_read_at = now
+            return None, "waiting for a second energy sample"
+
+        elapsed = now - core.last_read_at
+        rise = (counts - core.last_counts) % CORE_COUNTER_SPAN
+        core.last_counts = counts
+        core.last_read_at = now
+        if elapsed <= 0.0:
+            return None, "no time passed between samples"
+        return rise * joules_per_count / elapsed, None
+
+    def _energy_unit(self) -> float | None:
+        """Return the joules of one count, reading the unit register once."""
+        if self._joules_per_count is not None:
+            return self._joules_per_count
+        if not self._cores:
+            return None
+        raw, error = self._read_msr(self._cores[0], MSR_AMD_RAPL_POWER_UNIT)
+        if raw is None:
+            self._unit_error = error
+            return None
+        esu = (raw >> ENERGY_UNIT_SHIFT) & ENERGY_UNIT_MASK
+        self._joules_per_count = 1.0 / float(1 << esu)
+        self._unit_error = None
+        logger.info("core energy: one count is %.4f microjoules (ESU %d)", self._joules_per_count * 1e6, esu)
+        return self._joules_per_count
+
+    def _read_msr(self, core: _Core, register: int) -> tuple[int | None, str | None]:
+        """Read one 64-bit register of one core. It opens for reading only."""
+        if core.fd is None:
+            try:
+                core.fd = os.open(core.msr_path, os.O_RDONLY)
+            except OSError as exc:
+                return None, _msr_open_error(core.msr_path, exc)
+        try:
+            raw = os.pread(core.fd, 8, register)
+        except OSError as exc:
+            self._close(core)
+            return None, f"cannot read {register:#x} from {core.msr_path}: {exc.strerror}"
+        if len(raw) != 8:
+            self._close(core)
+            return None, f"{core.msr_path} gave {len(raw)} bytes for {register:#x}, not 8"
+        return int.from_bytes(raw, "little"), None
+
+    # --- clean-up -----------------------------------------------------------
+
+    def _close(self, core: _Core) -> None:
+        """Close one core's descriptor, if it is open."""
+        if core.fd is not None:
+            with contextlib.suppress(OSError):
+                os.close(core.fd)
+            core.fd = None
+
+    def _close_all(self) -> None:
+        """Close every open descriptor."""
+        for core in self._cores:
+            self._close(core)
+
+    def close(self) -> None:
+        """Close every descriptor this sampler holds. No hardware is touched."""
+        self._close_all()
+
+    def values(self) -> dict[tuple[str, str], Value]:
+        """Return the last value of every channel."""
+        return dict(self._values)
+
+
+def _msr_open_error(path: Path, exc: OSError) -> str:
+    """Return a message that says what to do, not only what failed."""
+    if exc.errno == errno.ENOENT:
+        return f"no {path}; the msr module is not loaded (modprobe msr)"
+    if exc.errno in (errno.EACCES, errno.EPERM):
+        return f"cannot open {path}; an MSR read needs root with CAP_SYS_RAWIO"
+    if exc.errno == errno.EIO:
+        return f"{path} refused the read; kernel lockdown can block this"
+    return f"cannot open {path}: {exc.strerror}"
 
 
 # --- source 2: NVMe SMART ----------------------------------------------------
@@ -656,6 +992,7 @@ class Catalogue:
         self,
         rapl: RaplSampler | None = None,
         nvme: NvmeSampler | None = None,
+        cores: CoreEnergySampler | None = None,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
         """Create the catalogue.
@@ -663,11 +1000,13 @@ class Catalogue:
         Args:
             rapl: The RAPL sampler, or None for the default one.
             nvme: The NVMe sampler, or None for the default one.
+            cores: The per-core energy sampler, or None for the default one.
             clock: The source of time, used for the age of a value.
         """
         self.clock = clock
         self.rapl = rapl if rapl is not None else RaplSampler(clock=clock)
         self.nvme = nvme if nvme is not None else NvmeSampler(nvme_command=find_nvme_command(), clock=clock)
+        self.cores = cores if cores is not None else CoreEnergySampler(clock=clock)
         self._channels: list[Channel] = []
         self._lock = threading.Lock()
         self._next_nvme_sample = 0.0
@@ -675,7 +1014,7 @@ class Catalogue:
     def discover(self) -> list[Channel]:
         """Find every channel from both sources. This needs no root."""
         with self._lock:
-            self._channels = self.rapl.discover() + self.nvme.discover()
+            self._channels = self.rapl.discover() + self.cores.discover() + self.nvme.discover()
             return list(self._channels)
 
     def channels(self) -> list[Channel]:
@@ -684,9 +1023,10 @@ class Catalogue:
             return list(self._channels)
 
     def sample(self) -> None:
-        """Read RAPL every time, and NVMe only when its own interval has passed."""
+        """Read RAPL and the cores every time, and NVMe only when its own interval has passed."""
         with self._lock:
             self.rapl.sample()
+            self.cores.sample()
             now = self.clock()
             if now >= self._next_nvme_sample:
                 self._next_nvme_sample = now + NVME_INTERVAL
@@ -699,7 +1039,7 @@ class Catalogue:
         as a zero.
         """
         with self._lock:
-            values = {**self.rapl.values(), **self.nvme.values()}
+            values = {**self.rapl.values(), **self.cores.values(), **self.nvme.values()}
             now = self.clock()
             out: list[dict[str, Any]] = []
             for channel in self._channels:
@@ -731,6 +1071,9 @@ def discover_channels(
     rapl_root: Path = DEFAULT_RAPL_ROOT,
     nvme_sys_root: Path = DEFAULT_NVME_SYS_ROOT,
     dev_root: Path = DEFAULT_DEV_ROOT,
+    cpu_sys_root: Path = DEFAULT_CPU_SYS_ROOT,
+    msr_root: Path = DEFAULT_MSR_ROOT,
+    cpuinfo_path: Path = Path("/proc/cpuinfo"),
 ) -> list[Channel]:
     """Return every channel this machine would publish, without reading a value.
 
@@ -742,13 +1085,17 @@ def discover_channels(
         rapl_root: The powercap directory.
         nvme_sys_root: The NVMe class directory.
         dev_root: The directory that holds the device nodes.
+        cpu_sys_root: The sysfs directory that holds the CPU topology.
+        msr_root: The directory that holds the MSR nodes.
+        cpuinfo_path: The file that names the vendor and the family.
 
     Returns:
         The channels, in a fixed order.
     """
     rapl = RaplSampler(root=rapl_root)
+    cores = CoreEnergySampler(cpu_sys_root=cpu_sys_root, msr_root=msr_root, cpuinfo_path=cpuinfo_path)
     nvme = NvmeSampler(sys_root=nvme_sys_root, dev_root=dev_root, nvme_command=find_nvme_command())
-    return rapl.discover() + nvme.discover()
+    return rapl.discover() + cores.discover() + nvme.discover()
 
 
 # --- the server --------------------------------------------------------------

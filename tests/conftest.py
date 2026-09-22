@@ -12,6 +12,7 @@ collector opens real files. The values are the ones this machine reported on
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -247,3 +248,88 @@ def fake_powercap(tmp_path: Path) -> FakePowercap:
 def fake_nvme(tmp_path: Path) -> FakeNvme:
     """A copy of this machine's NVMe controller, with a real stand-in `nvme` program."""
     return FakeNvme(tmp_path / "nvme")
+
+
+# The energy unit this machine reports: 0xc0010299 read `a1000`, so ESU is 16
+# and one count is 1/65536 joules. See `data/probes/core-energy-20260922T055615Z/`.
+REAL_ENERGY_UNIT_RAW = 0x000A1000
+REAL_JOULES_PER_COUNT = 1.0 / 65536
+
+
+class FakeCpus:
+    """A real CPU topology tree and real MSR files.
+
+    The MSR files are sparse: the helper reads 8 bytes at offset `0xc001029a`,
+    so the file has a hole of about 3.2 GB in front of the value and costs a
+    few kilobytes on the disk. The helper opens them with `os.open` and reads
+    them with `os.pread`, exactly as it does on the machine.
+
+    **One difference from the machine, and a test must know it.** On
+    `/dev/cpu/N/msr` the offset is a REGISTER NUMBER, so registers `0xc0010299`
+    and `0xc001029a` are two separate 64-bit values. In a plain file the offset
+    is a BYTE, so those two values overlap by seven bytes and the second write
+    destroys the first. The unit register is therefore written last, which is
+    what the sampler needs: it reads the unit once, at its first sample, and
+    keeps it. A test that wants a clean counter calls `zero_counters` after
+    that first sample. See `exp-0012`.
+
+    The layout copies `dst-gova-pc`: two threads for each core, and the second
+    thread of a core numbered `cores` higher than the first.
+    """
+
+    def __init__(self, root: Path, cores: int = 4, vendor: str = "AuthenticAMD", family: int = 26) -> None:
+        """Build the tree, the nodes and the cpuinfo file."""
+        self.root = root
+        self.cpu_sys_root = root / "sys" / "devices" / "system" / "cpu"
+        self.msr_root = root / "dev" / "cpu"
+        self.cpuinfo_path = root / "cpuinfo"
+        self.cores = cores
+
+        lines: list[str] = []
+        for cpu in range(cores * 2):
+            core_id = cpu % cores
+            topology = self.cpu_sys_root / f"cpu{cpu}" / "topology"
+            topology.mkdir(parents=True)
+            (topology / "core_id").write_text(f"{core_id}\n")
+            (topology / "die_id").write_text("0\n")
+            (self.msr_root / str(cpu)).mkdir(parents=True)
+            self.set_counter(cpu, 0)
+            self.set_unit(cpu, REAL_ENERGY_UNIT_RAW)
+            lines += [f"processor\t: {cpu}", f"vendor_id\t: {vendor}", f"cpu family\t: {family}", ""]
+        self.cpuinfo_path.write_text("\n".join(lines))
+
+    def msr_path(self, cpu: int) -> Path:
+        """Return the node of one thread."""
+        return self.msr_root / str(cpu) / "msr"
+
+    def _write_register(self, cpu: int, register: int, value: int) -> None:
+        path = self.msr_path(cpu)
+        descriptor = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            os.pwrite(descriptor, value.to_bytes(8, "little"), register)
+        finally:
+            os.close(descriptor)
+
+    def set_counter(self, cpu: int, counts: int) -> None:
+        """Put a new value in one thread's energy counter, as the hardware would."""
+        self._write_register(cpu, 0xC001029A, counts)
+
+    def set_unit(self, cpu: int, raw: int) -> None:
+        """Put a new value in one thread's energy unit register."""
+        self._write_register(cpu, 0xC0010299, raw)
+
+    def set_core_counter(self, core_id: int, counts: int) -> None:
+        """Put the same value in both threads of one core, as one register does."""
+        for cpu in (core_id, core_id + self.cores):
+            self.set_counter(cpu, counts)
+
+    def zero_counters(self) -> None:
+        """Put every counter at zero, so that a test can measure from there."""
+        for core_id in range(self.cores):
+            self.set_core_counter(core_id, 0)
+
+
+@pytest.fixture
+def fake_cpus(tmp_path: Path) -> FakeCpus:
+    """Four cores of the shape this machine has, with real MSR files."""
+    return FakeCpus(tmp_path / "cpus")

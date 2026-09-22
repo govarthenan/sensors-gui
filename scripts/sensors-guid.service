@@ -1,9 +1,10 @@
 [Unit]
 # The privileged, read-only sensor helper of ADR 0005.
 #
-# It reads two things that need root on this machine — the RAPL CPU energy
-# counters and the NVMe SMART log — and publishes them on a Unix socket that
-# the group `gova` can read. The screen never needs root.
+# It reads three things that need root on this machine — the RAPL CPU energy
+# counters, the NVMe SMART log and the per-core energy registers — and
+# publishes them on a Unix socket that the group `gova` can read. The screen
+# never needs root.
 #
 # THIS SERVICE WRITES NOTHING TO HARDWARE. See ADR 0007 and
 # data/evidence/2026-09-22-thermal-shutdown/. The settings below are not
@@ -47,7 +48,11 @@ SystemCallErrorNumber=EPERM
 # CAP_DAC_OVERRIDE and CAP_DAC_READ_SEARCH open the 0400 energy counter and the
 # 0600 NVMe node. CAP_SYS_ADMIN is what the NVMe admin command needs.
 # CAP_CHOWN and CAP_FOWNER set the owner and the mode of the socket.
-CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_ADMIN CAP_CHOWN CAP_FOWNER
+# CAP_SYS_RAWIO opens /dev/cpu/N/msr: `man 7 capabilities` gives it for "open
+# devices for accessing x86 model-specific registers". It permits a READ of a
+# register; the write path is closed separately by kernel lockdown, which is
+# `integrity` on this machine because Secure Boot is on. See `exp-0012`.
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_ADMIN CAP_CHOWN CAP_FOWNER CAP_SYS_RAWIO
 
 [Install]
 WantedBy=multi-user.target

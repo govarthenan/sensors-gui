@@ -36,6 +36,16 @@ if [ -f "${UNIT_PATH}" ]; then
     rm -f "${UNIT_PATH}"
 fi
 
+MODULES_LOAD="/etc/modules-load.d/sensors-gui.conf"
+# Only the file this project installed is removed, and only when it is that
+# file. The module itself is left loaded: unloading it would take the MSR nodes
+# away from anything else that reads them, and this script has no way to know
+# what does.
+if [ -f "${MODULES_LOAD}" ] && grep -q "Installed by sensors-gui" "${MODULES_LOAD}"; then
+    log "remove ${MODULES_LOAD}"
+    rm -f "${MODULES_LOAD}"
+fi
+
 if [ -d "${INSTALL_DIR}" ]; then
     log "remove ${INSTALL_DIR}"
     rm -f "${INSTALL_DIR}/sensors_guid.py" "${INSTALL_DIR}/sensors_guid.py.sha256"

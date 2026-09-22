@@ -67,6 +67,27 @@ log "check that the helper compiles under the system Python"
     "${INSTALLED_HELPER}" || fail "the helper does not compile"
 rm -rf "${INSTALL_DIR}/__pycache__"
 
+# --- 1b. the msr module ------------------------------------------------------
+# The per-core energy registers are read through /dev/cpu/N/msr, and those
+# nodes exist only while the `msr` module is loaded. Nothing else on this
+# machine loads it, so without this the 13 core channels would disappear at the
+# next reboot and nobody would know why. Loading a module is not a write to
+# hardware: the module only adds the read path. See `exp-0012` and ADR 0007.
+MODULES_LOAD="/etc/modules-load.d/sensors-gui.conf"
+log "make the msr module load at boot (${MODULES_LOAD})"
+install -o root -g root -m 0644 /dev/stdin "${MODULES_LOAD}" <<'EOF'
+# Installed by sensors-gui, scripts/install-helper.sh.
+# `sensors-guid` reads the AMD per-core energy registers through
+# /dev/cpu/N/msr, and those nodes exist only when this module is loaded.
+msr
+EOF
+
+if modprobe msr; then
+    log "the msr module is loaded"
+else
+    log "WARNING: modprobe msr failed; the per-core channels will say so"
+fi
+
 # --- 2. the unit ------------------------------------------------------------
 log "install ${UNIT_PATH}"
 install -o root -g root -m 0644 "${SOURCE_UNIT}" "${UNIT_PATH}"

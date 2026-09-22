@@ -15,11 +15,17 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-from conftest import REAL_SMART_LOG, FakeNvme, FakePowercap
+from conftest import REAL_SMART_LOG, FakeCpus, FakeNvme, FakePowercap
 
 from sensors_gui.collectors.privileged import NO_HELPER_ERROR, PrivilegedCollector
 from sensors_gui.helper import sensors_guid
-from sensors_gui.helper.sensors_guid import Catalogue, HelperServer, NvmeSampler, RaplSampler
+from sensors_gui.helper.sensors_guid import (
+    Catalogue,
+    CoreEnergySampler,
+    HelperServer,
+    NvmeSampler,
+    RaplSampler,
+)
 from sensors_gui.model import Group, Unit
 
 
@@ -92,7 +98,7 @@ class ScriptedHelper:
 
 
 @pytest.fixture
-def sampled_catalogue(fake_powercap: FakePowercap, fake_nvme: FakeNvme) -> Catalogue:
+def sampled_catalogue(fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> Catalogue:
     """A catalogue over the temporary trees, sampled twice so power exists."""
     clock = FakeClock()
     catalogue = Catalogue(
@@ -101,6 +107,12 @@ def sampled_catalogue(fake_powercap: FakePowercap, fake_nvme: FakeNvme) -> Catal
             sys_root=fake_nvme.sys_root,
             dev_root=fake_nvme.dev_root,
             nvme_command=str(fake_nvme.command),
+            clock=clock,
+        ),
+        cores=CoreEnergySampler(
+            cpu_sys_root=fake_cpus.cpu_sys_root,
+            msr_root=fake_cpus.msr_root,
+            cpuinfo_path=fake_cpus.cpuinfo_path,
             clock=clock,
         ),
         clock=clock,
@@ -125,12 +137,15 @@ def running_helper(helper_socket: Path, sampled_catalogue: Catalogue) -> Iterato
     helper.stop()
 
 
-def _catalogue_of(fake_powercap: FakePowercap, fake_nvme: FakeNvme) -> list[sensors_guid.Channel]:
+def _catalogue_of(fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> list[sensors_guid.Channel]:
     """Return the catalogue the client builds for itself when the helper is absent."""
     return sensors_guid.discover_channels(
         rapl_root=fake_powercap.root,
         nvme_sys_root=fake_nvme.sys_root,
         dev_root=fake_nvme.dev_root,
+        cpu_sys_root=fake_cpus.cpu_sys_root,
+        msr_root=fake_cpus.msr_root,
+        cpuinfo_path=fake_cpus.cpuinfo_path,
     )
 
 
@@ -143,7 +158,7 @@ def test_discover_gives_every_channel_the_helper_has(running_helper: RunningHelp
     specs = collector.discover()
     collector.close()
 
-    assert len(specs) == 19
+    assert len(specs) == 24
     assert {spec.id.source for spec in specs} == {"privileged"}
 
 
@@ -211,39 +226,43 @@ def test_the_collector_reconnects_after_the_helper_restarts(helper_socket: Path,
 
 
 def test_without_the_helper_the_channels_are_still_discovered(
-    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme
+    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus
 ) -> None:
     # ADR 0005 rule 3. Hiding the rows would hide the reason they are missing.
     collector = PrivilegedCollector(
         socket_path=helper_socket,
-        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme),
+        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme, fake_cpus),
     )
 
     specs = collector.discover()
     collector.close()
 
-    assert len(specs) == 19
+    assert len(specs) == 24
 
 
 def test_without_the_helper_every_reading_says_so(
-    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme
+    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus
 ) -> None:
     collector = PrivilegedCollector(
         socket_path=helper_socket,
-        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme),
+        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme, fake_cpus),
     )
     collector.discover()
 
     readings = collector.read()
     collector.close()
 
-    assert len(readings) == 19
+    assert len(readings) == 24
     assert all(reading.value is None for reading in readings)
     assert all(reading.error == NO_HELPER_ERROR for reading in readings)
 
 
 def test_the_collector_waits_before_trying_a_dead_socket_again(
-    helper_socket: Path, sampled_catalogue: Catalogue, fake_powercap: FakePowercap, fake_nvme: FakeNvme
+    helper_socket: Path,
+    sampled_catalogue: Catalogue,
+    fake_powercap: FakePowercap,
+    fake_nvme: FakeNvme,
+    fake_cpus: FakeCpus,
 ) -> None:
     # A screen at 10 Hz must not try to connect ten times a second.
     clock = FakeClock()
@@ -251,7 +270,7 @@ def test_the_collector_waits_before_trying_a_dead_socket_again(
         socket_path=helper_socket,
         clock=clock,
         reconnect_interval=5.0,
-        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme),
+        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme, fake_cpus),
     )
     collector.discover()
     assert collector.read()[0].error == NO_HELPER_ERROR
@@ -278,12 +297,12 @@ def test_read_before_discover_gives_nothing_and_does_not_raise(helper_socket: Pa
 
 
 def test_an_answer_that_is_not_json_becomes_an_error_and_not_a_crash(
-    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme
+    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus
 ) -> None:
     helper = ScriptedHelper(helper_socket, "this is not JSON\n")
     collector = PrivilegedCollector(
         socket_path=helper_socket,
-        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme),
+        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme, fake_cpus),
     )
     try:
         specs = collector.discover()
@@ -292,18 +311,18 @@ def test_an_answer_that_is_not_json_becomes_an_error_and_not_a_crash(
         collector.close()
         helper.stop()
 
-    assert len(specs) == 19
+    assert len(specs) == 24
     assert all(reading.error == NO_HELPER_ERROR for reading in readings)
 
 
 def test_a_refusal_from_the_helper_is_shown_as_the_helper_wrote_it(
-    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme
+    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus
 ) -> None:
     refusal = json.dumps({"protocol": 1, "ok": False, "error": "this helper speaks protocol 2"})
     helper = ScriptedHelper(helper_socket, refusal + "\n")
     collector = PrivilegedCollector(
         socket_path=helper_socket,
-        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme),
+        catalogue_source=lambda: _catalogue_of(fake_powercap, fake_nvme, fake_cpus),
     )
     try:
         collector.discover()
@@ -316,7 +335,7 @@ def test_a_refusal_from_the_helper_is_shown_as_the_helper_wrote_it(
 
 
 def test_a_channel_the_helper_forgets_is_reported_and_not_dropped(
-    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme
+    helper_socket: Path, fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus
 ) -> None:
     describe = {
         "protocol": 1,

@@ -14,12 +14,13 @@ import threading
 from pathlib import Path
 
 import pytest
-from conftest import FAKE_MAX_ENERGY_UJ, REAL_SMART_LOG, FakeNvme, FakePowercap
+from conftest import FAKE_MAX_ENERGY_UJ, REAL_SMART_LOG, FakeCpus, FakeNvme, FakePowercap
 
 from sensors_gui.helper import sensors_guid
 from sensors_gui.helper.sensors_guid import (
     PROTOCOL_VERSION,
     Catalogue,
+    CoreEnergySampler,
     HelperServer,
     NvmeSampler,
     RaplSampler,
@@ -60,11 +61,15 @@ def test_rapl_labels_the_core_domain_as_core_zero(fake_powercap: FakePowercap) -
     # exp-0003 finding 2, confirmed again on 2026-09-22: the powercap `core`
     # domain follows one core, not the twelve. Calling it "Cores" would be a
     # lie of a factor of ten.
+    #
+    # It also says "(RAPL)", because exp-0012 added a second reading of the
+    # same core from its own register. The first time both were shown they
+    # agreed to 0.001 W, and two rows with one label cannot be told apart.
     channels = RaplSampler(root=fake_powercap.root).discover()
     labels = {channel.device: channel.label for channel in channels if channel.channel == "power"}
 
     assert labels["package-0"] == "CPU Package Power"
-    assert labels["package-0.core"] == "CPU Core 0 Power"
+    assert labels["package-0.core"] == "CPU Core 0 (RAPL) Power"
 
 
 def test_rapl_declares_no_top_of_scale_because_the_board_declares_none(fake_powercap: FakePowercap) -> None:
@@ -160,7 +165,7 @@ def _nvme_sampler(fake_nvme: FakeNvme, clock: FakeClock | None = None) -> NvmeSa
     )
 
 
-def test_nvme_discover_gives_the_fifteen_channels_gova_chose(fake_nvme: FakeNvme) -> None:
+def test_nvme_discover_gives_the_fifteen_channels_gova_chose(fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> None:
     channels = _nvme_sampler(fake_nvme).discover()
 
     assert [channel.channel for channel in channels] == [
@@ -182,14 +187,14 @@ def test_nvme_discover_gives_the_fifteen_channels_gova_chose(fake_nvme: FakeNvme
     ]
 
 
-def test_nvme_identifies_the_drive_by_model_and_serial_not_by_index(fake_nvme: FakeNvme) -> None:
+def test_nvme_identifies_the_drive_by_model_and_serial_not_by_index(fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> None:
     # ADR 0002: `nvme0` is an index, and an index is not an identity.
     channels = _nvme_sampler(fake_nvme).discover()
 
     assert {channel.device for channel in channels} == {"WD_BLACK SN770 1TB@234639803238"}
 
 
-def test_nvme_reads_the_real_smart_log_of_this_drive(fake_nvme: FakeNvme) -> None:
+def test_nvme_reads_the_real_smart_log_of_this_drive(fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> None:
     sampler = _nvme_sampler(fake_nvme)
     sampler.discover()
 
@@ -205,7 +210,7 @@ def test_nvme_reads_the_real_smart_log_of_this_drive(fake_nvme: FakeNvme) -> Non
     assert values[(device, "media_errors")].value == 0.0
 
 
-def test_nvme_data_written_is_in_bytes_not_in_data_units(fake_nvme: FakeNvme) -> None:
+def test_nvme_data_written_is_in_bytes_not_in_data_units(fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> None:
     # One NVMe data unit is 1000 blocks of 512 bytes. 19 702 733 units is
     # 10.09 TB, and a screen that showed "19702733" would mean nothing.
     sampler = _nvme_sampler(fake_nvme)
@@ -217,7 +222,7 @@ def test_nvme_data_written_is_in_bytes_not_in_data_units(fake_nvme: FakeNvme) ->
     assert written == REAL_SMART_LOG["data_units_written"] * 512 * 1000
 
 
-def test_nvme_turns_the_minute_fields_into_seconds(fake_nvme: FakeNvme) -> None:
+def test_nvme_turns_the_minute_fields_into_seconds(fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> None:
     # The specification counts `warning_temp_time` in minutes and
     # `thm_temp1_total_time` in seconds. Both leave here in seconds.
     log = dict(REAL_SMART_LOG, warning_temp_time=3, critical_comp_time=2, thm_temp1_total_time=45)
@@ -233,7 +238,7 @@ def test_nvme_turns_the_minute_fields_into_seconds(fake_nvme: FakeNvme) -> None:
     assert values[(fake_nvme.device, "throttle_t1_time")].value == 45.0
 
 
-def test_nvme_failure_reports_the_reason_and_not_the_usage_banner(fake_nvme: FakeNvme) -> None:
+def test_nvme_failure_reports_the_reason_and_not_the_usage_banner(fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> None:
     # Found by running the helper as a normal user: nvme-cli prints its usage
     # banner in bold on every failure, and taking the first line of stderr hid
     # "Permission denied", which is the one word that tells a person what to do.
@@ -252,7 +257,7 @@ def test_nvme_failure_reports_the_reason_and_not_the_usage_banner(fake_nvme: Fak
     assert "Usage:" not in error
 
 
-def test_nvme_broken_json_becomes_an_error_and_not_a_crash(fake_nvme: FakeNvme) -> None:
+def test_nvme_broken_json_becomes_an_error_and_not_a_crash(fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> None:
     fake_nvme.set_output("this is not JSON")
     sampler = _nvme_sampler(fake_nvme)
     sampler.discover()
@@ -262,7 +267,7 @@ def test_nvme_broken_json_becomes_an_error_and_not_a_crash(fake_nvme: FakeNvme) 
     assert "did not give JSON" in sampler.values()[(fake_nvme.device, "wear")].error
 
 
-def test_nvme_missing_field_becomes_an_error_and_not_a_zero(fake_nvme: FakeNvme) -> None:
+def test_nvme_missing_field_becomes_an_error_and_not_a_zero(fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> None:
     log = {key: value for key, value in REAL_SMART_LOG.items() if key != "percent_used"}
     fake_nvme.set_output(json.dumps(log))
     sampler = _nvme_sampler(fake_nvme)
@@ -275,7 +280,9 @@ def test_nvme_missing_field_becomes_an_error_and_not_a_zero(fake_nvme: FakeNvme)
     assert "percent_used" in wear.error
 
 
-def test_nvme_without_the_tool_reports_it_and_still_lists_the_channels(fake_nvme: FakeNvme) -> None:
+def test_nvme_without_the_tool_reports_it_and_still_lists_the_channels(
+    fake_nvme: FakeNvme, fake_cpus: FakeCpus
+) -> None:
     sampler = NvmeSampler(
         sys_root=fake_nvme.sys_root,
         dev_root=fake_nvme.dev_root,
@@ -292,28 +299,36 @@ def test_nvme_without_the_tool_reports_it_and_still_lists_the_channels(fake_nvme
 # --- the catalogue -----------------------------------------------------------
 
 
-def _catalogue(fake_powercap: FakePowercap, fake_nvme: FakeNvme, clock: FakeClock) -> Catalogue:
+def _catalogue(fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus, clock: FakeClock) -> Catalogue:
     return Catalogue(
         rapl=RaplSampler(root=fake_powercap.root, clock=clock),
         nvme=_nvme_sampler(fake_nvme, clock),
+        cores=CoreEnergySampler(
+            cpu_sys_root=fake_cpus.cpu_sys_root,
+            msr_root=fake_cpus.msr_root,
+            cpuinfo_path=fake_cpus.cpuinfo_path,
+            clock=clock,
+        ),
         clock=clock,
     )
 
 
-def test_the_catalogue_holds_every_channel_of_both_sources(fake_powercap: FakePowercap, fake_nvme: FakeNvme) -> None:
-    catalogue = _catalogue(fake_powercap, fake_nvme, FakeClock())
+def test_the_catalogue_holds_every_channel_of_every_source(
+    fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus
+) -> None:
+    catalogue = _catalogue(fake_powercap, fake_nvme, fake_cpus, FakeClock())
 
-    assert len(catalogue.discover()) == 4 + 15
+    assert len(catalogue.discover()) == 4 + 5 + 15
 
 
 def test_the_catalogue_reads_the_drive_on_its_own_slow_interval(
-    fake_powercap: FakePowercap, fake_nvme: FakeNvme
+    fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus
 ) -> None:
     # ADR 0006: an expensive channel gets its own interval. A SMART read costs
     # 3.0 ms on this machine, so it happens once a minute, not ten times a
     # second along with RAPL.
     clock = FakeClock()
-    catalogue = _catalogue(fake_powercap, fake_nvme, clock)
+    catalogue = _catalogue(fake_powercap, fake_nvme, fake_cpus, clock)
     catalogue.discover()
     catalogue.sample()
 
@@ -331,9 +346,9 @@ def test_the_catalogue_reads_the_drive_on_its_own_slow_interval(
 
 
 def test_a_channel_that_was_never_sampled_reports_that_and_not_a_zero(
-    fake_powercap: FakePowercap, fake_nvme: FakeNvme
+    fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus
 ) -> None:
-    catalogue = _catalogue(fake_powercap, fake_nvme, FakeClock())
+    catalogue = _catalogue(fake_powercap, fake_nvme, fake_cpus, FakeClock())
     catalogue.discover()
 
     readings = catalogue.readings()
@@ -353,9 +368,9 @@ def _value_of(catalogue: Catalogue, device: str, channel: str) -> float | None:
 
 
 @pytest.fixture
-def catalogue(fake_powercap: FakePowercap, fake_nvme: FakeNvme) -> Catalogue:
+def catalogue(fake_powercap: FakePowercap, fake_nvme: FakeNvme, fake_cpus: FakeCpus) -> Catalogue:
     clock = FakeClock()
-    built = _catalogue(fake_powercap, fake_nvme, clock)
+    built = _catalogue(fake_powercap, fake_nvme, fake_cpus, clock)
     built.discover()
     built.sample()
     return built
@@ -366,7 +381,7 @@ def test_describe_lists_every_channel_with_its_unit(catalogue: Catalogue) -> Non
 
     assert answer["ok"] is True
     assert answer["helper_version"] == sensors_guid.HELPER_VERSION
-    assert len(answer["channels"]) == 19
+    assert len(answer["channels"]) == 24
     assert {channel["unit"] for channel in answer["channels"]} == {
         "watt",
         "joule",
@@ -382,7 +397,7 @@ def test_read_gives_a_value_and_an_age_for_every_channel(catalogue: Catalogue) -
     answer = handle_request(catalogue, json.dumps({"protocol": 1, "command": "read"}))
 
     assert answer["ok"] is True
-    assert len(answer["readings"]) == 19
+    assert len(answer["readings"]) == 24
     assert all("age" in reading for reading in answer["readings"])
 
 
@@ -449,8 +464,8 @@ def test_the_server_answers_over_a_real_unix_socket(catalogue: Catalogue, tmp_pa
         server.server_close()
         thread.join(timeout=5.0)
 
-    assert len(describe["channels"]) == 19
-    assert len(read["readings"]) == 19
+    assert len(describe["channels"]) == 24
+    assert len(read["readings"]) == 24
 
 
 def test_the_socket_file_goes_away_when_the_server_closes(catalogue: Catalogue, tmp_path: Path) -> None:
