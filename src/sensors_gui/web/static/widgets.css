@@ -1,0 +1,245 @@
+/*
+ * The widget set's appearance.
+ *
+ * Marks follow the `dataviz` skill: thin, quiet chrome, the data the only
+ * loud thing. A bar is at most 24 px thick with a 4 px rounded data end and a
+ * square baseline; a gridline is a solid hairline; text never wears the data
+ * colour.
+ */
+
+/* --- shared ---------------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  margin: 0 0 12px;
+}
+
+/* --- Meter ----------------------------------------------------------------- */
+
+.meter {
+  display: block;
+  min-width: 220px;
+}
+
+.meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.meter-label {
+  font-size: 13px;
+  color: var(--ink-secondary);
+}
+
+.meter-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.meter-track {
+  position: relative;
+  height: 8px;
+  border-radius: 0 4px 4px 0;
+  background: color-mix(in srgb, var(--state) 18%, transparent);
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--state);
+  transition: width 120ms linear;
+}
+
+.meter-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.meter-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ink-muted);
+  opacity: 0.85;
+}
+
+.meter-mark-crit {
+  background: var(--critical);
+}
+
+.meter-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Dial ------------------------------------------------------------------ */
+
+.dial {
+  position: relative;
+  width: var(--dial-size, 200px);
+  text-align: center;
+}
+
+.dial-canvas {
+  display: block;
+}
+
+.dial-centre {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 44%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.dial-value {
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.dial-unit {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.dial-label {
+  font-size: 13px;
+  color: var(--ink-secondary);
+  margin-top: 4px;
+}
+
+/* --- Trace ----------------------------------------------------------------- */
+
+.trace {
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 12px 8px;
+  width: max-content;
+}
+
+.trace figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+
+.trace-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+.trace-span {
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.trace-plot {
+  position: relative;
+}
+
+.trace-tip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Sparkline ------------------------------------------------------------- */
+
+.sparkline {
+  display: block;
+  margin-top: 8px;
+}
+
+/* --- Stat tile ------------------------------------------------------------- */
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  min-width: 170px;
+}
+
+.tile-label {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.tile-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.tile-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.tile-hero .tile-value {
+  font-size: 48px;
+  line-height: 1.05;
+}
+
+/* The state travels as an icon and a word, never as colour alone. */
+.tile-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+
+.tile-icon {
+  color: var(--state);
+  font-style: normal;
+  font-size: 10px;
+}
+
+.tile.is-quiet .tile-icon {
+  opacity: 0.45;
+}

@@ -1013,3 +1013,101 @@ ADR, build a spike on the real sampler, and measure what it costs.
 
 Checkpoint 1: wait for Gova. Nothing of the application itself is written yet,
 and checkpoint 2 does not start before Gova answers.
+
+---
+
+## 2026-09-22 — Session 8, checkpoint 1: Gova's answer, and the widget review
+
+**Gova's feedback, verbatim**
+
+> 1. choose the option that gives the best experience
+> 2. don't care at all
+> 3. ok
+>
+> The thermal dial on top and the line chart look sub par.
+
+**What that settled**
+
+| # | The question | Gova's answer | What was done |
+|---|---|---|---|
+| 1 | Q11: raise the 50 ms pass budget, or give the two PCIe channels a longer interval? | "choose the option that gives the best experience" | Neither changes the collection layer. See below. |
+| 2 | Chrome's 1.2 GiB of memory | "don't care at all" | The web stack is accepted. ADR 0012 stands. |
+| 3 | The graphics-card test that separated nothing | "ok" | Kept as it is, with its caveat. |
+| — | The dial and the line chart | "look sub par" | Both were rebuilt. Section below. |
+
+**Q11, decided: the best experience, and no change to the collection layer.**
+The tail is not moved, it is taken off the path that matters. The sampler runs
+on a worker thread, so a 57 ms pass never holds up a frame; the two PCIe
+channels keep their present interval, so PCIe throughput stays live; and
+`docs/architecture.md` is corrected to say what the machine really does
+instead of a budget it does not keep. Measured after the change: **10.00 Hz
+with no dropped frame**, at a median pass of 2.4 ms and a maximum of 68.5 ms.
+Raising the interval was rejected because it would make two real channels
+slower to buy smoothness that the thread already buys for nothing.
+
+**The widgets were rebuilt, and the dial was the wrong form**
+
+The `dataviz` skill, which `docs/gui-goal.md` section 4.4 tells this project
+to follow, puts "a single ratio against a limit" on a **meter**, not on a
+dial. So the default is now a meter: the track is the fill's own hue, the
+thresholds are hairlines on the track, and the ends of the scale are labelled.
+A dial is kept for at most one hero value in a view, and it is built properly
+— 270°, tick marks, the threshold zone on the track, the number inside.
+
+**The old dial was also dishonest, which nobody had noticed.** It drew `Tctl`
+against a scale of 0 to 100 °C. `k10temp` publishes **no** maximum and no
+threshold for `Tctl`; the scale was invented by the spike's own fallback. Only
+66 of the 175 channels carry a real scale and only 5 carry a threshold, so the
+widget set now refuses to draw a bar or a dial without one, and shows a number
+and a line instead.
+
+The line chart was rebuilt as well: a stable axis that only moves when the
+data leaves it, a span floor, clean tick values, hairline gridlines, a 10 %
+wash, a 2 px line, an end marker with a surface ring, a labelled end point,
+any published threshold drawn as a reference line with its word, and a
+crosshair with a tooltip.
+
+**Findings**
+
+1. **A guessed scale is a guessed hardware fact.** `CLAUDE.md` forbids
+   guessing a hardware fact, and the project has caught itself twice before
+   on a register and on which card drove the monitors. A dial drawn to 100 °C
+   when the driver publishes no maximum is the same mistake in a picture. The
+   widget set now cannot make it: no scale, no bar.
+2. **Two copies of a rule drift, and it took a test to see it.**
+   `widgets.js` holds a second copy of `SensorSpec.format`, because the
+   browser cannot call Python. A test that runs the real JavaScript in node
+   against the real Python found that **41.25 °C read `41.2` in the terminal
+   and `41.3` in the window**: Python rounds a tie to the even digit and
+   `Number.toFixed` rounds it away from zero. The obvious repair,
+   `Intl.NumberFormat` with `halfEven`, was **also wrong** — it turns -40.15
+   into -40.2 where Python gives -40.1, because it rounds the shortest decimal
+   form and not the number. The tie is now found in the exact expansion. The
+   test sweeps about 2000 values across every unit and sixteen orders of
+   magnitude.
+3. **The colour validator earned its keep.** Run against the dark surface, it
+   reports that critical and good are 4.1 apart under deuteranopia, far below
+   the floor. So no state in this application is carried by colour: every one
+   has an icon and a word.
+4. **Four defects were found by opening the page, and none by a test**: the
+   dial's scale labels were drawn under the arc and collided with it, the
+   minimum was hidden completely on three of six dials, the threshold band was
+   as heavy as the fill so a cool DIMM looked warm, and the endpoints read
+   `480.00` instead of `480`.
+
+**What the application costs now**
+
+| Rate | Python | Chrome | Total |
+|---|---|---|---|
+| 1 Hz | 0.0120 cores | 0.0233 cores | **0.0353 cores** |
+| 10 Hz | 0.0393 cores | 0.1400 cores | **0.1793 cores** |
+
+0.1793 cores is **0.75 % of this machine**. It is higher than the spike's
+0.1207 because the review page redraws six dials, six meters, six sparklines
+and four charts on every frame; a real view draws less. Recorded in
+`lab/exp-0015-gui-checkpoints/results/`.
+
+**Next**
+
+Gova picks the meter or the dial for a headline value, and says whether the
+line chart is now right. Then checkpoint 2, the shell and the summary view.

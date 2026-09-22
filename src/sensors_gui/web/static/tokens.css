@@ -1,0 +1,64 @@
+/*
+ * Design tokens.
+ *
+ * The values come from the `dataviz` skill's reference palette, dark column,
+ * which `docs/gui-goal.md` section 4.4 asks this project to follow. They are
+ * not invented here. The dark steps are a selected set for a dark surface,
+ * not a flip of the light ones.
+ *
+ * Status colour is reserved: good, warning, serious and critical never stand
+ * for a series, and never carry meaning without an icon and a word beside
+ * them.
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* surfaces and ink */
+  --plane: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-raised: #232321;
+  --ink: #ffffff;
+  --ink-secondary: #c3c2b7;
+  --ink-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+
+  /* the one series hue, and its ramp for tracks and washes */
+  --series: #3987e5;
+  --series-deep: #184f95;
+  --series-wash: rgba(57, 135, 229, 0.1);
+
+  /* status, fixed, never themed */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --unavailable: #898781;
+
+  /* type */
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* spacing */
+  --gap: 16px;
+  --radius: 10px;
+}
+
+/* A state name maps to exactly one colour, everywhere in the application. */
+[data-state="normal"] {
+  --state: var(--series);
+}
+[data-state="warning"] {
+  --state: var(--warning);
+}
+[data-state="serious"] {
+  --state: var(--serious);
+}
+[data-state="critical"] {
+  --state: var(--critical);
+}
+[data-state="unavailable"],
+[data-state="stale"] {
+  --state: var(--unavailable);
+}

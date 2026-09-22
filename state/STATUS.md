@@ -1,22 +1,29 @@
 # STATUS
 
-Last update: 2026-09-22 (session 8, at checkpoint 1 of the GUI stream)
+Last update: 2026-09-22 (session 8, checkpoint 1 accepted, widgets under review)
 
 ## Phase
 
-**The GUI stream, checkpoint 1. Waiting for Gova.** `docs/gui-goal.md` is the
-brief: replace the terminal screen with a desktop GUI that explains the
-machine, with diagrams, tooltips and real visualisation. The framework is
-decided (ADR 0012) and the spike is built and measured (`exp-0014`). Nothing
-of the application itself is written yet; that starts at checkpoint 2, after
-Gova accepts or rejects the stack.
+**The GUI stream. Checkpoint 1 is accepted; the widget set is under review.**
+`docs/gui-goal.md` is the brief: replace the terminal screen with a desktop
+GUI that explains the machine, with diagrams, tooltips and real
+visualisation.
 
-**The command, once the application exists** (`docs/gui-goal.md` section 5
-rule 2). Today only the spike runs:
+Gova accepted the stack on 2026-09-22 (ADR 0012): a local web application on
+`127.0.0.1`, shown in a Chrome application window. Gova then called the
+spike's dial and line chart "sub par", so the widget set was rebuilt before
+anything was stamped across 175 channels, and it is now waiting for a second
+answer. Checkpoint 2, the shell and the summary view, starts after that.
+
+**The command.** This is the one `docs/gui-goal.md` section 5 rule 2 asks for:
 
 ```bash
-uv run python lab/exp-0014-gui-framework-spike/spike_web.py --hz 10 --all
+uv run python -m sensors_gui.web
 ```
+
+It starts the server on `127.0.0.1`, picks a free port, and opens the window.
+`--hz N` sets the rate, `--page /gallery` opens the widget review, and
+`--no-window` serves without a browser.
 
 The terminal application keeps working until checkpoint 7 is accepted:
 `uv run python -m sensors_gui`.
@@ -220,6 +227,26 @@ rules before any code is written. Reading comes first.
   noise of ordinary desktop use. The test is kept although it separated
   nothing, because it is the one that would have disproved the choice.
 
+- **Session 8, checkpoint 1 accepted, and the widget set rebuilt.** Gova took
+  the web stack (*"don't care at all"* about Chrome's memory) and answered Q11
+  with *"choose the option that gives the best experience"*, then said the
+  spike's dial and line chart *"look sub par"*.
+- `src/sensors_gui/web/` is built: a `SensorService` that samples on a worker
+  thread, a FastAPI server on `127.0.0.1` with a catalogue endpoint and a
+  WebSocket, and a widget set of meter, dial, line chart, sparkline and stat
+  tile. **33 new tests, no mocks. 389 tests pass.**
+- **The old dial was dishonest, and nobody had seen it.** It drew `Tctl`
+  against 0 to 100 °C, and `k10temp` publishes no maximum and no threshold for
+  `Tctl`. Only **66 of 175 channels carry a real scale and 5 carry a
+  threshold**, so the widget set now refuses to draw a bar without one.
+- **The browser and Python disagreed about a number.** 41.25 °C read `41.2` in
+  the terminal and `41.3` in the window, because Python rounds a tie to the
+  even digit and `toFixed` rounds it away from zero. `Intl.NumberFormat` with
+  `halfEven`, the obvious repair, was wrong too. A test now runs the real
+  JavaScript in node against the real Python over about 2000 values.
+- The application costs **0.035 cores at 1 Hz and 0.179 cores at 10 Hz**,
+  which is 0.75 % of this machine at the higher rate.
+
 - **Published.** The project is at <https://github.com/govarthenan/sensors-gui>,
   **private**, 32 signed commits, 223 files. A sweep for credentials and
   personal data ran first and found nothing critical. The 8 hardware
@@ -266,13 +293,18 @@ Verified on the machine at the end of session 6, not assumed:
 **The GUI stream comes first.** Everything below it was the list before
 `docs/gui-goal.md` arrived, and none of it blocks the GUI.
 
-0. **Checkpoint 1: wait for Gova.** ADR 0012 and `exp-0014` are ready, and the
-   screenshots are in `lab/exp-0015-gui-checkpoints/results/`. Gova accepts the
-   stack or sends it back. Do not start checkpoint 2 before that.
-   - If accepted: build `src/sensors_gui/web/` — the server, the catalogue
-     endpoint, the WebSocket frames — then the shell and the summary view.
-     The sampler runs on a worker thread; see the tail finding below.
-   - If rejected: the Qt spike is kept and runs. ADR 0012, last section.
+0. **The widget review: wait for Gova.** The stack is accepted and
+   `src/sensors_gui/web/` is built: the service on a worker thread, the
+   catalogue, the WebSocket frames, and the widget set. Two questions are
+   open, both in `lab/exp-0015-gui-checkpoints/results/`:
+   - a meter or a dial for a headline value;
+   - whether the rebuilt line chart is right.
+   Do not stamp the widgets across 175 channels before Gova answers, and do
+   not start checkpoint 2 before that either.
+
+0b. **Then checkpoint 2**: the shell, the navigation between views, the
+   whole-machine summary, the colour meaning and the status bar. No detail
+   views.
 
 1. **Offer the driver patch upstream.** `driver/nct6687-ms7e47.patch` applies to
    every MSI PRO X870-P WIFI, not only this one. It adds the EZ Conn fan channel
@@ -315,7 +347,7 @@ Verified on the machine at the end of session 6, not assumed:
 | Q7 | What is on `nvme0n1p4` (359.2 GB, not mounted)? | inventory | Gova |
 | ~~Q8~~ | ~~How many fans, and is the cooler air or liquid?~~ **ANSWERED: 9 fans** (2 on the GPU, 3 intake, 3 top, 1 rear) and a **liquid AIO**. Which fans reach the board is still open; photographs are expected. | — | part-closed 2026-09-21 |
 | ~~Q9~~ | ~~Monitors on the integrated graphics?~~ **ANSWERED: no, they are on the RTX 4090.** Claude guessed the DRM card order instead of reading it. `card1` is the 4090. | — | closed 2026-09-21 |
-| Q11 | **The 50 ms pass budget of `docs/architecture.md` is not being kept.** `exp-0014` timed 600 passes at 10 Hz: p50 2.157 ms, p95 26.448 ms, **max 56.839 ms**. The NVIDIA collector owns all of the tail (max 68.523 ms), because the two PCIe calls of `exp-0006` cost about 20 ms each and run when their interval expires. The GUI works around it by sampling on a worker thread. Should the budget be raised to match the machine, or should those two channels get a longer interval so the tail goes away? | the GUI's smoothness, and the honesty of `docs/architecture.md` | Claude proposes, Gova decides |
+| ~~Q11~~ | **ANSWERED 2026-09-22.** Gova: *"choose the option that gives the best experience"*. Decided: sample on a worker thread, leave the two PCIe channels at their present interval, and correct `docs/architecture.md` to state the measured distribution. Raising the budget hides the fact; lengthening the interval slows two live channels to buy what the thread gives free. Measured after: 10.00 Hz with no dropped frame. The original question follows. **The 50 ms pass budget of `docs/architecture.md` was not being kept.** `exp-0014` timed 600 passes at 10 Hz: p50 2.157 ms, p95 26.448 ms, **max 56.839 ms**. The NVIDIA collector owns all of the tail (max 68.523 ms), because the two PCIe calls of `exp-0006` cost about 20 ms each and run when their interval expires. The GUI works around it by sampling on a worker thread. Should the budget be raised to match the machine, or should those two channels get a longer interval so the tail goes away? | the GUI's smoothness, and the honesty of `docs/architecture.md` | Claude proposes, Gova decides |
 | Q12 | The status bar has reported "about 2 ms per pass" since session 3. That is the **last** pass, which is close to the median, and it hid the tail above. Every later count of this number in `JOURNAL.md`, `HANDOFF.md` and this file is a median, not a mean. Nothing is wrong on the screen; the number was simply never the whole picture. | nothing | recorded, no action |
 | Q10 | **The screen now shows this live**: on 2026-09-22 it read 31 unsafe shutdowns in 150 power cycles, about one in five. One of them was the thermal shutdown of 2026-09-22. Does Gova know what causes the rest? (This row no longer holds a copy of the number. `HANDOFF.md` said 29 and this file said 28; both were true when written, at 145 and 144 power cycles.) | health | Gova |
 

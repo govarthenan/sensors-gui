@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%231a1a19'/%3E%3Cpath d='M2 11 L5 11 L7 5 L9 13 L11 8 L14 8' stroke='%233987e5' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>sensors-gui — component review</title>
+<link rel="stylesheet" href="/static/tokens.css">
+<link rel="stylesheet" href="/static/widgets.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--plane); color: var(--ink);
+    font: 14px/1.45 var(--sans); padding: 28px 32px 60px;
+  }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  h2 {
+    font-size: 13px; font-weight: 600; color: var(--ink-secondary);
+    margin: 36px 0 4px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  p.note { color: var(--ink-muted); margin: 0 0 6px; max-width: 78ch; }
+  p.lead { color: var(--ink-secondary); margin: 0 0 24px; max-width: 78ch; }
+  .row { display: flex; flex-wrap: wrap; gap: var(--gap); align-items: flex-start; margin-top: 16px; }
+  .status {
+    display: flex; gap: 28px; flex-wrap: wrap; font-size: 12px; color: var(--ink-muted);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 16px; margin-top: 18px; font-variant-numeric: tabular-nums;
+  }
+  .status b { color: var(--ink); font-weight: 600; }
+  .legend { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-secondary); }
+  .legend i { font-style: normal; font-size: 10px; }
+  .pick {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--series);
+    border-radius: var(--radius); padding: 14px 18px; margin-top: 16px; max-width: 78ch;
+    color: var(--ink-secondary); font-size: 13px;
+  }
+  .pick b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<h1>Component review — the widgets before they are used 175 times</h1>
+<p class="lead">
+  Every widget below is drawn from this machine, live, right now. Nothing on this page is
+  sample data. The rules they keep are in the comments of <code>widgets.js</code>; they come
+  from the <code>dataviz</code> skill that <code>docs/gui-goal.md</code> section 4.4 asks
+  this project to follow.
+</p>
+
+<div class="status">
+  <span>rate <b id="hz">—</b> Hz</span>
+  <span>pass <b id="p50">—</b> median, <b id="pmax">—</b> max ms</span>
+  <span>channels <b id="shown">—</b> shown, <b id="hidden">—</b> hidden</span>
+  <span>frames <b id="frames">0</b></span>
+  <span>paint <b id="paint">—</b> ms</span>
+  <span>helper <b id="helper">—</b></span>
+</div>
+
+<h2>1 · A value against a real limit</h2>
+<p class="note">
+  The meter is the default form. The track is the fill's own hue, so the state reads across
+  the whole bar; the hairlines on the track are the thresholds the hardware publishes, so the
+  room that is left can be seen without reading a number.
+</p>
+<div class="row" id="meters"></div>
+
+<h2>2 · The same values, drawn round</h2>
+<p class="note">
+  The <code>dataviz</code> skill puts "a single ratio against a limit" on a meter, not on a
+  dial, so a dial is kept for at most one hero value in a view. Both are here so the choice
+  is yours, not mine.
+</p>
+<div class="row" id="dials"></div>
+
+<h2>3 · A value with no published scale</h2>
+<p class="note">
+  109 of the 175 channels on this machine publish no maximum, and only 5 publish a threshold.
+  For those, the widget shows the number and the line and <b>draws no bar</b>, because a
+  scale that is invented is a lie. The old dial in the spike drew <code>Tctl</code> against
+  0&nbsp;to&nbsp;100&nbsp;°C, and the hardware never said that.
+</p>
+<div class="row" id="hero"></div>
+<div class="row" id="tiles"></div>
+
+<h2>4 · Change over time</h2>
+<p class="note">
+  The vertical axis keeps a floor and only moves when the data leaves it, so a quarter-degree
+  wobble does not fill the box and the line does not jump while the value stands still. Put
+  the pointer on a chart for the crosshair and the value under it.
+</p>
+<div class="row" id="traces"></div>
+
+<h2>5 · What a colour means</h2>
+<p class="note">
+  One colour for each state, the same everywhere. The colour never travels alone: the
+  validator in the <code>dataviz</code> skill reports that warning, serious and critical are
+  not far enough apart for a colour-blind reader, so each one carries an icon and a word.
+</p>
+<div class="legend" id="legend"></div>
+
+<div class="pick">
+  <b>What I need from you.</b> Section 1 or section 2 for a headline value, and whether the
+  line chart in section 4 is now right. I use whatever you pick for all 175 channels, so it
+  is cheaper to change it here than later.
+</div>
+
+<script type="module" src="/static/gallery.js"></script>
+</body>
+</html>

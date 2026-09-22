@@ -1,7 +1,7 @@
 # ADR 0012 — Build the desktop GUI as a local web application in a Chrome window
 
 - Date: 2026-09-22
-- Status: accepted, waiting for Gova at checkpoint 1
+- Status: **accepted by Gova, 2026-09-22, at checkpoint 1**
 - Supersedes: ADR 0004 (Textual) for the **new** front end. The terminal
   application stays until checkpoint 7 is accepted; see `docs/gui-goal.md`
   section 6.
@@ -201,6 +201,64 @@ median, and the tail was never on the screen. `docs/architecture.md` gives a
 - There are two processes and a socket between them, instead of one process.
 - The window uses its own Chrome profile directory, so it does not touch
   Gova's browser and carries no extension.
+
+## Gova's answers at checkpoint 1, 2026-09-22
+
+Recorded verbatim in `JOURNAL.md`.
+
+- **The memory cost**: *"don't care at all"*. The stack is accepted.
+- **The graphics-card test that separated nothing**: *"ok"*. It stays as
+  written, with its caveat.
+- **Q11, the pass budget**: *"choose the option that gives the best
+  experience"*. Decided below.
+- **The widgets**: *"The thermal dial on top and the line chart look sub
+  par."* Both were rebuilt; see the amendment.
+
+### Q11, decided: the thread, not the interval, and the document is corrected
+
+Three options were open: raise the 50 ms budget in `docs/architecture.md`,
+give the two PCIe channels a longer read interval so the tail goes away, or
+keep both and take the tail off the path that matters.
+
+The third was chosen, because the other two each cost something real. Raising
+the budget hides the fact. Lengthening the interval makes two live channels
+slower, to buy smoothness that a worker thread already buys for nothing.
+
+So: `SensorService` samples on a worker thread and the event loop only
+serialises and sends; the two PCIe channels keep their interval; and
+`docs/architecture.md` now states the measured distribution instead of a
+budget the machine does not keep. Measured after the change: **10.00 Hz with
+no dropped frame**, at a median pass of 2.4 ms and a maximum of 68.5 ms.
+
+## Amendment, 2026-09-22 — the widget set, after Gova's review
+
+Gova called the dial and the line chart "sub par". Two things were wrong, and
+only one of them was about appearance.
+
+**The dial was the wrong form.** The `dataviz` skill, which
+`docs/gui-goal.md` section 4.4 tells this project to follow, puts "a single
+ratio against a limit" on a **meter**. The meter is now the default: the track
+is the fill's own hue so the state reads across the whole bar, the published
+thresholds are hairlines on the track, and both ends of the scale are
+labelled. A dial is kept for at most **one hero value in a view**, built
+properly: 270°, tick marks, the threshold zone on the track, the figure
+inside.
+
+**The dial was also dishonest.** It drew `Tctl` against 0 to 100 °C, and
+`k10temp` publishes no maximum and no threshold for `Tctl`; the scale came
+from the spike's own fallback. On this machine **66 of 175 channels carry a
+real scale and 5 carry a threshold**. So a bar, a meter or a dial is now drawn
+only where the spec carries one, and everything else gets a figure and a line.
+A guessed scale is a guessed hardware fact, which `CLAUDE.md` forbids.
+
+**The line chart** keeps a stable axis that moves only when the data leaves
+it, a span floor, round tick values, hairline gridlines, a 10 % wash, a 2 px
+line, an end marker with a surface ring, one labelled end point, any published
+threshold as a reference line with its word, and a crosshair with a tooltip.
+
+**Colour never carries a state alone.** The skill's validator, run against
+this application's dark surface, reports critical against good at ΔE 4.1 under
+deuteranopia. Every state carries an icon and a word.
 
 ### If Gova rejects this at checkpoint 1
 

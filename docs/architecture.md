@@ -35,6 +35,22 @@ Status: draft, written 2026-09-16 at the start of phase 1.
                         +------------------+
 ```
 
+Since 2026-09-22 there is a second front end beside it, and it is the one
+being built (ADR 0012):
+
+```
+   Registry + Sampler  --(worker thread)-->  SensorService
+                                                  |
+                                    catalogue once, frames at up to 10 Hz
+                                                  |
+                            FastAPI on 127.0.0.1  |  WebSocket
+                                                  v
+                          a page in a Chrome application window
+```
+
+The page is plain HTML, CSS, SVG and JavaScript, with no build step. The
+server binds `127.0.0.1` only, and no route writes to hardware.
+
 ## The helper, as built on 2026-09-22
 
 The dashed part of the diagram above is now real. `exp-0011` has the numbers.
@@ -123,6 +139,28 @@ Rules:
 4. `read` must be quick. The budget for one full pass of all collectors is
    **50 ms**. NVML takes 0.67 ms and a hwmon pass takes about 1 ms, so the
    budget is generous, but the helper client must not block.
+
+   **Corrected 2026-09-22 (`exp-0014`, ADR 0012). The budget is met at the
+   median and broken at the tail.** Over 600 passes at 10 Hz:
+
+   | | |
+   |---|---|
+   | median pass | **2.157 ms** |
+   | p95 | 26.448 ms |
+   | longest | **56.839 ms** — past the budget |
+
+   All of the tail belongs to the NVIDIA collector, whose own maximum is
+   **68.523 ms**: the two PCIe calls of `exp-0006` cost about 20 ms each and
+   run only when their read interval expires (ADR 0006). Thirty-one passes of
+   600 went past 20 ms.
+
+   The budget is **not** raised and those two channels are **not** slowed
+   down, because both would cost something real. Instead the rule for a
+   caller changes: **a front end calls `sample()` on a worker thread, never on
+   the thread that draws**. The terminal screen predates this and calls it on
+   its own loop, which is why it has always printed the *last* pass — a number
+   close to the median, that hides the tail. The web front end reports the
+   median and the maximum. See `src/sensors_gui/web/service.py`.
 
 ## Units
 

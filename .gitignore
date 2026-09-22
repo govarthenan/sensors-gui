@@ -30,3 +30,6 @@ data/samples/*.parquet
 # Photographs are kept, but only after they are made small.
 # Full-size phone photographs do not belong in the repository.
 data/photos-original/
+
+# Browser automation scratch output from checkpoint inspections.
+.playwright-mcp/
