@@ -53,6 +53,7 @@ Without it everything else still works, and those 19 channels show
 | `q` | quit |
 | `p` | pause and start the refresh |
 | `r` | scan for sensors again |
+| `h` | show the channels that are hidden by default |
 | `+` / `-` | change the refresh rate, 0.25 Hz to 10 Hz |
 
 The application **only reads**. It never writes to hardware. See ADR 0007 and
