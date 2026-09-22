@@ -1,0 +1,25 @@
+# I2C adapters on dst-gova-pc
+# Command: for d in /sys/bus/i2c/devices/i2c-*; do cat $d/name; readlink -f $d/device; done
+# Date:    2026-09-22T12:05:01+05:30
+# Source:  sysfs. This listing starts no bus transaction. Nothing was probed.
+
+adapter  name                                     parent
+i2c-0    SMBus PIIX4 adapter port 0 at 0b00       pci0000:00/0000:00:14.0/i2c-0/device
+i2c-1    SMBus PIIX4 adapter port 2 at 0b00       pci0000:00/0000:00:14.0/i2c-1/device
+i2c-10   AMDGPU DM i2c hw bus 2                   pci0000:00/0000:00:08.1/0000:74:00.0/i2c-10/device
+i2c-11   AMDGPU DM i2c hw bus 3                   pci0000:00/0000:00:08.1/0000:74:00.0/i2c-11/device
+i2c-12   AMDGPU DM aux hw bus 1                   pci0000:00/0000:00:08.1/0000:74:00.0/drm/card2/card2-DP-4/i2c-12/device
+i2c-13   AMDGPU DM aux hw bus 2                   pci0000:00/0000:00:08.1/0000:74:00.0/drm/card2/card2-DP-5/i2c-13/device
+i2c-14   AMDGPU DM aux hw bus 3                   pci0000:00/0000:00:08.1/0000:74:00.0/drm/card2/card2-DP-6/i2c-14/device
+i2c-2    SMBus PIIX4 adapter port 1 at 0b20       pci0000:00/0000:00:14.0/i2c-2/device
+i2c-3    NVIDIA i2c adapter 1 at 1:00.0           pci0000:00/0000:00:01.1/0000:01:00.0/i2c-3/device
+i2c-4    NVIDIA i2c adapter 3 at 1:00.0           pci0000:00/0000:00:01.1/0000:01:00.0/i2c-4/device
+i2c-5    NVIDIA i2c adapter 4 at 1:00.0           pci0000:00/0000:00:01.1/0000:01:00.0/i2c-5/device
+i2c-6    NVIDIA i2c adapter 5 at 1:00.0           pci0000:00/0000:00:01.1/0000:01:00.0/i2c-6/device
+i2c-7    NVIDIA i2c adapter 6 at 1:00.0           pci0000:00/0000:00:01.1/0000:01:00.0/i2c-7/device
+i2c-8    AMDGPU DM i2c hw bus 0                   pci0000:00/0000:00:08.1/0000:74:00.0/i2c-8/device
+i2c-9    AMDGPU DM i2c hw bus 1                   pci0000:00/0000:00:08.1/0000:74:00.0/i2c-9/device
+
+# Bound clients:
+0-0051  name=spd5118  driver=spd5118
+0-0053  name=spd5118  driver=spd5118

@@ -846,3 +846,76 @@ Check the module after the next reboot. Then phase 4, or the driver patch
 upstream. The Ryzen SMU leaves the `exp-0005` target list; the RTX 4090 board
 over I2C is next on it, and it needs the same question asked first: does the
 route read, or does it write?
+
+---
+
+## 2026-09-22 — Session 7: the card's I2C route closed, and each fan found
+
+**Goal:** `exp-0005` target 3, the RTX 4090 board sensors. Gova chose it.
+
+**What happened**
+
+- **Checked the reboot item first, and it is only half true.** The machine did
+  reboot, at 10:38:49, and `systemd-modules-load` did insert `msr` at boot. But
+  `/etc/modules-load.d/sensors-gui.conf` was written at **11:32:16, after that
+  boot**, so the file this project installed has still not been through one.
+  The module loaded from `/etc/modules-load.d/libvirt-msr.conf`, which libvirt
+  put there on 2026-06-24. So there is a safety net under our file, and the
+  check stays open for the next reboot. The helper is enabled and active with
+  `NRestarts=0`, and all twelve core channels read a value.
+- **Found a stale decision record.** Everything in the repository — `CLAUDE.md`,
+  `HANDOFF.md`, `state/STATUS.md`, ADR 0009 and ADR 0010 — cites ADR 0007 as
+  "this project writes nothing to hardware". **The file did not say that.** It
+  still held the six rules for writing safely, and the amendment of 2026-09-21
+  that permits stopping a fan. The revert after the thermal shutdown was made
+  everywhere except in the decision itself. Its old rule 1, read literally,
+  permits an I2C write to any address outside `0x48`–`0x4F` — which is exactly
+  the text that would have governed today's work. An amendment now records the
+  revert; the old text stays, because it is what the machine shut down under.
+- **`exp-0013`, part 1: the I2C route writes.** Answered on paper, with no bus
+  touched. An I2C read must **write** the register number first. `i2cget(8)`
+  says of itself that "an SMBus read transaction can be seen as a write
+  transaction by certain chips", and `i2cdetect(8)` that it "can confuse your
+  I2C bus, cause data loss and worse". It is the same shape as the SMN index
+  register that ADR 0010 already closed, and on a card the second master is the
+  card's own controller. **Dropped. ADR 0011.**
+- **`exp-0013`, part 2: the `TLIMIT` lead failed.** `exp-0002` found those
+  fields hold a headroom, so `threshold − headroom` might have given the
+  hotspot. 95 samples from idle to 99 % use, edge 32 → 40 °C, power 43.7 →
+  132.1 W: all three fields never moved. They are fixed offsets between the
+  thresholds. Sensor indexes 1 to 7 are all "Invalid Argument".
+- **`exp-0013`, part 3: the speed of each fan, with no write.** A sweep of all
+  302 NVML fields found `nvmlDeviceGetFanSpeedRPM`, which reports **2 fans**
+  separately. Under one load: **1205 and 1520 RPM** — the two fans do not turn
+  at the same speed, and the single `fan_speed` channel reports fan 0 alone.
+  Gova asked for an RPM channel and a percent channel for each fan, with the
+  original kept. **4 new channels: 175 on screen, 1.84 ms per pass, 356 tests
+  pass.**
+
+**Findings**
+
+1. **A rule that lives in five documents and not in the one that defines it is
+   a defect.** Nothing was wrong on the screen, and every derived document was
+   right. The source was wrong, and today's task was the first one it would
+   have mattered for.
+2. **Second time: the plan named the write, and the read was in the standard
+   interface.** Session 6 found per-core power in an MSR the kernel's own
+   header names, after five sessions of planning a DKMS module that writes.
+   Today per-fan RPM was in NVML, after a plan that said "the card's own I2C
+   bus". Sweep the ordinary interface before believing the exotic route.
+3. **A negative result needs a measurement too.** "TLIMIT might hold the
+   hotspot" was only closed by watching it stay still while the card warmed.
+
+**Decisions**
+
+- ADR 0011 — no I2C transaction, on any bus, at any address. It closes the
+  card's hotspot, memory and VRM temperatures, the DDR5 PMIC rails
+  (`exp-0005` target 4) and the unknown client at `0x4f` (target 5). Reading
+  what a kernel driver publishes, as the DIMM temperatures are read, is
+  untouched.
+- ADR 0007 — the revert of 2026-09-22 is written into the decision itself.
+
+**Next**
+
+Phase 4, history and alarms. `exp-0005` has two targets left, the Wi-Fi chip
+and MYSTIC LIGHT, and each gets the ADR 0010 question first.

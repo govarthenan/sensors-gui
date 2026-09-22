@@ -85,6 +85,11 @@ scripts/               Helper scripts for the developer.
   the SMU mailbox to read a value, and that route stayed in the plan for five
   sessions because it did not look like a write. A register read is allowed; a
   mailbox write is not. ADR 0010.
+  **An I2C read is a write too.** The master must write the register number
+  before it reads, so this project starts **no I2C transaction on any bus at
+  any address**. Reading what a kernel driver publishes under
+  `/sys/class/hwmon/`, as the DIMM temperatures are read, is not this.
+  ADR 0011.
 - **Root access:** some sensors need root (RAPL energy, SMART data, Super-I/O).
   Ask Gova before you install a kernel module or change permissions.
 - **No mocks in tests** unless Gova asks for them.

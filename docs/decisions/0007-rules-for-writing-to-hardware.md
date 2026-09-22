@@ -1,7 +1,9 @@
 # ADR 0007 — Rules for any write to hardware
 
 - Date: 2026-09-21
-- Status: accepted
+- Status: **reverted 2026-09-22.** Read the amendment of 2026-09-22 at the
+  bottom of this file first. The rules below permitted a write; they do not
+  apply any more. **This project writes nothing to hardware.**
 
 ## Context
 
@@ -96,3 +98,61 @@ a rule that blocks the work gets worked around in a hurry, without a watchdog.
 Narrowing it in the open, with the conditions in code, is safer than leaving it
 absolute.
 
+
+---
+
+## Amendment, 2026-09-22: the whole decision is reverted
+
+**This file described how to write to hardware safely. That approach failed on
+the machine on the same day, and the rule is now absolute: this project writes
+nothing to hardware. No exceptions and no conditions.**
+
+### What happened
+
+`scripts/map-fans.sh`, written under the rules above, put the CPU fan header
+into manual mode at zero to find which fan was on which header. The chip
+**rejected the write that put it back**. The radiator fans stopped, `Tctl`
+reached 98 °C, and the board shut the machine down. The script is deleted. The
+full record is `data/evidence/2026-09-22-thermal-shutdown/`.
+
+Four faults let it happen, and each one looked reasonable on its own:
+
+1. The restore wrote the old value and never **verified** it.
+2. The watchdog's only action was the write path that was already failing.
+3. Mode and speed were separate writes, so a partial success left the worst
+   state: manual control, at zero.
+4. The radiator fan header was in scope at all. Rule 2 protected the pump
+   alone; on a liquid-cooled machine the radiator fan is as critical.
+
+So the six rules were not too weak in detail. They were the wrong shape: every
+one of them depends on a write succeeding later, and that is the thing that
+failed.
+
+### The rule now
+
+> **This project writes nothing to hardware. If a question can only be answered
+> by writing, drop the question.**
+
+Fan control, fan mapping and a fan curve are out of scope. They do not need a
+better watchdog; they need a different project. The answer `map-fans.sh` was
+chasing arrived a few hours later from a **photograph of the BIOS**, for free.
+
+### Why the old text stays
+
+The project keeps what disproves a claim. The six rules read as careful and
+complete, and they are what the machine shut itself down under. Deleting them
+would hide the most useful fact in this file: **a write can be planned well and
+still take the machine down, because the safety of a write depends on a later
+write.**
+
+### What this changes in the rest of the repository
+
+- ADR 0009 and ADR 0010 cite this decision as the absolute no-write rule. That
+  citation is correct from this amendment onward, and it was **not** correct
+  against the text above it, which is why this amendment was written.
+- Old rule 1 said "never write to I2C addresses 0x48 to 0x4F". Read against the
+  rules above, that permits an I2C write to any other address. It does not any
+  more: no I2C write to any address, for any reason.
+- ADR 0010 gives the test to apply to a new route: is the machine **asked** or
+  **told**? A register read is a question. A command word, an index register or
+  a bus address pointer written before the read is a statement.

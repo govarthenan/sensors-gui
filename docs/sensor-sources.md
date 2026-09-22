@@ -122,14 +122,17 @@ Decided in ADR 0003 after `exp-0002`, and built on 2026-09-21. All fields
 read as a normal user. A warmed pass of all 17 channels costs **0.023 ms**.
 See `exp-0006` for why the two PCIe channels need their own interval.
 
-Collector: `sensors_gui/collectors/nvidia.py`. 17 channels, 89 tests pass.
+Collector: `sensors_gui/collectors/nvidia.py`. **21 channels** since
+`exp-0013` added a speed for each fan.
 
 | Field | Unit | Status | Note |
 |---|---|---|---|
 | GPU temperature (edge) | °C | OK | |
 | Power draw | W | OK | limit 480 W |
 | Total energy counter | J | OK | since the driver loaded |
-| Fan speed | % | OK | 2 fans; both report one value |
+| Fan speed | % | OK | the original single channel; it reports fan 0 |
+| **Speed of each fan** | **RPM** | **OK, `exp-0013`** | `nvmlDeviceGetFanSpeedRPM`. 2 fans, and they do **not** turn at the same speed: 1205 and 1520 RPM under the same load |
+| **Control output of each fan** | **%** | **OK, `exp-0013`** | `nvmlDeviceGetFanSpeed_v2` |
 | GPU / memory use | % | OK | |
 | Memory used / total | MiB | OK | **use `nvmlMemory_v2`**, see ADR 0003 |
 | Memory reserved | MiB | OK | v2 only, about 503 MiB |
@@ -143,8 +146,10 @@ Collector: `sensors_gui/collectors/nvidia.py`. 17 channels, 89 tests pass.
 | Compute / graphics processes | count | OK | |
 | VBIOS version | text | OK | 95.02.3C.40.D1 |
 | Temperature thresholds | °C | OK | 99 °C slowdown, 104 °C shutdown |
-| **Hotspot temperature** | °C | **MISSING** | NVML says "Invalid Argument" |
-| **Memory (GDDR6X) temperature** | °C | **MISSING** | NVML says "not supported" |
+| **Hotspot temperature** | °C | **UNREACHABLE** | NVML says "Invalid Argument" for every sensor index from 1 to 7. The board controller holds it, behind I2C. **ADR 0011 forbids the route**, because an I2C read writes the register pointer first. `exp-0013`. |
+| **Memory (GDDR6X) temperature** | °C | **UNREACHABLE** | NVML says "not supported". The same route, and the same decision. |
+| **VRM temperature** | °C | **UNREACHABLE** | never in NVML. The same route, and the same decision. |
+| Temperature TLIMIT fields | °C | not a sensor | `exp-0013` sampled them 95 times from idle to 99 % use: all three never moved. They are fixed offsets between the thresholds, not a live margin, so they do not give the hotspot. |
 | Serial number | text | MISSING | not on a consumer card |
 
 ### AMD integrated GPU — `amdgpu`

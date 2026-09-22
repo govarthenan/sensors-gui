@@ -1,0 +1,36 @@
+# The warnings the I2C tools print about themselves
+# Command: man 8 i2cget | col -b ; man 8 i2cdetect | col -b
+# Date:    2026-09-22T12:05:01+05:30
+# Source:  i2c-tools on this machine, 4.3-4build2
+
+== i2cget(8), WARNING ==
+WARNING
+       i2cget can be extremely dangerous if used improperly. I2C and SMBus are
+       designed	 in such a way that an SMBus read transaction can be seen as a
+       write transaction by certain chips. This is particularly true  if  set‐
+       ting  mode  to cp (write byte/read byte with PEC). Be extremely careful
+       using this program.
+
+
+== i2cdetect(8), WARNING ==
+WARNING
+       This program can confuse your I2C bus, cause data loss and worse!
+
+
+== i2cdetect(8), the probing modes ==
+OPTIONS
+       -y     Disable  interactive mode. By default, i2cdetect will wait for a
+	      confirmation from the user before messing with the I2C bus. When
+	      this flag is used, it will perform the operation directly.  This
+	      is mainly meant to be used in scripts.
+
+       -a     Force scanning of non-regular addresses. Not recommended.
+
+       -q     Use  SMBus  "quick write" command for probing.  Not recommended.
+	      This is known to corrupt the Atmel AT24RF08 EEPROM found on many
+	      IBM Thinkpad laptops.
+
+       -r     Use SMBus "receive byte" command for probing.  Not  recommended.
+	      This  is	known  to lock SMBus on various write-only chips (most
+	      notably clock chips at address 0x69).
+

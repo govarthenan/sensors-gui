@@ -71,10 +71,10 @@ USB root hubs. Those hold no sensor, and they are not a gap.
 | # | Component | What it should hold | How to reach it | State |
 |---|---|---|---|---|
 | ~~1~~ | Super-I/O chip | 8 fans, 8 PWM, VRM and chipset temperature, 14 voltages | `nct6687d` DKMS module | **DONE 2026-09-21.** It is a Nuvoton NCT6687D at ISA 0x0a20. 29 channels. 4 voltages are wrong; see `exp-0007`. |
-| 2 | Ryzen 9 9900X SMU | per-core power, SoC power, the real VID, per-CCD limits | `ryzen_smu` or `zenpower3` DKMS module | TODO |
-| 3 | RTX 4090 board | hotspot temperature, per-fan RPM, VRM temperature | the card's own I2C bus (`i2c-1` to `i2c-7`), from the board controller | TODO, and risky |
-| 4 | DDR5 PMIC ×2 (`0x49`, `0x4b`) | module VIN, the 1.1 V and 1.8 V rails | I2C read, per JESD301 | TODO |
-| 5 | I2C client at `0x4f` | unknown | identify it first | **unknown** |
+| ~~2~~ | Ryzen 9 9900X SMU | per-core power, SoC power, the real VID, per-CCD limits | ~~`ryzen_smu` or `zenpower3` DKMS module~~ | **CLOSED 2026-09-22, ADR 0010.** Both modules **write** a command word into the SMU mailbox. Per-core power arrived anyway, from MSR `0xc001029a`, which only reads. `exp-0012`. |
+| ~~3~~ | RTX 4090 board | hotspot temperature, per-fan RPM, VRM temperature | ~~the card's own I2C bus (`i2c-3` to `i2c-7`), from the board controller~~ | **PART DONE, PART CLOSED 2026-09-22.** **Per-fan RPM is done**, and not over I2C: `nvmlDeviceGetFanSpeedRPM` gives both fans, and they differ (1205 and 1520 RPM). 4 channels. The hotspot and the VRM are **closed**: an I2C read writes the register pointer first, so ADR 0011 forbids the route. `exp-0013`. |
+| ~~4~~ | DDR5 PMIC ×2 (`0x49`, `0x4b`) | module VIN, the 1.1 V and 1.8 V rails | ~~I2C read, per JESD301~~ | **CLOSED 2026-09-22, ADR 0011.** These are the chips that set memory voltage, and the first version of ADR 0007 named this address range as the one place never to write. The DIMM **temperatures** are read as before, through the `spd5118` kernel driver. |
+| ~~5~~ | I2C client at `0x4f` | unknown | ~~identify it first~~ | **CLOSED 2026-09-22, ADR 0011.** Identifying it means probing it, and a probe writes. It stays unknown. |
 | 6 | Qualcomm WCN7850 Wi-Fi | chip temperature | the `ath12k` driver, if it reports one | TODO |
 | 7 | MSI MYSTIC LIGHT (`0DB0:0076`) | it is an RGB controller, but the MSI MCU can also carry fan and temperature data | the HID protocol, as OpenRGB uses it | TODO |
 | ~~8~~ | ~~USB device `1-11`~~ | — | — | **ANSWERED: Foxconn Bluetooth, `0489:e10a`, driver `btusb`. No sensor.** |

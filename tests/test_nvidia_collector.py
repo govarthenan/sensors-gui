@@ -181,3 +181,59 @@ def test_a_warmed_pass_costs_less_than_five_milliseconds(collector: NvidiaCollec
         collector.read()
         timings.append((time.perf_counter() - start) * 1000)
     assert statistics.median(timings) < 5.0
+
+
+# --- Per-fan channels, exp-0013 -------------------------------------------
+#
+# Gova's specification, 2026-09-22: give an RPM channel and a percent channel
+# for each fan, and keep the original single `fan_speed` channel.
+#
+# Expected values on this card, measured in
+# `lab/exp-0013-rtx4090-board-sensors/results/tlimit-under-load.csv`:
+#   fan 0   0 RPM when stopped, 1203 RPM under a light load
+#   fan 1   0 RPM when stopped, 1513 RPM under the same load
+
+
+def test_the_card_reports_two_fans(collector: NvidiaCollector) -> None:
+    # The MSI RTX 4090 SUPRIM has three fans on the shroud, and NVML groups
+    # them into two controlled channels. docs/physical-build.md.
+    channels = {spec.id.channel for spec in collector.discover()}
+    assert "fan0_rpm" in channels
+    assert "fan1_rpm" in channels
+
+
+def test_each_fan_gets_an_rpm_channel_and_a_percent_channel(collector: NvidiaCollector) -> None:
+    by_channel = {spec.id.channel: spec for spec in collector.discover()}
+    for index in (0, 1):
+        assert by_channel[f"fan{index}_rpm"].unit is Unit.RPM
+        assert by_channel[f"fan{index}_percent"].unit is Unit.PERCENT
+        assert by_channel[f"fan{index}_percent"].low == 0.0
+        assert by_channel[f"fan{index}_percent"].high == 100.0
+
+
+def test_the_single_fan_speed_channel_stays(collector: NvidiaCollector) -> None:
+    # Gova asked for the original channel to be kept beside the new ones.
+    assert _spec_named(collector, "fan_speed").unit is Unit.PERCENT
+
+
+def test_the_fan_rpm_channels_read_a_speed_a_fan_can_turn_at(collector: NvidiaCollector) -> None:
+    collector.discover()
+    for index in (0, 1):
+        reading = _reading_named(collector, f"fan{index}_rpm")
+        assert reading.is_ok
+        assert reading.value is not None
+        assert reading.value == 0.0 or 300.0 <= reading.value <= 4000.0
+
+
+def test_the_fan_rpm_channel_has_no_false_upper_limit(collector: NvidiaCollector) -> None:
+    # A fan bar needs a real scale. NVML gives no maximum RPM, so the spec
+    # must not invent one. Same rule as the board fans.
+    for index in (0, 1):
+        assert _spec_named(collector, f"fan{index}_rpm").high is None
+
+
+def test_the_per_fan_channels_get_a_read_interval(collector: NvidiaCollector) -> None:
+    # Measured in exp-0013; the original fan_speed call costs 0.58 ms.
+    for index in (0, 1):
+        assert _spec_named(collector, f"fan{index}_rpm").min_interval >= 1.0
+        assert _spec_named(collector, f"fan{index}_percent").min_interval >= 1.0

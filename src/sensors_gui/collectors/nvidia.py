@@ -14,7 +14,9 @@ ADR 0003 fixes three rules, each of which came from a measurement in
 
 from __future__ import annotations
 
+import ctypes
 import logging
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -44,6 +46,22 @@ CHANNEL_INTERVALS: dict[str, float] = {
     "graphics_processes": 1.0,
     "compute_processes": 1.0,
 }
+
+# The per-fan channels of exp-0013 cost the same as the original fan call:
+# 0.45 ms for an RPM read and 0.60 ms for a percent read, measured over 30
+# rounds. Four of them on every pass would be 2 ms, so they get the same
+# one-second interval as `fan_speed`. The key holds the fan number, so the
+# interval is given by a rule and not by a table entry.
+FAN_CHANNEL_INTERVAL = 1.0
+_FAN_CHANNEL_PATTERN = re.compile(r"^fan\d+_(rpm|percent)$")
+
+
+def channel_interval(key: str) -> float:
+    """Return the shortest time in seconds between two reads of one channel."""
+    if _FAN_CHANNEL_PATTERN.match(key):
+        return FAN_CHANNEL_INTERVAL
+    return CHANNEL_INTERVALS.get(key, 0.0)
+
 
 # NVML enumeration values, written out so that the code does not depend on the
 # binding exposing a constant by name.
@@ -146,6 +164,45 @@ class NvidiaCollector:
         self._nvml = pynvml
         return True
 
+    def _fan_count(self, handle: Any) -> int:  # noqa: ANN401 - the handle is opaque
+        """Return how many fans NVML reports for this card, or 0 when it cannot say."""
+        try:
+            return int(self._nvml.nvmlDeviceGetNumFans(handle))
+        except Exception as error:  # noqa: BLE001 - rule 3: a collector never raises
+            logger.info("nvidia: no per-fan channels, %s", error)
+            return 0
+
+    def _fan_percent_reader(self, handle: Any, index: int) -> Callable[[], float]:  # noqa: ANN401
+        """Return a reader for the control output of one fan, in percent."""
+        nvml = self._nvml
+        return lambda: float(nvml.nvmlDeviceGetFanSpeed_v2(handle, index))
+
+    def _fan_rpm_reader(self, handle: Any, index: int) -> Callable[[], float] | None:  # noqa: ANN401
+        """Return a reader for the true speed of one fan, in RPM, or None.
+
+        `pynvml.nvmlDeviceGetFanSpeedRPM` fixes the fan number at 0, so this
+        calls the same library function with the number set. It reads only; see
+        ADR 0007. A driver older than 550 does not have the function, and then
+        this gives None and the card keeps its percent channels alone.
+        """
+        nvml = self._nvml
+        try:
+            function = nvml._nvmlGetFunctionPointer("nvmlDeviceGetFanSpeedRPM")  # noqa: SLF001
+        except Exception as error:  # noqa: BLE001 - rule 3: a collector never raises
+            logger.info("nvidia: the driver gives no fan RPM, %s", error)
+            return None
+
+        def read() -> float:
+            info = nvml.c_nvmlFanSpeedInfo_t()
+            info.version = nvml.nvmlFanSpeedInfo_v1
+            info.fan = index
+            code = function(handle, ctypes.byref(info))
+            if code != 0:
+                raise nvml.NVMLError(code)
+            return float(info.speed)
+
+        return read
+
     def _discover_device(self, handle: Any) -> list[_Channel]:  # noqa: ANN401 - the handle is opaque
         """Build every channel of one GPU."""
         nvml = self._nvml
@@ -182,7 +239,7 @@ class NvidiaCollector:
                     label=label,
                     group=Group.GPU,
                     unit=unit,
-                    min_interval=CHANNEL_INTERVALS.get(key, 0.0),
+                    min_interval=channel_interval(key),
                     origin=f"nvml:{key}@{bus_id}",
                     **limits,  # type: ignore[arg-type]
                 ),
@@ -194,7 +251,7 @@ class NvidiaCollector:
             """Return a reader for one field of the version 2 memory structure, in bytes."""
             return lambda: float(getattr(nvml.nvmlDeviceGetMemoryInfo(handle, version=nvml.nvmlMemory_v2), field))
 
-        return [
+        channels = [
             channel(
                 "temperature",
                 "GPU edge",
@@ -306,3 +363,32 @@ class NvidiaCollector:
                 lambda: float(len(nvml.nvmlDeviceGetComputeRunningProcesses(handle))),
             ),
         ]
+
+        # exp-0013: NVML reports each fan of the card separately, and the two
+        # fans of this card do not turn at the same speed. The single
+        # `fan_speed` channel above gives fan 0 only. Both stay, on Gova's
+        # decision of 2026-09-22.
+        for index in range(self._fan_count(handle)):
+            number = index + 1
+            rpm_reader = self._fan_rpm_reader(handle, index)
+            if rpm_reader is not None:
+                channels.append(
+                    channel(
+                        f"fan{index}_rpm",
+                        f"GPU fan {number}",
+                        Unit.RPM,
+                        rpm_reader,
+                        low=0.0,
+                    )
+                )
+            channels.append(
+                channel(
+                    f"fan{index}_percent",
+                    f"GPU fan {number} duty",
+                    Unit.PERCENT,
+                    self._fan_percent_reader(handle, index),
+                    low=0.0,
+                    high=100.0,
+                )
+            )
+        return channels

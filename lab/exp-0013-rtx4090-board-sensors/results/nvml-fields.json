@@ -1,0 +1,1074 @@
+{
+  "captured": "2026-09-22T06:23:38.056953+00:00",
+  "driver": "595.91.07",
+  "nvml": "13.595.91.07",
+  "device": "NVIDIA GeForce RTX 4090",
+  "temperatures": {
+    "sensor_0": 34,
+    "sensor_1": {
+      "error": "Invalid Argument"
+    },
+    "sensor_2": {
+      "error": "Invalid Argument"
+    },
+    "sensor_3": {
+      "error": "Invalid Argument"
+    },
+    "sensor_4": {
+      "error": "Invalid Argument"
+    },
+    "sensor_5": {
+      "error": "Invalid Argument"
+    },
+    "sensor_6": {
+      "error": "Invalid Argument"
+    },
+    "sensor_7": {
+      "error": "Invalid Argument"
+    },
+    "threshold_shutdown": 104,
+    "threshold_slowdown": 99,
+    "threshold_mem_max": {
+      "error": "Not Supported"
+    },
+    "threshold_gpu_max": 90,
+    "threshold_acoustic_min": 65,
+    "threshold_acoustic_curr": 84,
+    "threshold_acoustic_max": 88
+  },
+  "fans": {
+    "count": 2,
+    "fan_0": {
+      "percent": 0,
+      "rpm": 0
+    },
+    "fan_1": {
+      "percent": 0,
+      "rpm": 0
+    }
+  },
+  "fields": {
+    "NVML_FI_DEV_ECC_CURRENT": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 791
+    },
+    "NVML_FI_DEV_ECC_PENDING": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 286
+    },
+    "NVML_FI_DEV_ECC_SBE_VOL_TOTAL": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 407
+    },
+    "NVML_FI_DEV_ECC_DBE_VOL_TOTAL": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 170
+    },
+    "NVML_FI_DEV_ECC_SBE_AGG_TOTAL": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 363
+    },
+    "NVML_FI_DEV_ECC_DBE_AGG_TOTAL": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 178
+    },
+    "NVML_FI_DEV_ECC_SBE_VOL_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_VOL_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_VOL_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_VOL_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_VOL_DEV": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_VOL_DEV": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_VOL_REG": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_VOL_REG": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_VOL_TEX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_VOL_TEX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_VOL_CBU": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_AGG_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_AGG_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_AGG_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_AGG_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_AGG_DEV": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_AGG_DEV": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_AGG_REG": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_AGG_REG": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_SBE_AGG_TEX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_AGG_TEX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_ECC_DBE_AGG_CBU": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_RETIRED_SBE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_RETIRED_DBE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_RETIRED_PENDING": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_TOTAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_TOTAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_TOTAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_TOTAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_TOTAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_TOTAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_CLOCKS_EVENT_REASON_SW_POWER_CAP": {
+      "value": 114847972544,
+      "valueType": 3,
+      "latency_us": 19
+    },
+    "NVML_FI_DEV_PERF_POLICY_THERMAL": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 608
+    },
+    "NVML_FI_DEV_CLOCKS_EVENT_REASON_SYNC_BOOST": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_PERF_POLICY_BOARD_LIMIT": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 1
+    },
+    "NVML_FI_DEV_PERF_POLICY_LOW_UTILIZATION": {
+      "value": 4257402661280,
+      "valueType": 3,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_PERF_POLICY_RELIABILITY": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_PERF_POLICY_TOTAL_APP_CLOCKS": {
+      "value": 4362851787680,
+      "valueType": 3,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_PERF_POLICY_TOTAL_BASE_CLOCKS": {
+      "value": 4357410302560,
+      "valueType": 3,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_MEMORY_TEMP": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_TOTAL_ENERGY_CONSUMPTION": {
+      "value": 213733033,
+      "valueType": 3,
+      "latency_us": 17563
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_COMMON": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_LINK_COUNT": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_RETIRED_PENDING_SBE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_RETIRED_PENDING_DBE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_PCIE_REPLAY_COUNTER": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 396
+    },
+    "NVML_FI_DEV_PCIE_REPLAY_ROLLOVER_COUNTER": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 96
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_L11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_L11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_L11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C0_L11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_BANDWIDTH_C1_L11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_SPEED_MBPS_L11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_TX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_RX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_THROUGHPUT_RAW_TX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_THROUGHPUT_RAW_RX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_REMAPPED_COR": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 551
+    },
+    "NVML_FI_DEV_REMAPPED_UNC": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 473
+    },
+    "NVML_FI_DEV_REMAPPED_PENDING": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 215
+    },
+    "NVML_FI_DEV_REMAPPED_FAILURE": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 161
+    },
+    "NVML_FI_DEV_NVLINK_REMOTE_NVLINK_ID": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVSWITCH_CONNECTED_LINK_COUNT": {
+      "value": 0.0,
+      "valueType": 0,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_L11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ECC_DATA_ERROR_COUNT_TOTAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ERROR_DL_REPLAY": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ERROR_DL_RECOVERY": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_ERROR_DL_CRC": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_SPEED": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_STATE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_VERSION": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_POWER_STATE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_POWER_THRESHOLD": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_PCIE_L0_TO_RECOVERY_COUNTER": {
+      "value": 481,
+      "valueType": 1,
+      "latency_us": 158
+    },
+    "NVML_FI_DEV_C2C_LINK_COUNT": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_C2C_LINK_GET_STATUS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_C2C_LINK_GET_MAX_BW": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_PCIE_COUNT_CORRECTABLE_ERRORS": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 204
+    },
+    "NVML_FI_DEV_PCIE_COUNT_NAKS_RECEIVED": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 167
+    },
+    "NVML_FI_DEV_PCIE_COUNT_RECEIVER_ERROR": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 196
+    },
+    "NVML_FI_DEV_PCIE_COUNT_BAD_TLP": {
+      "value": 19,
+      "valueType": 1,
+      "latency_us": 143
+    },
+    "NVML_FI_DEV_PCIE_COUNT_NAKS_SENT": {
+      "value": 19,
+      "valueType": 1,
+      "latency_us": 95
+    },
+    "NVML_FI_DEV_PCIE_COUNT_BAD_DLLP": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 209
+    },
+    "NVML_FI_DEV_PCIE_COUNT_NON_FATAL_ERROR": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 242
+    },
+    "NVML_FI_DEV_PCIE_COUNT_FATAL_ERROR": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 140
+    },
+    "NVML_FI_DEV_PCIE_COUNT_UNSUPPORTED_REQ": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 89
+    },
+    "NVML_FI_DEV_PCIE_COUNT_LCRC_ERROR": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 84
+    },
+    "NVML_FI_DEV_PCIE_COUNT_LANE_ERROR": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 102
+    },
+    "NVML_FI_DEV_IS_RESETLESS_MIG_SUPPORTED": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_POWER_AVERAGE": {
+      "value": 39285,
+      "valueType": 1,
+      "latency_us": 996
+    },
+    "NVML_FI_DEV_POWER_INSTANT": {
+      "value": 39531,
+      "valueType": 1,
+      "latency_us": 1
+    },
+    "NVML_FI_DEV_POWER_MIN_LIMIT": {
+      "value": 150000,
+      "valueType": 1,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_POWER_MAX_LIMIT": {
+      "value": 530000,
+      "valueType": 1,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_POWER_DEFAULT_LIMIT": {
+      "value": 480000,
+      "valueType": 1,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_POWER_CURRENT_LIMIT": {
+      "value": 480000,
+      "valueType": 1,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_ENERGY": {
+      "value": 213733033,
+      "valueType": 3,
+      "latency_us": 9988
+    },
+    "NVML_FI_DEV_POWER_REQUESTED_LIMIT": {
+      "value": 480000,
+      "valueType": 1,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_TEMPERATURE_SHUTDOWN_TLIMIT": {
+      "value": -7,
+      "valueType": 5,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_TEMPERATURE_SLOWDOWN_TLIMIT": {
+      "value": -2,
+      "valueType": 5,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_TEMPERATURE_MEM_MAX_TLIMIT": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_TEMPERATURE_GPU_MAX_TLIMIT": {
+      "value": 0,
+      "valueType": 5,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_PCIE_COUNT_TX_BYTES": {
+      "value": 854657632,
+      "valueType": 1,
+      "latency_us": 347
+    },
+    "NVML_FI_DEV_PCIE_COUNT_RX_BYTES": {
+      "value": 2497730304,
+      "valueType": 1,
+      "latency_us": 231
+    },
+    "NVML_FI_DEV_IS_MIG_MODE_INDEPENDENT_MIG_QUERY_CAPABLE": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 156
+    },
+    "NVML_FI_DEV_NVLINK_GET_POWER_THRESHOLD_MAX": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_XMIT_PACKETS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_XMIT_BYTES": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RCV_PACKETS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RCV_BYTES": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_VL15_DROPPED": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_MALFORMED_PACKET_ERRORS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_BUFFER_OVERRUN_ERRORS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RCV_ERRORS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RCV_REMOTE_ERRORS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RCV_GENERAL_ERRORS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_LOCAL_LINK_INTEGRITY_ERRORS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_XMIT_DISCARDS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_LINK_RECOVERY_SUCCESSFUL_EVENTS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_LINK_RECOVERY_FAILED_EVENTS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_LINK_RECOVERY_EVENTS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RAW_BER_LANE0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RAW_BER_LANE1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RAW_BER": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_EFFECTIVE_ERRORS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_EFFECTIVE_BER": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_SYMBOL_ERRORS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_SYMBOL_BER": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_POWER_THRESHOLD_MIN": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_POWER_THRESHOLD_UNITS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_POWER_THRESHOLD_SUPPORTED": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_RESET_STATUS": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_DRAIN_AND_RESET_STATUS": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 0
+    },
+    "NVML_FI_DEV_PCIE_OUTBOUND_ATOMICS_MASK": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 192
+    },
+    "NVML_FI_DEV_PCIE_INBOUND_ATOMICS_MASK": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 1
+    },
+    "NVML_FI_DEV_GET_GPU_RECOVERY_ACTION": {
+      "value": 0,
+      "valueType": 1,
+      "latency_us": 3
+    },
+    "NVML_FI_DEV_C2C_LINK_ERROR_INTR": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_C2C_LINK_ERROR_REPLAY": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_C2C_LINK_ERROR_REPLAY_B2B": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_C2C_LINK_POWER_STATE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_3": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_4": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_5": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_6": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_7": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_8": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_9": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_10": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_11": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_12": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_13": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_14": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_FEC_HISTORY_15": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ENABLED": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PRIV_LVL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_IMM_RAMP_DOWN_ENABLED": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_APPLIED_TMP_CEIL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_APPLIED_TMP_FLOOR": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_MAX_PERCENT_TMP_FLOOR_SETTING": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_MIN_PERCENT_TMP_FLOOR_SETTING": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_HW_CIRCUITRY_PERCENT_LIFETIME_REMAINING": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_MAX_NUM_PRESET_PROFILES": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PROFILE_PERCENT_TMP_FLOOR": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PROFILE_RAMP_UP_RATE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PROFILE_RAMP_DOWN_RATE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PROFILE_RAMP_DOWN_HYST_VAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ACTIVE_PRESET_PROFILE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ADMIN_OVERRIDE_PERCENT_TMP_FLOOR": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_UP_RATE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_RATE": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_HYST_VAL": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_CLOCKS_EVENT_REASON_SW_THERM_SLOWDOWN": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 1
+    },
+    "NVML_FI_DEV_CLOCKS_EVENT_REASON_HW_THERM_SLOWDOWN": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 620
+    },
+    "NVML_FI_DEV_CLOCKS_EVENT_REASON_HW_POWER_BRAKE_SLOWDOWN": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 354
+    },
+    "NVML_FI_DEV_POWER_SYNC_BALANCING_FREQ": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_POWER_SYNC_BALANCING_AF": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_EDPP_MULTIPLIER": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PRIMARY_POWER_FLOOR": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_SECONDARY_POWER_FLOOR": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_OFFSET": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_POINT": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_WINDOW_MULTIPLIER": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_DELAYED_PWR_SMOOTHING_SUPPORTED": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PROFILE_SECONDARY_POWER_FLOOR": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_WIN_MULT": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_TAR_WIN_MULT": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_OFFSET": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ADMIN_OVERRIDE_SECONDARY_POWER_FLOOR": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_WIN_MULT": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_TAR_WIN_MULT": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_OFFSET": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RAW_ERRORS_LANE0": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RAW_ERRORS_LANE1": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RAW_BER_LANE0_V2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RAW_BER_LANE1_V2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_COUNT_RAW_BER_V2": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_PLR_XMIT_BLOCKS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_PLR_XMIT_RETRY_BLOCKS": {
+      "error": "nvmlReturn=3"
+    },
+    "NVML_FI_DEV_NVLINK_GET_DATA_RATE": {
+      "error": "nvmlReturn=2"
+    },
+    "NVML_FI_DEV_MMA_STALL_PERCENT": {
+      "error": "nvmlReturn=2"
+    },
+    "NVML_FI_DEV_MCLK_SWITCH_TYPE": {
+      "error": "nvmlReturn=2"
+    },
+    "NVML_FI_DEV_MCLK_MIN_SWITCH_INTERVAL_MILLISECONDS": {
+      "error": "nvmlReturn=2"
+    },
+    "NVML_FI_PWR_SMOOTHING_SOC_POWER_SMOOTHING_ENABLED": {
+      "error": "nvmlReturn=2"
+    },
+    "NVML_FI_DEV_REMAPPED_ROWS_COR_INACTIVE": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 306
+    },
+    "NVML_FI_DEV_REMAPPED_ROWS_UNC_INACTIVE": {
+      "value": 0,
+      "valueType": 3,
+      "latency_us": 211
+    }
+  }
+}

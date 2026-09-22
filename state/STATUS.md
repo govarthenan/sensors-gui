@@ -1,13 +1,15 @@
 # STATUS
 
-Last update: 2026-09-22 (end of session 6)
+Last update: 2026-09-22 (end of session 7)
 
 ## Phase
 
 **Phase 2 — Coverage repair. Done for the root-only sources.** The privileged
 helper of ADR 0005 runs, and the three sources that need root are on the
-screen. What is left of phase 2 is the sensor target list of `exp-0005`, which
-is one item shorter: the Ryzen SMU is closed by ADR 0010.
+screen. What is left of phase 2 is the sensor target list of `exp-0005`, and
+**four of its ten targets are now closed**: the Ryzen SMU by ADR 0010, and the
+card's board sensors, the DDR5 PMIC rails and the unknown I2C client by
+ADR 0011. Two are left, the Wi-Fi chip and MYSTIC LIGHT.
 
 Phases 0, 1 and 3 are done. Phase 4 (history and alarms) is next.
 
@@ -35,7 +37,7 @@ below holds the hard targets. None of them is out of scope because of effort.
 | Motherboard fans, VRM temperature and voltage rails | needs the out-of-tree `nct6687d` DKMS driver | the largest gap; 8 fans and 10 voltages |
 | ~~Per-core power~~ | ~~needs `ryzen_smu` or `zenpower3`~~ | **DONE 2026-09-22.** It needed neither. `0xc001029a` holds one energy counter for each core and reading it writes nothing. 13 channels. `exp-0012`, ADR 0010. |
 | ~~SoC power and the real VID~~ | needs a **write** to the SMU mailbox | **DROPPED, ADR 0010.** ADR 0007 has no exceptions. |
-| RTX 4090 hotspot temperature | NVML does not give it; it needs an I2C read of the board controller | the temperature that limits a 4090 |
+| ~~RTX 4090 hotspot temperature~~ | ~~NVML does not give it; it needs an I2C read of the board controller~~ | **CLOSED 2026-09-22, ADR 0011.** An I2C read writes the register pointer first. `exp-0013` also showed the `TLIMIT` fields are constants, so they hide no hotspot. **Per-fan RPM came out of the same search, with no bus: 4 channels.** |
 | ~~SSD wear, TBW and throttle state~~ | ~~needs NVMe admin commands as root~~ | **DONE 2026-09-22**, 15 channels through the helper. `exp-0011`. |
 | Monitor data through DDC/CI | needs `ddcutil` and i2c group access | model, brightness, input |
 | Fan control (write, not read) | needs PWM write access and a safety design | a custom fan curve |
@@ -156,6 +158,25 @@ rules before any code is written. Reading comes first.
   core 0 alone.
 - The screen: **166 channels, 5 hidden, 1.95 ms per pass. 350 tests pass.**
 
+- **Session 7. The card's I2C route is closed, and each of its fans is read.**
+  `exp-0013` answered the ADR 0010 question on paper before any bus was
+  touched: an I2C read must **write** the register number first, and
+  `i2cget(8)` says of itself that "an SMBus read transaction can be seen as a
+  write transaction by certain chips". Same shape as the SMN index register.
+  ADR 0011 written.
+- **ADR 0007 held the wrong text.** Five documents cited it as the absolute
+  no-write rule; the file still held the six rules for writing safely and the
+  amendment that permits stopping a fan. Its old rule 1 would have permitted an
+  I2C write to any address outside `0x48`–`0x4F`. The revert is now written
+  into the decision, with the old text kept.
+- **4 new channels, from NVML and not from a bus.** `nvmlDeviceGetFanSpeedRPM`
+  reports each of the card's 2 fans, and they do not turn at the same speed:
+  **1205 and 1520 RPM** under one load. An RPM channel and a percent channel
+  for each fan, with the original `fan_speed` kept, on Gova's decision.
+  **175 channels, 1.84 ms per pass, 356 tests pass.**
+- The `TLIMIT` lead is closed by measurement: 95 samples from idle to 99 % use
+  and the three fields never moved.
+
 - **Published.** The project is at <https://github.com/govarthenan/sensors-gui>,
   **private**, 32 signed commits, 223 files. A sweep for credentials and
   personal data ran first and found nothing critical. The 8 hardware
@@ -182,9 +203,13 @@ Verified on the machine at the end of session 6, not assumed:
 - The application runs: **166 channels, 1.95 ms per pass, 5 hidden.**
 - `CPU Core 0 (RAPL) Power` and `CPU Core 0 Power` read **1.624 W each**, from
   two different parts of the processor.
-- The `msr` module now loads at boot, from
-  `/etc/modules-load.d/sensors-gui.conf`. **This is untested across a reboot**;
-  the next session should check it first.
+- The `msr` module loads at boot. **Checked in session 7, and the answer is
+  half yes.** The machine rebooted at 10:38:49 on 2026-09-22 and
+  `systemd-modules-load` did insert `msr` — but from
+  `/etc/modules-load.d/libvirt-msr.conf`, which libvirt installed on
+  2026-06-24. Our own `/etc/modules-load.d/sensors-gui.conf` was written at
+  11:32:16, **after** that boot, so it has still not been through one. There is
+  a safety net under it, and the check stays open for the next reboot.
 - From the earlier reboot, still true: the patched driver loads by itself and
   is signed, `fan/pwm mask=0x1ff` (9 channels), `EZ Conn Fan` 963 RPM,
   `CMOS Battery` 3.116 V, and all eight fan headers are at `enable=2`.
@@ -205,11 +230,13 @@ numbered 5, and one of them was already done.
    limit.
 
 3. `exp-0005` steps 2 and 3 — work down the target list in
-   `lab/exp-0005-component-census/README.md`. Target 2, the Ryzen SMU, is
-   **closed** by ADR 0010. The next one is the RTX 4090 board over I2C, then the
-   DDR5 PMICs, then the unknown client `0x4f`, then the Wi-Fi chip, then MYSTIC
-   LIGHT. Read `data/evidence/` before the I2C work: an I2C write near the DDR5
-   power management chips is in the same family of risk as the fan write.
+   `lab/exp-0005-component-census/README.md`. **Four targets closed.** Target 2,
+   the Ryzen SMU, by ADR 0010. Targets 3, 4 and 5 — the card's hotspot and VRM,
+   the DDR5 PMIC rails and the unknown client `0x4f` — by ADR 0011, because
+   every one of them needs an I2C transaction. **Two are left: the Wi-Fi chip
+   (`ath12k`, target 6) and MYSTIC LIGHT over HID (target 7).** Ask the ADR 0010
+   question of each one first. HID is a write in the same way I2C is, so
+   target 7 is likely to close as well.
 
 4. ~~**Fix the remaining wrong voltages.**~~ **DROPPED 2026-09-22, ADR 0010.**
    `exp-0010` proved `VDD MISC`, `CPU 1P8` and `CHIPSET Core` are not in the
