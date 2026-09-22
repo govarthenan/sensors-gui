@@ -1,0 +1,134 @@
+--- a/nct6687.c	2026-09-22 10:09:42.973217517 +0530
++++ b/nct6687.c	2026-09-22 10:11:07.287083682 +0530
+@@ -333,6 +333,62 @@
+ 	{ .channel = 13, .reg = 14, .multiplier = 1, .label = "CMOS Battery" },
+ };
+ 
++/*
++ * MSI PRO X870-P WIFI (MS-7E47) voltage mapping, from BIOS ground truth
++ * (sensors-gui project, lab/exp-0009-bios-ground-truth, BIOS E7E47AMSI.1A10,
++ * captured 2026-09-22). A channel that keeps its generic register/multiplier
++ * is a confirmed rename; a channel whose register changed is a GUESS, marked
++ * below and unverified against hardware.
++ *
++ * Confirmed correct value, wrong generic name (register/multiplier kept):
++ *   channel 7  (was "DRAM")  -> "CPU VDDIO",   BIOS 1.368 V, exact match.
++ *   channel 11 (was "AVCC3") -> "System 3.3V", BIOS 3.288 V, exact match.
++ *
++ * GUESS, UNVERIFIED. Registers 14 and 15 are the only two voltage registers
++ * the generic table never reads. The BIOS shows two rails Linux does not
++ * read at all: "CPU 1P8" 1.793 V and "CHIPSET Core" 1.047 V. The MS-7E32
++ * (Z890) override above is the only hardware precedent available: it shows
++ * register 15 holding a ~1.8 V rail on a sibling MSI board (labelled
++ * "+1.8V" there), which is why CPU 1P8 is guessed onto register 15 here.
++ * There is no equivalent precedent for register 14, so the CHIPSET Core
++ * guess on register 14 is weaker still. Both guesses reuse channels that
++ * already read a confirmed-wrong register with no better generic-table
++ * value (5 and 9), so no working reading is lost if a guess is wrong.
++ *
++ * Gova: after the rebuild, find the in* files labelled "CPU 1P8" and
++ * "CHIPSET Core" (grep the in*_label files under the driver's hwmon
++ * directory in /sys/class/hwmon, or use the `sensors` output) and compare
++ * their value against the BIOS Hardware Monitor page. Expect ~1.793 V and
++ * ~1.047 V. A reading that is 0,
++ * saturated, or clearly not that value means the guess is wrong for that
++ * register; revert that one line (put reg 9 back under "CPU 1P8" / reg 5
++ * back under "Chipset") rather than leaving a wrong number under a
++ * confident-looking name.
++ *
++ * A third rail the BIOS shows, "VDD MISC" 1.097 V, has no known register on
++ * this board. Registers 14 and 15 are already spent on the two guesses
++ * above and no other free register is known, so VDD MISC is not mapped.
++ *
++ * Confirmed wrong, no better value known, left as-is for the application
++ * layer to mark: channel 13 "VBat" reads 2.046 V; the BIOS confirms this is
++ * not the CMOS battery and reports no battery voltage on this board at all.
++ *
++ * hidden_voltage_mask (below) hides channels 2, 6 and 12 ("+3.3V",
++ * "CPU VDDP", "AVSB"). Before channel 5 was reused above, all four of
++ * these channels -- registers 9, 10, 11 and 12 -- read the same ~3.33 V.
++ * None is known to correspond to a real rail on this board, so the three
++ * that keep their original (now known-duplicate) register are hidden
++ * rather than shown three times over under confident-looking names. They
++ * stay readable with the `manual=1` module parameter; see
++ * nct6687_is_visible().
++ */
++static const struct voltage_reg_override nct6687_voltage_ms7e47_overrides[] = {
++	{ .channel = 5, .reg = 15, .multiplier = 1, .label = "CPU 1P8" },      /* GUESS: reg 9 -> 15 */
++	{ .channel = 7, .reg = 3, .multiplier = 2, .label = "CPU VDDIO" },     /* confirmed rename */
++	{ .channel = 8, .reg = 14, .multiplier = 1, .label = "CHIPSET Core" }, /* GUESS: reg 5 -> 14, renamed */
++	{ .channel = 11, .reg = 8, .multiplier = 1, .label = "System 3.3V" },  /* confirmed rename */
++};
++
+ static struct voltage_reg nct6687_voltage_config_active[NCT6687_NUM_REG_VOLTAGE];
+ 
+ static const char *const nct6687_manual_voltage_labels[] = {
+@@ -401,6 +457,16 @@
+ 	unsigned int hidden_voltage_mask;
+ 	const struct voltage_reg_override *voltage_overrides;
+ 	unsigned int voltage_override_count;
++	/*
++	 * Label for the ninth, tachometer-only fan channel (index
++	 * NCT6687_NUM_REG_FAN, register 0x144 in the msi_alt1 mapping).
++	 * NULL keeps the label baked into nct6687_fan_config_msi_alt[8]
++	 * ("Pump Fan #2"), correct for the one board that used this channel
++	 * before (MEG Z890 GODLIKE). A board where that same register is a
++	 * different physical header sets its own string here instead of
++	 * changing the shared array.
++	 */
++	const char *fan9_label;
+ };
+ 
+ static const struct nct6687_board_data nct6687_msi_alt_default = {
+@@ -422,6 +488,25 @@
+ 	.voltage_override_count = ARRAY_SIZE(nct6687_voltage_ms7e32_overrides),
+ };
+ 
++/*
++ * MSI PRO X870-P WIFI (MS-7E47). The BIOS Hardware Monitor lists a ninth
++ * fan, "EZ Conn Fan" (the case fans on header JAF_1), read as a
++ * tachometer-only channel at 0x144 in the msi_alt1 mapping -- the same
++ * register the MEG Z890 GODLIKE's second pump uses, but a different header
++ * on this board, hence its own label below rather than reuse of "Pump Fan
++ * #2". See lab/exp-0009-bios-ground-truth in the sensors-gui project for
++ * the photographed BIOS readings this and the voltage table above are
++ * built from.
++ */
++static const struct nct6687_board_data nct6687_ms7e47 = {
++	.fan_channels = NCT6687_NUM_REG_FAN_MAX,
++	.default_fan_mask = NCT6687_FAN_MASK_ALL,
++	.fan9_label = "EZ Conn Fan",
++	.hidden_voltage_mask = BIT(2) | BIT(6) | BIT(12),
++	.voltage_overrides = nct6687_voltage_ms7e47_overrides,
++	.voltage_override_count = ARRAY_SIZE(nct6687_voltage_ms7e47_overrides),
++};
++
+ #define NCT6687_DMI_BOARD(_name) { \
+ 	.matches = { DMI_MATCH(DMI_BOARD_NAME, _name) }, \
+ }
+@@ -468,7 +553,10 @@
+ 	NCT6687_DMI_BOARD("X870 GAMING PLUS WIFI (MS-7E47)"),
+ 	NCT6687_DMI_BOARD("X870E GAMING PLUS WIFI (MS-7E70)"),
+ 	NCT6687_DMI_BOARD("MAG X870 TOMAHAWK WIFI (MS-7E51)"),
+-	NCT6687_DMI_BOARD("PRO X870-P WIFI (MS-7E47)"),
++	{
++		.matches = { DMI_MATCH(DMI_BOARD_NAME, "PRO X870-P WIFI (MS-7E47)") },
++		.driver_data = (void *)&nct6687_ms7e47,
++	},
+ 	NCT6687_DMI_BOARD("PRO X870E-P WIFI (MS-7E70)"),
+ 	NCT6687_DMI_BOARD("MAG X870E TOMAHAWK WIFI (MS-7E59)"),
+ 	NCT6687_DMI_BOARD("MAG X870E TOMAHAWK MAX WIFI PZ (MS-7E84)"),
+@@ -1456,7 +1544,12 @@
+ 	case hwmon_fan:
+ 		if (attr != hwmon_fan_label)
+ 			return -EOPNOTSUPP;
+-		*str = nct6687_fan_config_active[channel].label;
++		/* Board-specific override for the tachometer-only 9th channel. */
++		if (channel == NCT6687_NUM_REG_FAN && nct6687_board &&
++		    nct6687_board->fan9_label)
++			*str = nct6687_board->fan9_label;
++		else
++			*str = nct6687_fan_config_active[channel].label;
+ 		return 0;
+ 	case hwmon_temp:
+ 		if (attr != hwmon_temp_label)
