@@ -27,6 +27,22 @@ Status: exploration. See `state/STATUS.md`.
 uv sync
 ```
 
+## Run
+
+```bash
+uv run python -m sensors_gui
+```
+
+| Key | Action |
+|---|---|
+| `q` | quit |
+| `p` | pause and start the refresh |
+| `r` | scan for sensors again |
+| `+` / `-` | change the refresh rate, 0.25 Hz to 10 Hz |
+
+The application **only reads**. It never writes to hardware. See ADR 0007 and
+`data/evidence/2026-09-22-thermal-shutdown/` for why that rule exists.
+
 ## Author
 
 Govarthenan Rajadurai

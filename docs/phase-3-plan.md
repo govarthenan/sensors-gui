@@ -25,7 +25,7 @@ write it in your report instead of making it.
 
 ```python
 from sensors_gui.model import SensorId, SensorSpec, Reading, Sample, Unit, Group
-from sensors_gui.collectors import Collector          # Protocol
+from sensors_gui.collectors import Collector  # Protocol
 from sensors_gui.collectors.cache import ChannelCache
 from sensors_gui.collectors.hwmon import HwmonCollector
 from sensors_gui.collectors.nvidia import NvidiaCollector
@@ -44,6 +44,7 @@ from sensors_gui.collectors.nvidia import NvidiaCollector
 ```python
 class Registry:
     """Holds every SensorSpec from every collector, and finds them again."""
+
     def __init__(self, collectors: list[Collector]) -> None: ...
     def discover(self) -> None: ...
     def specs(self) -> list[SensorSpec]: ...
@@ -51,11 +52,13 @@ class Registry:
     def by_group(self) -> dict[Group, list[SensorSpec]]: ...
     def close(self) -> None: ...
 
+
 class Sampler:
     """Reads every collector on a schedule and keeps a short history."""
+
     def __init__(self, registry: Registry, history: int = 120) -> None: ...
-    def sample(self) -> Sample: ...                       # one synchronous pass
-    async def run(self, hz: float = 2.0) -> None: ...     # loop until cancelled
+    def sample(self) -> Sample: ...  # one synchronous pass
+    async def run(self, hz: float = 2.0) -> None: ...  # loop until cancelled
     def latest(self) -> Sample | None: ...
     def history(self, sensor_id: SensorId) -> list[float | None]: ...
     def subscribe(self, callback: Callable[[Sample], None]) -> None: ...
@@ -74,6 +77,7 @@ Rules for B:
 ```python
 def friendly(spec: SensorSpec) -> SensorSpec:
     """Return the spec with a name and group a person would recognise."""
+
 
 def verdict(spec: SensorSpec) -> str:
     """'correct' | 'rename' | 'wrong' | 'unverified' | 'unknown'."""
