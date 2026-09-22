@@ -11,7 +11,15 @@ screen. What is left of phase 2 is the sensor target list of `exp-0005`, and
 card's board sensors, the DDR5 PMIC rails and the unknown I2C client by
 ADR 0011. Two are left, the Wi-Fi chip and MYSTIC LIGHT.
 
-Phases 0, 1 and 3 are done. Phase 4 (history and alarms) is next.
+Phases 0, 1 and 3 are done. **Phase 4 is dropped.** Gova decided on 2026-09-22
+that the project needs no history: *"No need for history at all. This was all
+for fun anyways."* So there is no store, no retention, no reduction and no
+graph over time. The sampler's ring buffer is all the history the project has,
+and that is now the intended design, not a gap.
+
+Alarms were part of the same phase and Gova has not asked for them. They are
+not started, and they are not a next action. The thresholds stay in the specs,
+where they cost nothing.
 
 Planned phases:
 
@@ -21,7 +29,7 @@ Planned phases:
 | 1 | Collection layer | A Python library that reads all sources at a set rate. |
 | 2 | Coverage repair | Get the missing sources (Super-I/O fans, RAPL, SMART). **RAPL, SMART and the fans are done.** |
 | 3 | TUI | The Textual monitor screen. **Working.** |
-| 4 | History and alarms | Store samples, show graphs, give warnings. |
+| ~~4~~ | ~~History and alarms~~ | **DROPPED 2026-09-22 by Gova.** No store, no graphs. |
 | 5 | Polish | Autostart, tray icon, settings, packaging. |
 
 ## Ambition level
@@ -42,7 +50,7 @@ below holds the hard targets. None of them is out of scope because of effort.
 | Monitor data through DDC/CI | needs `ddcutil` and i2c group access | model, brightness, input |
 | Fan control (write, not read) | needs PWM write access and a safety design | a custom fan curve |
 | RGB state (MSI MYSTIC LIGHT, Logitech) | HID protocol work | completeness |
-| History storage and alarms | design work, not hardware | trends and warnings |
+| ~~History storage and alarms~~ | ~~design work, not hardware~~ | **DROPPED 2026-09-22 by Gova.** |
 
 Fan control is a **write** operation. It gets its own ADR and its own safety
 rules before any code is written. Reading comes first.
@@ -228,10 +236,9 @@ numbered 5, and one of them was already done.
    and corrects the voltage map, both proved on hardware (`exp-0010`). The
    project is <https://github.com/Fred78290/nct6687d>.
 
-2. **Phase 4: history and alarms.** The sampler's ring buffer lives in memory
-   only, so nothing survives a restart. Every threshold is already in the specs,
-   and the hardware-given ones are marked, so an alarm never has to invent a
-   limit.
+2. ~~**Phase 4: history and alarms.**~~ **DROPPED 2026-09-22 by Gova.** Do not
+   propose it again. The sampler's ring buffer is the whole of the history by
+   choice.
 
 3. `exp-0005` steps 2 and 3 — work down the target list in
    `lab/exp-0005-component-census/README.md`. **Four targets closed.** Target 2,

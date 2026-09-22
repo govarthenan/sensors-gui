@@ -919,3 +919,15 @@ route read, or does it write?
 
 Phase 4, history and alarms. `exp-0005` has two targets left, the Wi-Fi chip
 and MYSTIC LIGHT, and each gets the ADR 0010 question first.
+
+**Added at the end of session 7**
+
+Gova dropped phase 4: *"No need for history at all. This was all for fun
+anyways."* So there is no store, no retention design and no graph over time,
+and alarms go with it. The plan document was not written. The sampler's ring
+buffer is the whole of the history from now on, by choice and not by omission.
+
+That changes what "next" means. The application does what it was built to do:
+it reads 170 channels of this machine and shows them. What is left on the list
+is small and optional, and none of it is needed for the thing to work.
+
