@@ -931,3 +931,85 @@ That changes what "next" means. The application does what it was built to do:
 it reads 170 channels of this machine and shows them. What is left on the list
 is small and optional, and none of it is needed for the thing to work.
 
+
+---
+
+## 2026-09-22 — Session 8: the GUI stream begins, and the framework is chosen
+
+**Goal:** `docs/gui-goal.md`, checkpoint 1. Choose the framework, record the
+ADR, build a spike on the real sampler, and measure what it costs.
+
+**What happened**
+
+- **Read the brief and everything it points at**, then ran the terminal screen
+  and looked at it: 175 channels, 2.31 ms on the last pass. That number turned
+  out to be half the story; see below.
+- **Built the same window twice**, both driven by the real `Registry`,
+  `Sampler` and all five collectors, both drawing a large number, an arc gauge
+  and a line over the last 120 samples:
+  - a local web application — FastAPI on `127.0.0.1`, one frame for each
+    sample over a WebSocket, shown by `google-chrome --app=` in its own
+    profile, with no Node, no bundler and no build step;
+  - the same thing in PySide6, sampler on a `QThread`.
+- **Measured both, with everything else on the desktop left alone.** Both held
+  **10.00 Hz with all 175 channels**, and the web window spent 0.29 ms of
+  browser time on each frame.
+
+| Running | CPU, cores | Memory |
+|---|---|---|
+| collection layer alone, 10 Hz | 0.0377 | 86 MiB |
+| web window, 175 channels, 10 Hz | **0.1207** | 109 MiB + 1257 MiB |
+| Qt window, 175 channels, 10 Hz | **0.0617** | 175 MiB |
+
+- **Qt was cheaper and still lost.** Three reasons, in ADR 0012: the brief's
+  central ask — an SVG of the hardware with each sensor placed on it, and a
+  five-part tooltip on every one of 175 channels — is native in a browser and
+  bespoke in Qt widgets; the cost gap is 0.059 cores, which is **0.25 % of
+  this machine**; and **PySide6 does not start on this machine**. It needs
+  `libxcb-cursor0`, which is not installed, so the Qt spike was measured only
+  after the package was unpacked into a temporary directory as an ordinary
+  user. Nothing on the machine was changed to get that number.
+- **Asked whether the window changes what it measures**, because a browser
+  composites through the card this application displays. Measured, 40 s in
+  each state: nothing open 44.41 W, web window 40.28 W, Qt window 41.75 W.
+  **The test separated nothing** — with nothing of ours open the card read the
+  highest power of the three, because the desktop was busy. It is kept as it
+  is, because it is the test that would have disproved the decision.
+
+**Findings**
+
+1. **The pass has a long tail, and six sessions of notes missed it.** 600
+   passes at 10 Hz: p50 **2.157 ms**, p95 **26.448 ms**, max **56.839 ms**.
+   Timing each collector says where it goes: the NVIDIA collector, p50
+   0.102 ms and max **68.523 ms**, 31 passes of 600 over 20 ms. It is the two
+   PCIe calls of `exp-0006`, about 20 ms each, which run only when their own
+   interval expires. Two consequences: the GUI must sample on a worker thread,
+   never on the event loop; and `docs/architecture.md` sets a 50 ms budget for
+   one pass that **the machine does not keep**. Recorded as Q11.
+2. **A status bar that prints the last value hides the distribution.** The
+   "about 2 ms per pass" repeated since session 3 is the last pass, which is
+   near the median. Nothing on the screen was wrong. The number was simply
+   never the whole picture, and no test would ever have said so. Recorded as
+   Q12; the GUI will show the median and the maximum.
+3. **The spike's own gauge was drawn with a guessed number**, a path length of
+   345 that was never measured, inside a box too short for the arc. The window
+   showed two disconnected pieces. Read with `getTotalLength()` now. This is
+   register 14 of `exp-0010` again: a guess that is not labelled a guess costs
+   something. Both defects in the spike were found by looking at the window,
+   neither by a test.
+
+**Decisions**
+
+- ADR 0012 — the GUI is a local web application in a dedicated Chrome
+  application window, with the Python collection layer behind a WebSocket on
+  `127.0.0.1`. It supersedes ADR 0004 for the new front end only; the terminal
+  screen stays until checkpoint 7 is accepted. Electron and Tauri were
+  rejected: Electron adds a runtime, a bundler and a packaging step that the
+  brief puts out of scope, and Tauri needs a root install and a compile step.
+- PySide6 was removed from the project after the measurement. `spike_qt.py`
+  stays, with the two commands that bring it back.
+
+**Next**
+
+Checkpoint 1: wait for Gova. Nothing of the application itself is written yet,
+and checkpoint 2 does not start before Gova answers.

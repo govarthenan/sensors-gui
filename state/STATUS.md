@@ -1,8 +1,25 @@
 # STATUS
 
-Last update: 2026-09-22 (end of session 7)
+Last update: 2026-09-22 (session 8, at checkpoint 1 of the GUI stream)
 
 ## Phase
+
+**The GUI stream, checkpoint 1. Waiting for Gova.** `docs/gui-goal.md` is the
+brief: replace the terminal screen with a desktop GUI that explains the
+machine, with diagrams, tooltips and real visualisation. The framework is
+decided (ADR 0012) and the spike is built and measured (`exp-0014`). Nothing
+of the application itself is written yet; that starts at checkpoint 2, after
+Gova accepts or rejects the stack.
+
+**The command, once the application exists** (`docs/gui-goal.md` section 5
+rule 2). Today only the spike runs:
+
+```bash
+uv run python lab/exp-0014-gui-framework-spike/spike_web.py --hz 10 --all
+```
+
+The terminal application keeps working until checkpoint 7 is accepted:
+`uv run python -m sensors_gui`.
 
 **Phase 2 — Coverage repair. Done for the root-only sources.** The privileged
 helper of ADR 0005 runs, and the three sources that need root are on the
@@ -31,6 +48,7 @@ Planned phases:
 | 3 | TUI | The Textual monitor screen. **Working.** |
 | ~~4~~ | ~~History and alarms~~ | **DROPPED 2026-09-22 by Gova.** No store, no graphs. |
 | 5 | Polish | Autostart, tray icon, settings, packaging. |
+| — | **GUI stream** | A desktop GUI that explains the machine. `docs/gui-goal.md`. **Started 2026-09-22, at checkpoint 1.** It supersedes phase 3 for the front end; the terminal screen stays until checkpoint 7 is accepted. |
 
 ## Ambition level
 
@@ -185,6 +203,23 @@ rules before any code is written. Reading comes first.
 - The `TLIMIT` lead is closed by measurement: 95 samples from idle to 99 % use
   and the three fields never moved.
 
+- **Session 8. The GUI stream started, and the framework is decided.**
+  `exp-0014` built the same window twice, on the real sampler: a local web
+  application in a Chrome window, and PySide6. Both hold **10.00 Hz with all
+  175 channels**. Qt costs half as much (0.062 against 0.121 cores) and a tenth
+  of the memory, and it still lost: every diagram and tooltip the brief asks
+  for is native in a browser and bespoke in Qt, the gap is 0.25 % of this
+  machine, and PySide6 **does not start here** without a root install of
+  `libxcb-cursor0`. ADR 0012.
+- **The pass has a long tail, and nobody had looked.** 600 passes at 10 Hz:
+  p50 2.157 ms, p95 26.448 ms, **max 56.839 ms**. All of it is the NVIDIA
+  collector (max 68.523 ms), from the two PCIe calls of `exp-0006`. The status
+  bar has always printed the **last** pass, so the tail was never on screen.
+  The GUI samples on a worker thread because of it. See Q11 and Q12.
+- Measured: neither window moved the graphics card it displays, against the
+  noise of ordinary desktop use. The test is kept although it separated
+  nothing, because it is the one that would have disproved the choice.
+
 - **Published.** The project is at <https://github.com/govarthenan/sensors-gui>,
   **private**, 32 signed commits, 223 files. A sweep for credentials and
   personal data ran first and found nothing critical. The 8 hardware
@@ -228,8 +263,16 @@ Verified on the machine at the end of session 6, not assumed:
 
 ## Next actions
 
-The list was renumbered on 2026-09-22. It had two items numbered 4 and two
-numbered 5, and one of them was already done.
+**The GUI stream comes first.** Everything below it was the list before
+`docs/gui-goal.md` arrived, and none of it blocks the GUI.
+
+0. **Checkpoint 1: wait for Gova.** ADR 0012 and `exp-0014` are ready, and the
+   screenshots are in `lab/exp-0015-gui-checkpoints/results/`. Gova accepts the
+   stack or sends it back. Do not start checkpoint 2 before that.
+   - If accepted: build `src/sensors_gui/web/` — the server, the catalogue
+     endpoint, the WebSocket frames — then the shell and the summary view.
+     The sampler runs on a worker thread; see the tail finding below.
+   - If rejected: the Qt spike is kept and runs. ADR 0012, last section.
 
 1. **Offer the driver patch upstream.** `driver/nct6687-ms7e47.patch` applies to
    every MSI PRO X870-P WIFI, not only this one. It adds the EZ Conn fan channel
@@ -272,6 +315,8 @@ numbered 5, and one of them was already done.
 | Q7 | What is on `nvme0n1p4` (359.2 GB, not mounted)? | inventory | Gova |
 | ~~Q8~~ | ~~How many fans, and is the cooler air or liquid?~~ **ANSWERED: 9 fans** (2 on the GPU, 3 intake, 3 top, 1 rear) and a **liquid AIO**. Which fans reach the board is still open; photographs are expected. | — | part-closed 2026-09-21 |
 | ~~Q9~~ | ~~Monitors on the integrated graphics?~~ **ANSWERED: no, they are on the RTX 4090.** Claude guessed the DRM card order instead of reading it. `card1` is the 4090. | — | closed 2026-09-21 |
+| Q11 | **The 50 ms pass budget of `docs/architecture.md` is not being kept.** `exp-0014` timed 600 passes at 10 Hz: p50 2.157 ms, p95 26.448 ms, **max 56.839 ms**. The NVIDIA collector owns all of the tail (max 68.523 ms), because the two PCIe calls of `exp-0006` cost about 20 ms each and run when their interval expires. The GUI works around it by sampling on a worker thread. Should the budget be raised to match the machine, or should those two channels get a longer interval so the tail goes away? | the GUI's smoothness, and the honesty of `docs/architecture.md` | Claude proposes, Gova decides |
+| Q12 | The status bar has reported "about 2 ms per pass" since session 3. That is the **last** pass, which is close to the median, and it hid the tail above. Every later count of this number in `JOURNAL.md`, `HANDOFF.md` and this file is a median, not a mean. Nothing is wrong on the screen; the number was simply never the whole picture. | nothing | recorded, no action |
 | Q10 | **The screen now shows this live**: on 2026-09-22 it read 31 unsafe shutdowns in 150 power cycles, about one in five. One of them was the thermal shutdown of 2026-09-22. Does Gova know what causes the rest? (This row no longer holds a copy of the number. `HANDOFF.md` said 29 and this file said 28; both were true when written, at 145 and 144 power cycles.) | health | Gova |
 
 ## Expected fan count (Gova, 2026-09-21)
@@ -298,4 +343,7 @@ The MSI PRO X870-P WIFI has 8 four-pin headers: `CPU_FAN1`, `PUMP_FAN1` and
 
 ## Notes for the next session
 
-Read `CLAUDE.md`, then this file, then the last `JOURNAL.md` entry.
+Read `CLAUDE.md`, then `HANDOFF.md`, then this file, then the last
+`JOURNAL.md` entry. If the GUI stream is live, read `docs/gui-goal.md` and
+ADR 0012 as well, and never start the next checkpoint before Gova has
+answered the one before it.

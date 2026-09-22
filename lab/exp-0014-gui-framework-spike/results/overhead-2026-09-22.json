@@ -1,0 +1,182 @@
+{
+  "date": "2026-09-22",
+  "machine": "dst-gova-pc",
+  "cpu_threads": 24,
+  "note": "cpu_cores is CPU seconds used per second of wall time. 1.0 = one thread saturated.",
+  "scenarios": [
+    {
+      "name": "headless collection layer, 1 Hz",
+      "hz": 1.0,
+      "channels": "175 read",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python (sampler only)",
+          "processes": 2,
+          "cpu_cores": 0.0117,
+          "rss_mib": 85.5
+        }
+      ],
+      "total_cores": 0.0117
+    },
+    {
+      "name": "headless collection layer, 10 Hz",
+      "hz": 10.0,
+      "channels": "175 read",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python (sampler only)",
+          "processes": 2,
+          "cpu_cores": 0.0377,
+          "rss_mib": 85.9
+        }
+      ],
+      "total_cores": 0.0377
+    },
+    {
+      "name": "web window, 1 channel, 1 Hz",
+      "hz": 1.0,
+      "channels": "1 shown",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python (sampler+server)",
+          "processes": 2,
+          "cpu_cores": 0.013,
+          "rss_mib": 108.4
+        },
+        {
+          "label": "chrome (window)",
+          "processes": 10,
+          "cpu_cores": 0.005,
+          "rss_mib": 1202.3
+        }
+      ],
+      "total_cores": 0.018
+    },
+    {
+      "name": "web window, 1 channel, 10 Hz",
+      "hz": 10.0,
+      "channels": "1 shown",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python (sampler+server)",
+          "processes": 2,
+          "cpu_cores": 0.0403,
+          "rss_mib": 108.8
+        },
+        {
+          "label": "chrome (window)",
+          "processes": 10,
+          "cpu_cores": 0.026,
+          "rss_mib": 1220.6
+        }
+      ],
+      "total_cores": 0.0663
+    },
+    {
+      "name": "web window, every channel, 1 Hz",
+      "hz": 1.0,
+      "channels": "175 shown",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python (sampler+server)",
+          "processes": 2,
+          "cpu_cores": 0.0127,
+          "rss_mib": 108.4
+        },
+        {
+          "label": "chrome (window)",
+          "processes": 10,
+          "cpu_cores": 0.017,
+          "rss_mib": 1265.4
+        }
+      ],
+      "total_cores": 0.0297
+    },
+    {
+      "name": "web window, every channel, 10 Hz",
+      "hz": 10.0,
+      "channels": "175 shown",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python (sampler+server)",
+          "processes": 2,
+          "cpu_cores": 0.04,
+          "rss_mib": 108.9
+        },
+        {
+          "label": "chrome (window)",
+          "processes": 10,
+          "cpu_cores": 0.0807,
+          "rss_mib": 1256.7
+        }
+      ],
+      "total_cores": 0.1207
+    },
+    {
+      "name": "Qt window, 1 channel, 1 Hz",
+      "hz": 1.0,
+      "channels": "1 shown",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python+qt (one process)",
+          "processes": 2,
+          "cpu_cores": 0.012,
+          "rss_mib": 172.2
+        }
+      ],
+      "total_cores": 0.012
+    },
+    {
+      "name": "Qt window, 1 channel, 10 Hz",
+      "hz": 10.0,
+      "channels": "1 shown",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python+qt (one process)",
+          "processes": 2,
+          "cpu_cores": 0.0467,
+          "rss_mib": 172.9
+        }
+      ],
+      "total_cores": 0.0467
+    },
+    {
+      "name": "Qt window, every channel, 1 Hz",
+      "hz": 1.0,
+      "channels": "175 shown",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python+qt (one process)",
+          "processes": 2,
+          "cpu_cores": 0.0147,
+          "rss_mib": 174.1
+        }
+      ],
+      "total_cores": 0.0147
+    },
+    {
+      "name": "Qt window, every channel, 10 Hz",
+      "hz": 10.0,
+      "channels": "175 shown",
+      "window_seconds": 30.0,
+      "costs": [
+        {
+          "label": "python+qt (one process)",
+          "processes": 2,
+          "cpu_cores": 0.0617,
+          "rss_mib": 175.1
+        }
+      ],
+      "total_cores": 0.0617
+    }
+  ]
+}

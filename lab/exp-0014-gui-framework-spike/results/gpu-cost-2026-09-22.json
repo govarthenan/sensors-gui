@@ -1,0 +1,29 @@
+{
+  "date": "2026-09-22",
+  "rows": [
+    {
+      "front_end": "nothing open",
+      "samples": 200.0,
+      "power_w": 44.41,
+      "power_max_w": 81.9,
+      "sm_clock_mhz": 724.7,
+      "temperature_c": 36.3
+    },
+    {
+      "front_end": "web window (Chrome)",
+      "samples": 200.0,
+      "power_w": 40.28,
+      "power_max_w": 40.95,
+      "sm_clock_mhz": 328.2,
+      "temperature_c": 36.0
+    },
+    {
+      "front_end": "Qt window (PySide6)",
+      "samples": 200.0,
+      "power_w": 41.75,
+      "power_max_w": 78.0,
+      "sm_clock_mhz": 388.6,
+      "temperature_c": 36.1
+    }
+  ]
+}

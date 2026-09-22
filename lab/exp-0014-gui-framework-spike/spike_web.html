@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>sensors-gui spike</title>
+<style>
+  :root {
+    --bg: #0e1116; --panel: #161b22; --line: #273040;
+    --text: #e6edf3; --dim: #8b949e; --accent: #4cc2ff; --warm: #f0a04b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.4 "Inter", "Cantarell", system-ui, sans-serif;
+    padding: 24px;
+  }
+  h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+  p.note { color: var(--dim); margin: 0 0 20px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 20px; display: inline-block; margin-right: 16px; vertical-align: top;
+  }
+  .value { font-size: 52px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .unit { font-size: 22px; color: var(--dim); margin-left: 6px; }
+  .label { color: var(--dim); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; }
+  svg { display: block; }
+  .stat { color: var(--dim); font-variant-numeric: tabular-nums; }
+  .stat b { color: var(--text); font-weight: 600; }
+  table { border-collapse: collapse; margin-top: 20px; font-variant-numeric: tabular-nums; }
+  td { padding: 1px 12px 1px 0; white-space: nowrap; }
+  td.v { text-align: right; }
+  .gridcols { columns: 4; column-gap: 32px; }
+  [data-tip] { cursor: help; }
+  #tip {
+    position: fixed; pointer-events: none; opacity: 0; transition: opacity .12s;
+    background: #1f2733; border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 10px; max-width: 320px; font-size: 12px; color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,.5); z-index: 10;
+  }
+</style>
+</head>
+<body>
+<h1>sensors-gui — framework spike</h1>
+<p class="note">One live value from the real sampler, through FastAPI and a WebSocket, in a Chrome application window. Read only.</p>
+
+<div class="card">
+  <div class="label" id="name">—</div>
+  <div><span class="value" id="val">—</span><span class="unit" id="unit"></span></div>
+  <svg id="gauge" width="260" height="145" viewBox="0 0 260 145">
+    <path d="M20 130 A 110 110 0 0 1 240 130" fill="none" stroke="#273040" stroke-width="12" stroke-linecap="round"/>
+    <path id="arc" d="M20 130 A 110 110 0 0 1 240 130" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<div class="card">
+  <div class="label">last 120 samples</div>
+  <svg id="chart" width="520" height="150" viewBox="0 0 520 150">
+    <polyline id="trace" fill="none" stroke="var(--accent)" stroke-width="2" points=""/>
+    <text id="ymax" x="4" y="14" fill="#8b949e" font-size="11">—</text>
+    <text id="ymin" x="4" y="144" fill="#8b949e" font-size="11">—</text>
+  </svg>
+</div>
+
+<div class="card">
+  <div class="label">cost</div>
+  <div class="stat">sampler pass <b id="ms">—</b> now, <b id="msmean">—</b> mean, <b id="msmax">—</b> max ms</div>
+  <div class="stat">frames <b id="frames">0</b></div>
+  <div class="stat">measured rate <b id="rate">—</b> Hz</div>
+  <div class="stat">paint <b id="paint">—</b> ms</div>
+  <div class="stat">channels <b id="count">—</b></div>
+</div>
+
+<div id="all" class="gridcols"></div>
+<div id="tip"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let cat = [], hist = [], frames = 0, firstAt = 0, paintTotal = 0, rows = null;
+let msTotal = 0, msMax = 0;
+
+function fmt(v, dp) { return v === null || v === undefined ? "—" : v.toFixed(dp); }
+
+let arcLength = 0;                       // read from the path, never guessed
+function drawGauge(value, low, high) {
+  if (!arcLength) arcLength = $("arc").getTotalLength();
+  const span = (high ?? 100) - (low ?? 0);
+  const frac = span > 0 ? Math.min(Math.max((value - (low ?? 0)) / span, 0), 1) : 0;
+  $("arc").setAttribute("stroke-dasharray", `${(frac * arcLength).toFixed(1)} ${arcLength.toFixed(1)}`);
+  $("arc").setAttribute("stroke", frac > 0.8 ? "var(--warm)" : "var(--accent)");
+}
+
+function drawChart() {
+  const seen = hist.filter((v) => v !== null);
+  if (!seen.length) return;
+  let lo = Math.min(...seen), hi = Math.max(...seen);
+  // An honest axis: never let a small wobble fill the box. Keep at least a
+  // tenth of the value, or one unit, whichever is larger.
+  const floor = Math.max(1, Math.abs(hi) * 0.1);
+  if (hi - lo < floor) { const mid = (hi + lo) / 2; lo = mid - floor / 2; hi = mid + floor / 2; }
+  const pts = hist.map((v, i) => {
+    if (v === null) return null;
+    const x = 40 + (i / Math.max(hist.length - 1, 1)) * 470;
+    const y = 140 - ((v - lo) / (hi - lo)) * 125;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).filter(Boolean).join(" ");
+  $("trace").setAttribute("points", pts);
+  $("ymax").textContent = hi.toFixed(1);
+  $("ymin").textContent = lo.toFixed(1);
+}
+
+function buildRows() {
+  const html = cat.map((c, i) =>
+    `<div><span data-tip="${c.key}&#10;${c.origin}">${c.label}</span> ` +
+    `<span class="v" id="r${i}">—</span> <span class="stat">${c.unit}</span></div>`).join("");
+  $("all").innerHTML = html;
+  rows = cat.map((_, i) => $("r" + i));
+}
+
+async function start() {
+  const meta = await (await fetch("/api/catalogue")).json();
+  cat = meta.channels;
+  $("count").textContent = cat.length;
+  $("name").textContent = cat[0].label;
+  $("unit").textContent = cat[0].unit;
+  if (cat.length > 1) buildRows();
+
+  const ws = new WebSocket(`ws://${location.host}/ws`);
+  ws.onopen = () => ws.send("hello");
+  ws.onmessage = (event) => {
+    const t0 = performance.now();
+    const frame = JSON.parse(event.data);
+    const first = cat[0], v = frame.v[0];
+    $("val").textContent = fmt(v, 1);
+    drawGauge(v ?? 0, first.low ?? 0, first.high ?? 100);
+    hist.push(v); if (hist.length > 120) hist.shift();
+    drawChart();
+    if (rows) {
+      for (let i = 1; i < rows.length; i++) {
+        const x = frame.v[i];
+        rows[i].textContent = x === null ? "—" : (Math.abs(x) >= 1000 ? x.toFixed(0) : x.toFixed(2));
+      }
+    }
+    $("ms").textContent = frame.ms.toFixed(2);
+    msTotal += frame.ms; msMax = Math.max(msMax, frame.ms);
+    $("msmean").textContent = (msTotal / (frames + 1)).toFixed(2);
+    $("msmax").textContent = msMax.toFixed(2);
+    frames += 1; if (!firstAt) firstAt = t0;
+    $("frames").textContent = frames;
+    if (frames > 1) $("rate").textContent = (1000 * (frames - 1) / (t0 - firstAt)).toFixed(2);
+    paintTotal += performance.now() - t0;
+    $("paint").textContent = (paintTotal / frames).toFixed(2);
+  };
+}
+
+const tip = () => $("tip");
+document.addEventListener("mouseover", (e) => {
+  const host = e.target.closest("[data-tip]");
+  if (!host) { tip().style.opacity = 0; return; }
+  tip().textContent = host.dataset.tip;
+  tip().style.opacity = 1;
+});
+document.addEventListener("mousemove", (e) => {
+  tip().style.left = (e.clientX + 14) + "px";
+  tip().style.top = (e.clientY + 14) + "px";
+});
+
+start();
+</script>
+</body>
+</html>
