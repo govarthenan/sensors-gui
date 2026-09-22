@@ -1,0 +1,20 @@
+# captured 2026-09-22T05:56:52Z on dst-gova-pc
+# command: time one rdmsr, and one sweep of every thread
+# source:  this machine, dst-gova-pc
+
+--- one rdmsr on cpu0, five times ---
+read 1: 0.676 ms
+read 2: 0.602 ms
+read 3: 0.574 ms
+read 4: 0.575 ms
+read 5: 0.560 ms
+
+--- one sweep of all 24 threads, five times (a new process each read) ---
+sweep 1: 8.981 ms
+sweep 2: 8.526 ms
+sweep 3: 9.013 ms
+sweep 4: 8.677 ms
+sweep 5: 9.052 ms
+
+NOTE: rdmsr is a process. The helper will use pread() on /dev/cpu/N/msr,
+which costs much less. This number is the upper limit, not the target.

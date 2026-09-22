@@ -1,0 +1,8 @@
+# captured 2026-09-22T05:56:52Z on dst-gova-pc
+# command: python3: pread 8 bytes at offset 0xc001029a of /dev/cpu/N/msr
+# source:  this machine, dst-gova-pc
+
+threads read: 24
+first values: {0: '0xf07c685', 1: '0x1c0894f5', 2: '0xfe668c3', 3: '0x1a372d8e'} ...
+one sweep of 24 threads: min 0.0693 ms, median 0.0698 ms, max 0.0799 ms
+counters that changed in 1 s: 24 of 24

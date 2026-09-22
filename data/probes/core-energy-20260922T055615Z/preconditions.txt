@@ -1,0 +1,20 @@
+# captured 2026-09-22T05:56:15Z on dst-gova-pc
+# command: checks for rdmsr, the msr module, lockdown and the CPU family
+# source:  this machine, dst-gova-pc
+
+rdmsr:    /usr/sbin/rdmsr
+msr.ko:   loaded
+modprobe msr: ok
+lockdown: none [integrity] confidentiality
+kernel:   7.0.0-31-generic
+
+model name	: AMD Ryzen 9 9900X 12-Core Processor
+cpu family	: 26
+model		: 68
+
+/dev/cpu/*/msr node count: 24
+
+--- the MSR numbers, from this kernel's header, not from memory ---
+511:#define MSR_AMD_RAPL_POWER_UNIT		0xc0010299
+512:#define MSR_AMD_CORE_ENERGY_STATUS		0xc001029a
+513:#define MSR_AMD_PKG_ENERGY_STATUS	0xc001029b

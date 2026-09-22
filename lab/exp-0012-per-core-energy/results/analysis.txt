@@ -1,0 +1,71 @@
+probe:        data/probes/core-energy-20260922T055615Z
+energy unit:  15.2588 microjoules per count
+threads:      24, cores: 12
+phases:       idle, load_all, load_cpu6
+
+--- Q1. Is 0xc001029a per core? ---
+cores seen:                 12
+gap between two threads of one core: max   31.021 mJ
+gap between two cores:               min      2.1  J
+the second is 68 times the first -> the counter is PER CORE
+
+--- phase idle, over 5.1 s ---
+  core   watts
+     0    1.130  ##
+     1    1.397  ##
+     2    1.228  ##
+     3    1.281  ##
+     4    0.759  #
+     5    1.140  ##
+     8    0.585  #
+     9    0.420  
+    10    0.646  #
+    11    0.539  #
+    12    0.460  
+    13    0.414  
+  sum of the 12 cores:   9.999 W
+  package counter:      56.095 W
+  cores / package:      17.8 %
+
+--- phase load_all, over 5.6 s ---
+  core   watts
+     0    9.196  ##################
+     1    9.201  ##################
+     2    9.309  ##################
+     3    9.281  ##################
+     4    9.243  ##################
+     5    9.285  ##################
+     8    8.161  ################
+     9    8.050  ################
+    10    8.051  ################
+    11    8.024  ################
+    12    8.064  ################
+    13    8.118  ################
+  sum of the 12 cores: 103.982 W
+  package counter:     157.243 W
+  cores / package:      66.1 %
+
+--- phase load_cpu6, over 5.1 s ---
+  core   watts
+     0    1.909  ###
+     1    1.559  ###
+     2    1.022  ##
+     3    1.244  ##
+     4    0.772  #
+     5    1.003  ##
+     8   17.439  ##################################
+     9    0.409  
+    10    0.466  
+    11    0.317  
+    12    0.359  
+    13    0.392  
+  sum of the 12 cores:  26.893 W
+  package counter:      75.697 W
+  cores / package:      35.5 %
+
+--- Q3. The second opinion: turbostat, which reads the same MSRs ---
+  phase       this capture        turbostat
+  idle        cores   10.00 W   cores    9.49 W
+              pkg     56.10 W   pkg     55.53 W
+  load_all    cores  103.98 W   cores  104.10 W
+              pkg    157.24 W   pkg    157.34 W

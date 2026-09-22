@@ -1,0 +1,11 @@
+# captured 2026-09-22T05:56:53Z on dst-gova-pc
+# command: uname -r, rdmsr --version, turbostat version
+# source:  this machine, dst-gova-pc
+
+7.0.0-31-generic
+
+rdmsr: version msr-tools-1.3
+
+turbostat version 2026.02.14 - Len Brown <lenb@kernel.org>
+
+Python 3.12.3
