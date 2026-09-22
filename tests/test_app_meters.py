@@ -173,6 +173,22 @@ def test_sort_key_puts_temperature_and_power_above_the_rest() -> None:
     assert ordered.index(Unit.RPM) < ordered.index(Unit.VOLT)
 
 
+def test_sort_key_reads_a_number_in_a_label_as_a_number() -> None:
+    # Found by rendering the screen after exp-0012 put twelve cores on it:
+    # plain text order gave Core 0, 1, 10, 11, 12, 13, 2, 3.
+    from sensors_gui.app.meters import sort_key
+
+    labels = ["CPU Core 10 Power", "CPU Core 2 Power", "CPU Core 1 Power", "CPU Core 0 Power"]
+    specs = [_spec(unit=Unit.WATT, label=label) for label in labels]
+
+    assert [spec.label for spec in sorted(specs, key=sort_key)] == [
+        "CPU Core 0 Power",
+        "CPU Core 1 Power",
+        "CPU Core 2 Power",
+        "CPU Core 10 Power",
+    ]
+
+
 def test_sort_key_orders_by_label_inside_one_unit() -> None:
     from sensors_gui.app.meters import sort_key
 

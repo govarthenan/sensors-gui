@@ -7,6 +7,7 @@ plain functions with plain tests.
 
 from __future__ import annotations
 
+import re
 from enum import Enum, auto
 
 from sensors_gui.model import SensorSpec, Unit
@@ -100,11 +101,36 @@ def fraction(spec: SensorSpec, value: float | None) -> float | None:
     return max(0.0, min(1.0, (value - low) / (high - low)))
 
 
-def sort_key(spec: SensorSpec) -> tuple[int, str]:
+def natural_key(text: str) -> tuple[tuple[int, int, str], ...]:
+    """Return a key that puts a number in a label in number order.
+
+    Plain text order puts "Core 10" between "Core 1" and "Core 2", which was
+    plain to see the moment twelve core channels reached the screen. Each run
+    of digits is compared as a number and each run of other characters as text.
+
+    Args:
+        text: The label.
+
+    Returns:
+        A tuple to sort on.
+    """
+    key: list[tuple[int, int, str]] = []
+    for part in re.split(r"(\d+)", text.lower()):
+        if not part:
+            continue
+        if part.isdigit():
+            key.append((0, int(part), ""))
+        else:
+            key.append((1, 0, part))
+    return tuple(key)
+
+
+def sort_key(spec: SensorSpec) -> tuple[int, tuple[tuple[int, int, str], ...]]:
     """Return the key that orders sensors inside a panel.
 
     Temperature first, then power, then fan speed, and reference detail such as
-    voltage rails last. Inside one unit, by label.
+    voltage rails last. Inside one unit, by label, with any number in the label
+    read as a number.
 
     Args:
         spec: The sensor.
@@ -112,7 +138,7 @@ def sort_key(spec: SensorSpec) -> tuple[int, str]:
     Returns:
         A tuple to sort on.
     """
-    return (_UNIT_PRIORITY.get(spec.unit, _UNIT_PRIORITY_LAST), spec.label.lower())
+    return (_UNIT_PRIORITY.get(spec.unit, _UNIT_PRIORITY_LAST), natural_key(spec.label))
 
 
 def level_of(spec: SensorSpec, value: float | None) -> Level:
