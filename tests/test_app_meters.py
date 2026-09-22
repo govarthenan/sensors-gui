@@ -178,3 +178,63 @@ def test_sort_key_orders_by_label_inside_one_unit() -> None:
 
     specs = [_spec(label="Tctl"), _spec(label="Tccd1"), _spec(label="CPU")]
     assert [spec.label for spec in sorted(specs, key=sort_key)] == ["CPU", "Tccd1", "Tctl"]
+
+
+# --- sparkline --------------------------------------------------------------
+
+
+def test_a_sparkline_is_drawn_from_a_history_of_values() -> None:
+    from sensors_gui.app.meters import sparkline
+
+    drawn = sparkline([0.0, 50.0, 100.0], width=3)
+    assert len(drawn) == 3
+    assert drawn[0] == "▁"
+    assert drawn[2] == "█"
+
+
+def test_a_sparkline_shows_only_the_most_recent_values_that_fit() -> None:
+    from sensors_gui.app.meters import sparkline
+
+    drawn = sparkline([0.0] * 50 + [100.0], width=8)
+    assert len(drawn) == 8
+    assert drawn[-1] == "█"
+
+
+def test_a_flat_history_draws_a_flat_line_rather_than_dividing_by_zero() -> None:
+    from sensors_gui.app.meters import sparkline
+
+    drawn = sparkline([42.0, 42.0, 42.0], width=3)
+    assert len(drawn) == 3
+    assert len(set(drawn)) == 1
+
+
+def test_a_gap_in_the_history_is_blank_not_zero() -> None:
+    # A failed read must not look like a reading of zero.
+    from sensors_gui.app.meters import sparkline
+
+    drawn = sparkline([0.0, None, 100.0], width=3)
+    assert drawn[1] == " "
+
+
+def test_a_history_too_short_to_fill_the_width_is_padded_on_the_left() -> None:
+    from sensors_gui.app.meters import sparkline
+
+    drawn = sparkline([10.0, 20.0], width=6)
+    assert len(drawn) == 6
+    assert drawn.startswith("    ")
+
+
+def test_an_empty_history_is_blank_but_keeps_its_width() -> None:
+    from sensors_gui.app.meters import sparkline
+
+    assert sparkline([], width=5) == " " * 5
+    assert sparkline([None, None], width=5) == " " * 5
+
+
+def test_a_sparkline_scales_to_the_declared_range_when_one_is_given() -> None:
+    # Against a fixed scale, a small wobble stays visually small instead of
+    # being stretched to fill the whole height.
+    from sensors_gui.app.meters import sparkline
+
+    drawn = sparkline([40.0, 41.0, 42.0], width=3, low=0.0, high=100.0)
+    assert len(set(drawn)) <= 2

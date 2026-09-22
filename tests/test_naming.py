@@ -136,10 +136,16 @@ def test_friendly_does_not_touch_system_fan_1_which_is_real() -> None:
 
 
 def test_friendly_marks_the_board_cpu_temperature_as_a_duplicate_of_tctl() -> None:
+    # The wording changed on 2026-09-22, from "(duplicate of k10temp Tctl)" to
+    # "(same as Tctl)". The first version was 27 characters, which did not fit
+    # the 24-character label column and was shown cut in half. The requirement
+    # is unchanged: the label must say this channel is the same reading as
+    # Tctl, so that nobody reads it as a second measurement.
     spec = _nct6687("temp1", "CPU", unit=Unit.CELSIUS)
     friendly = naming.friendly(spec)
-    assert "duplicate" in friendly.label.lower()
+    assert "same as" in friendly.label.lower()
     assert "Tctl" in friendly.label
+    assert len(friendly.label) <= 24
 
 
 @pytest.mark.parametrize("label", ["CPU Socket", "PCIe x1", "M2_1"])

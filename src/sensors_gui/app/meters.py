@@ -15,6 +15,10 @@ from sensors_gui.model import SensorSpec, Unit
 _PARTIAL_BLOCKS = " ▏▎▍▌▋▊▉█"
 _FULL_BLOCK = "█"
 
+# Heights for a sparkline, lowest first.
+_SPARK_BLOCKS = "▁▂▃▄▅▆▇█"
+_SPARK_GAP = " "
+
 # Units whose scale is fixed by the unit itself. These are facts.
 _IMPLIED_SCALE: dict[Unit, tuple[float, float]] = {
     Unit.PERCENT: (0.0, 100.0),
@@ -159,3 +163,52 @@ def bar(value: float | None, width: int) -> str:
     partial = _PARTIAL_BLOCKS[int(remainder * 8)]
     drawn = _FULL_BLOCK * whole + partial
     return drawn.ljust(width)[:width]
+
+
+def sparkline(
+    values: list[float | None],
+    width: int,
+    low: float | None = None,
+    high: float | None = None,
+) -> str:
+    """Draw a short history as one line of characters.
+
+    Args:
+        values: The history, oldest first. A None is a read that failed.
+        width: How many character cells the line occupies. Only the most
+            recent `width` values are drawn, and a shorter history is padded
+            on the left, so the line always ends at "now".
+        low: The bottom of the scale. When None, the smallest value present
+            is used, which makes a small wobble visible.
+        high: The top of the scale. When None, the largest value present
+            is used.
+
+    Returns:
+        A string of exactly `width` characters.
+    """
+    if width <= 0:
+        return ""
+
+    recent = values[-width:]
+    present = [value for value in recent if value is not None]
+    if not present:
+        return _SPARK_GAP * width
+
+    bottom = low if low is not None else min(present)
+    top = high if high is not None else max(present)
+    span = top - bottom
+
+    cells = []
+    for value in recent:
+        if value is None:
+            # A failed read is a gap. Drawing it as zero would be a lie.
+            cells.append(_SPARK_GAP)
+            continue
+        if span <= 0:
+            # Every value is the same. Draw a flat line rather than divide by zero.
+            cells.append(_SPARK_BLOCKS[0])
+            continue
+        position = max(0.0, min(1.0, (value - bottom) / span))
+        cells.append(_SPARK_BLOCKS[min(int(position * len(_SPARK_BLOCKS)), len(_SPARK_BLOCKS) - 1)])
+
+    return "".join(cells).rjust(width)

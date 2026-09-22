@@ -310,3 +310,23 @@ def test_a_wrapped_counter_does_not_produce_a_huge_or_negative_rate(monkeypatch:
     reading = _readings_by_id(collector)[net_spec.id]
     assert reading.value is not None
     assert 0.0 <= reading.value < 1_000_000.0  # not the astronomical negative-turned-positive number
+
+
+def test_a_loop_device_gets_no_channel() -> None:
+    # This machine has 20 or more loop devices from snap packages. They are not
+    # hardware, they never move, and they buried the real drive under 40 rows.
+    from sensors_gui.collectors.system import SystemCollector
+
+    collector = SystemCollector()
+    devices = {spec.id.device for spec in collector.discover()}
+    collector.close()
+    assert not any(device.startswith("disk:loop") for device in devices)
+
+
+def test_the_real_drive_still_gets_its_channels() -> None:
+    from sensors_gui.collectors.system import SystemCollector
+
+    collector = SystemCollector()
+    devices = {spec.id.device for spec in collector.discover()}
+    collector.close()
+    assert any(device.startswith("disk:nvme") or device.startswith("disk:sd") for device in devices)

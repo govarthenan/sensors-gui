@@ -48,6 +48,11 @@ from sensors_gui.model import Group, Reading, SensorId, SensorSpec, Unit
 
 logger = logging.getLogger(__name__)
 
+# Block devices that are not hardware. Snap packages create a `loop` device
+# each, `ram` and `zram` are memory, and `dm-` is a mapper target whose real
+# traffic is already counted on the disk beneath it.
+SKIP_DISK_PREFIXES = ("loop", "ram", "zram", "dm-", "sr")
+
 SOURCE = "system"
 MHZ = 1_000_000.0
 
@@ -424,7 +429,12 @@ class SystemCollector:
     # --- discovery: storage and network rates ---------------------------------
 
     def _discover_storage(self) -> list[_Channel]:
-        """Build a read-rate and write-rate channel for every disk `psutil` reports."""
+        """Build a read-rate and write-rate channel for every real disk `psutil` reports.
+
+        Pseudo-devices are skipped. This machine carries twenty or more `loop`
+        devices from snap packages; they are not hardware, their counters never
+        move, and they buried the one real drive under forty rows of zeros.
+        """
         try:
             counters = psutil.disk_io_counters(perdisk=True) or {}
         except Exception as exc:  # noqa: BLE001 - no disk counters must not stop discovery
@@ -433,6 +443,8 @@ class SystemCollector:
 
         channels: list[_Channel] = []
         for device in sorted(counters):
+            if device.startswith(SKIP_DISK_PREFIXES):
+                continue
             channels.append(
                 _Channel(
                     spec=SensorSpec(

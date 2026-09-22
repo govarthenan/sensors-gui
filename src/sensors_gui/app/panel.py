@@ -5,7 +5,7 @@ from __future__ import annotations
 from rich.text import Text
 from textual.widgets import Static
 
-from sensors_gui.app.meters import Level, bar, fraction, level_of
+from sensors_gui.app.meters import Level, bar, fraction, level_of, sparkline
 from sensors_gui.model import Group, Reading, SensorId, SensorSpec
 
 LEVEL_STYLES: dict[Level, str] = {
@@ -27,10 +27,35 @@ GROUP_TITLES: dict[Group, str] = {
     Group.OTHER: "Other",
 }
 
-LABEL_WIDTH = 20
+LABEL_WIDTH = 24
 VALUE_WIDTH = 13
-BAR_WIDTH = 18
+BAR_WIDTH = 16
+SPARK_WIDTH = 14
 STALE_AFTER_SECONDS = 3.0
+
+
+def _spark_scale(spec: SensorSpec) -> tuple[float | None, float | None]:
+    """Return the scale a sparkline should use, matching the bar where one exists.
+
+    `fraction` knows every rule for finding a scale, including the display
+    conventions. Asking it about two known values recovers the same scale
+    without repeating those rules here.
+
+    Args:
+        spec: The sensor.
+
+    Returns:
+        The bottom and top of the scale, or (None, None) when the sensor has
+        none and the sparkline should scale itself to the values it has.
+    """
+    at_zero = fraction(spec, 0.0)
+    at_one = fraction(spec, 1.0)
+    if at_zero is None or at_one is None or at_one == at_zero:
+        return None, None
+    # value = low + fraction * (high - low); solve from the two probes.
+    span = 1.0 / (at_one - at_zero)
+    low = -at_zero * span
+    return low, low + span
 
 
 class GroupPanel(Static):
@@ -58,16 +83,25 @@ class GroupPanel(Static):
         self.specs = specs
         self.border_title = GROUP_TITLES.get(group, group.value)
         self._readings: dict[SensorId, Reading] = {}
+        self._history: dict[SensorId, list[float | None]] = {}
         self._now: float = 0.0
 
-    def update_readings(self, readings: dict[SensorId, Reading], now: float) -> None:
+    def update_readings(
+        self,
+        readings: dict[SensorId, Reading],
+        now: float,
+        history: dict[SensorId, list[float | None]] | None = None,
+    ) -> None:
         """Take a new set of readings and redraw.
 
         Args:
             readings: The latest reading of each sensor, keyed by identity.
             now: The current clock value, used to age each reading.
+            history: Recent values of each sensor, oldest first, for the
+                sparkline. None draws no sparkline.
         """
         self._readings = readings
+        self._history = history or {}
         self._now = now
         self.update(self.render_rows())
 
@@ -89,6 +123,13 @@ class GroupPanel(Static):
         text.append(f"{spec.label[:LABEL_WIDTH]:<{LABEL_WIDTH}}", style="bold")
         text.append(f"{spec.format(value):>{VALUE_WIDTH}} ", style=LEVEL_STYLES[level])
         text.append(bar(fraction(spec, value), BAR_WIDTH), style=LEVEL_STYLES[level])
+
+        past = self._history.get(spec.id)
+        if past:
+            # Draw the history against the same scale as the bar. Auto-scaling
+            # to the window makes a quarter-degree wobble fill the full height.
+            low, high = _spark_scale(spec)
+            text.append(" " + sparkline(past, SPARK_WIDTH, low, high), style="cyan")
 
         text.append(self._suffix(spec, reading), style="dim")
 

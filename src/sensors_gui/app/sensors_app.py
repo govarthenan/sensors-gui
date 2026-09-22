@@ -21,6 +21,8 @@ from sensors_gui.app.panel import GroupPanel
 from sensors_gui.app.status import StatusBar
 from sensors_gui.collectors import Collector
 from sensors_gui.model import Group, Reading, SensorId, SensorSpec
+from sensors_gui.registry import Registry
+from sensors_gui.sampler import Sampler
 
 logger = logging.getLogger(__name__)
 
@@ -88,11 +90,15 @@ class SensorsApp(App[None]):
                 would recognise. The default leaves the sensor as the driver
                 reported it.
             keep: A function that decides whether a sensor is worth showing.
-                A sensor it rejects is counted in the status bar and can be
-                revealed with the `h` key. Nothing is ever silently dropped.
+                It is given the sensor **as the driver reported it**, before
+                `decorate` runs, because a judgement keyed on the label cannot
+                survive a rename. A sensor it rejects is counted in the status
+                bar and can be revealed with the `h` key. Nothing is ever
+                silently dropped.
         """
         super().__init__()
-        self._collectors = list(collectors)
+        self._sensors = Registry(list(collectors))
+        self._sampler = Sampler(self._sensors)
         self._hz = hz
         self._decorate = decorate
         self._keep = keep
@@ -117,21 +123,19 @@ class SensorsApp(App[None]):
         yield Footer()
 
     def on_mount(self) -> None:
-        """Take the first reading, discard it, then start the refresh timer."""
-        # The nct6687 driver reports zeros until it has updated once. See
-        # exp-0007, finding 4.
-        self._read_all()
+        """Start the refresh timer.
+
+        The registry has already taken and discarded one pass during
+        `discover()`, because some drivers report zeros until they have
+        updated once. See ADR 0008 and `exp-0007` finding 4.
+        """
         self.set_interval(1.0 / self._hz, self._refresh_readings)
         self._refresh_readings()
         self._update_status()
 
     def on_unmount(self) -> None:
         """Close every collector."""
-        for collector in self._collectors:
-            try:
-                collector.close()
-            except Exception as exc:  # noqa: BLE001 - shutting down must not raise
-                logger.debug("closing %s failed: %s", collector.name, exc)
+        self._sensors.close()
 
     # --- data ---------------------------------------------------------------
 
@@ -140,34 +144,24 @@ class SensorsApp(App[None]):
         self._specs = {}
         self._hidden_count = 0
         grouped: dict[Group, list[SensorSpec]] = {}
-        for collector in self._collectors:
-            try:
-                found = collector.discover()
-            except Exception as exc:  # noqa: BLE001 - one bad source must not stop the rest
-                logger.warning("discover failed for %s: %s", collector.name, exc)
+        self._sensors.discover()
+        for raw in self._sensors.specs():
+            # The filter judges what the driver said, before the naming layer
+            # rewrites it. A verdict keyed on the label cannot survive a rename.
+            if not self._show_hidden and not self._keep(raw):
+                self._hidden_count += 1
                 continue
-            for raw in found:
-                spec = self._decorate(raw)
-                if not self._show_hidden and not self._keep(spec):
-                    self._hidden_count += 1
-                    continue
-                self._specs[spec.id] = spec
-                grouped.setdefault(spec.group, []).append(spec)
+            spec = self._decorate(raw)
+            self._specs[spec.id] = spec
+            grouped.setdefault(spec.group, []).append(spec)
 
         for specs in grouped.values():
             specs.sort(key=sort_key)
         return {group: grouped[group] for group in GROUP_ORDER if group in grouped}
 
     def _read_all(self) -> dict[SensorId, Reading]:
-        """Read every collector once. This never raises."""
-        readings: dict[SensorId, Reading] = {}
-        for collector in self._collectors:
-            try:
-                for reading in collector.read():
-                    readings[reading.id] = reading
-            except Exception as exc:  # noqa: BLE001 - the contract says read cannot raise, but defend
-                logger.warning("read failed for %s: %s", collector.name, exc)
-        return readings
+        """Take one sample through the sampler. This never raises."""
+        return self._sampler.sample().by_id()
 
     def _refresh_readings(self) -> None:
         """Read every sensor and hand the values to the panels."""
@@ -177,8 +171,9 @@ class SensorsApp(App[None]):
         readings = self._read_all()
         self._status.pass_ms = (time.perf_counter() - started) * 1000
         now = time.monotonic()
+        history = {sensor_id: self._sampler.history(sensor_id) for sensor_id in self._specs}
         for panel in self._panels.values():
-            panel.update_readings(readings, now)
+            panel.update_readings(readings, now, history)
         self._status.failing = sum(
             1 for sensor_id, reading in readings.items() if sensor_id in self._specs and not reading.is_ok
         )

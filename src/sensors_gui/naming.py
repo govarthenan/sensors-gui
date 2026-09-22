@@ -79,7 +79,7 @@ _DIMM_LABELS: dict[str, str] = {
 # the nct6687 "CPU" temperature is k10temp's Tctl read a second way, not an
 # independent measurement.
 _DUPLICATE_TEMP_LABEL = "CPU"
-_DUPLICATE_SUFFIX = " (duplicate of k10temp Tctl)"
+_DUPLICATE_SUFFIX = " (same as Tctl)"
 
 # Optional thermistor headers with nothing plugged in (exp-0007). They read a
 # genuine 0.0 C, which is not a temperature, so they are marked empty and
