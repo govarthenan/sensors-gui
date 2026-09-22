@@ -135,6 +135,17 @@ rules before any code is written. Reading comes first.
   way, because `socketserver` calls `server_close()` when `server_bind()`
   raises. Same shape as fault 1 of the thermal shutdown. Fixed, with a test.
 
+- **Published.** The project is at <https://github.com/govarthenan/sensors-gui>,
+  **private**, 32 signed commits, 223 files. A sweep for credentials and
+  personal data ran first and found nothing critical. The 8 hardware
+  identifiers it did find are kept on purpose, because the repository is
+  private; that decision must be made again before it is ever made public.
+- `HANDOFF.md` is purged from the whole history and is in `.gitignore`. It
+  stays on this machine.
+- Three root scripts were leaving their output owned by root, because they read
+  `SUDO_USER` and the `run-as-root` skill sets `PKEXEC_UID`. Fixed in
+  `patch-nct6687.sh`, `install-nct6687d.sh` and `root-probe.sh`.
+
 ## Waiting for Gova
 
 Nothing. Gova approved two root commands on 2026-09-22 through the

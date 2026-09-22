@@ -720,3 +720,51 @@ about the **rate**, which is the part that does not change.
 **Still missing after this:** per-core power for all twelve cores, which needs
 the Ryzen SMU mailbox, and total system power, which nothing can measure
 because the NZXT C1200 has no telemetry link.
+
+---
+
+## 2026-09-22 — Session 5, part 2: the first push
+
+**The project is on GitHub, privately**: <https://github.com/govarthenan/sensors-gui>.
+32 commits, 223 files, every commit signed.
+
+**A sweep for credentials and personal data ran first.** It found nothing
+critical: no keys, no tokens, no `.env`, no IP addresses, no Wi-Fi names, and
+no machine UUID — `dmidecode` was never run with `-t system`, so it was never
+captured. It also settled a question I could not answer myself, because
+`exiftool` is not installed here: **all 12 photographs carry no EXIF data**.
+They were re-encoded at some point, which stripped it.
+
+It found **8 unique hardware identifiers** in tracked files: the motherboard
+serial, two DIMM serials, the NVMe serial and its EUI-64, two monitor serials,
+two MAC addresses, a keyboard serial and the mouse device ID. Gova decided to
+**keep them all**. The repository is private, it holds his own machine's data,
+and redacting the probe files would break the project rule that evidence is
+copied whole and never altered. That decision has to be made again if the
+repository is ever made public; `HANDOFF.md` says where they are.
+
+**`HANDOFF.md` is off the remote, history and all.** It was purged with
+`git-filter-repo` and it is in `.gitignore`. It is the working picture of one
+person's desktop, so it stays on that desktop.
+
+**I made a mistake and the sweep caught it.** The commit that added the
+`.gitignore` rule said the file "is also purged from the whole history". I had
+not done the purge yet. The statement was true an hour later, but it was not
+true when I wrote it, and a commit message is not the place for an intention.
+
+**Two defects came out of the rewrite itself.**
+
+1. `git rebase --root --gpg-sign` replayed nothing, because the branch was
+   already where it was going, so all 32 commits stayed unsigned and the
+   summary said "Successfully rebased". `--force-rebase` is what actually
+   recreates and signs them. A command that reports success and does nothing is
+   worth remembering.
+2. **A root-owned directory in the repository blocked the rewrite.**
+   `scripts/patch-nct6687.sh` decided who should own its output from
+   `SUDO_USER` alone. The `run-as-root` skill uses `pkexec`, which sets
+   `PKEXEC_UID` and not `SUDO_USER`, so ten files in `data/probes/` stayed
+   owned by root. Git could not delete what it did not own. Undoing it needed a
+   separate root command from Gova.
+
+   The same gap was in `install-nct6687d.sh` and `root-probe.sh`. All three now
+   check both variables, with the reason written beside the code.

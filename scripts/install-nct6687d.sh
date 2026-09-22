@@ -29,7 +29,18 @@ MODULE="nct6687"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="${PROJECT_ROOT}/data/probes/nct6687d-install-${STAMP}"
-CALLER="${SUDO_USER:-root}"
+# `sudo` sets SUDO_USER; `pkexec`, which the `run-as-root` skill uses, sets
+# PKEXEC_UID instead. Without the second one the results are left owned by root
+# inside the user's repository, where the user cannot change or delete them.
+# That really happened: a root-owned probe directory from this script blocked a
+# git history rewrite on 2026-09-22 and needed a separate root command to undo.
+if [ -n "${SUDO_USER:-}" ]; then
+    CALLER="${SUDO_USER}"
+elif [ -n "${PKEXEC_UID:-}" ]; then
+    CALLER="$(id -nu "${PKEXEC_UID}" 2>/dev/null || echo root)"
+else
+    CALLER="root"
+fi
 
 log()  { echo "[nct6687d] $*"; }
 fail() { echo "[nct6687d] ERROR: $*" >&2; exit 1; }
