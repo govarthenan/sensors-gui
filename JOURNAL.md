@@ -768,3 +768,81 @@ true when I wrote it, and a commit message is not the place for an intention.
 
    The same gap was in `install-nct6687d.sh` and `root-probe.sh`. All three now
    check both variables, with the reason written beside the code.
+
+---
+
+## 2026-09-22 — Session 6: per-core power, and a write nobody had noticed
+
+**Goal:** Gova asked whether the Ryzen SMU target and the three unmapped
+voltage rails complement each other, and to run them together if they do.
+
+**They are one question, and it had a rule problem.** `exp-0010` proved the
+rails are not in the board sensor chip at all, so the only place left to look
+was the processor itself — the same place the SMU target pointed at. But
+`ryzen_smu` and `zenpower3` do not read a register: they **write a command word
+into the SMU mailbox** and read the reply. ADR 0007 forbids that, with no
+exceptions, since the fan write of 2026-09-22 stopped the radiator fans and the
+board shut the machine down at 98 °C. The plan had carried a forbidden route
+for five sessions, because "install a DKMS module" does not sound like "write
+to the processor".
+
+**The answer was in a header file on this machine.**
+
+```
+/usr/src/linux-headers-7.0.0-31-generic/arch/x86/include/asm/msr-index.h:512
+#define MSR_AMD_CORE_ENERGY_STATUS  0xc001029a
+```
+
+One energy counter for **each core**, and reading it is a read. `exp-0012`
+captured it in three phases — idle, one thread busy, every thread busy — and
+the middle phase settled it: with `cpu6` busy, **one** counter moved, to
+17.4 W, while the other eleven stayed at idle.
+
+**Measured**
+
+| | |
+|---|---|
+| Cores under an all-core load | **103.98 W**, against `turbostat` **104.10 W** — 0.1 % apart |
+| Package | 157.24 W, against 157.34 W |
+| One sweep of 24 threads, `pread()` | **0.070 ms** |
+| One sweep through the `rdmsr` process | 8.5-9.1 ms, a hundred times more |
+| New channels | **13**: twelve cores and their sum |
+| The screen | **166 channels, 5 hidden, 1.95 ms per pass** |
+| Tests | **350**, up from 326. Still no mocks. |
+
+**Two defects, and the screen found both.** The tests found neither.
+
+1. Two rows both read `CPU Core 0 Power`, because the powercap `core` domain is
+   also core 0. The older one is now `CPU Core 0 (RAPL)`. They read **1.624 W
+   each**, which is a third confirmation of what `exp-0003` and `exp-0011` said
+   about that domain.
+2. The rows sorted as text: `Core 0, 1, 10, 11, 12, 13, 2, 3`. The sort now
+   reads a number as a number, which also repairs `CPU0 use` to `CPU23 use`.
+
+**A third thing the tests taught.** The fake MSR node is a sparse file, and in
+a file the offset is a byte while on `/dev/cpu/N/msr` it is a register number.
+So `0xc0010299` and `0xc001029a`, which are two registers on the machine,
+overlap by seven bytes in the fake. The test double now says so, and a test
+sets its counters only after the sampler has read the unit.
+
+**Decisions**
+
+- ADR 0010 — a register may be read; a mailbox may not be written. The three
+  unmapped rails (`VDD MISC`, `CPU 1P8`, `CHIPSET Core`) are **dropped**, under
+  the closing sentence of ADR 0007: if a question can only be answered by
+  writing, drop the question.
+
+**What changed on the machine**
+
+- `sensors-guid` gained `CAP_SYS_RAWIO`, which `man 7 capabilities` requires to
+  open an MSR node. Everything else about the unit is unchanged, so the
+  filesystem stays read-only for it and the node is opened `O_RDONLY`.
+- `/etc/modules-load.d/sensors-gui.conf` makes the `msr` module load at boot.
+  **Not yet tested across a reboot.**
+
+**Next**
+
+Check the module after the next reboot. Then phase 4, or the driver patch
+upstream. The Ryzen SMU leaves the `exp-0005` target list; the RTX 4090 board
+over I2C is next on it, and it needs the same question asked first: does the
+route read, or does it write?

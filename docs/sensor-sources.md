@@ -46,7 +46,7 @@ root; the screen does not. See section I.
 | Path | Contents | Channel | Status |
 |---|---|---|---|
 | `/sys/class/powercap/intel-rapl:0/energy_uj` | package energy counter, µJ | `CPU Package Power`, `CPU Package Energy` | OK, through the helper |
-| `/sys/class/powercap/intel-rapl:0:0/energy_uj` | core domain energy, µJ | `CPU Core 0 Power`, `CPU Core 0 Energy` | OK, through the helper |
+| `/sys/class/powercap/intel-rapl:0:0/energy_uj` | core domain energy, µJ | `CPU Core 0 (RAPL) Power`, `CPU Core 0 (RAPL) Energy` | OK, through the helper. It is core 0 alone, not the twelve cores. |
 
 The name is `intel-rapl` on AMD too. The kernel uses the same powercap
 framework. Power in watts = delta(energy) / delta(time).
@@ -69,6 +69,40 @@ maximum and the channel gets no meter bar.
 
 `turbostat` is installed (`/usr/bin/turbostat`) and also needs root. It is the
 independent check, not a source the application uses.
+
+## B2. CPU per-core power — the energy registers
+
+**Read since 2026-09-22, through the same helper.** `exp-0012` and ADR 0010.
+
+The powercap tree above gives the package and core 0. The processor also holds
+**one energy counter for each core**, and reading it is a read: nothing is
+written, so ADR 0007 is kept.
+
+| Register | Name in `arch/x86/include/asm/msr-index.h` | Contents |
+|---|---|---|
+| `0xc0010299` | `MSR_AMD_RAPL_POWER_UNIT` | bits 12:8 hold ESU. This machine reads 16, so one count is **15.2588 µJ** |
+| `0xc001029a` | `MSR_AMD_CORE_ENERGY_STATUS` | the energy counter of the core the read is made on |
+| `0xc001029b` | `MSR_AMD_PKG_ENERGY_STATUS` | the package counter; the same number powercap gives |
+
+13 channels: `CPU Core 0 Power` to `CPU Core 13 Power` (the kernel numbers the
+cores 0-5 and 8-13 on this two-CCD part), and `CPU Cores Power`, their sum.
+
+| Fact | Value | Where it was measured |
+|---|---|---|
+| Sum of the cores under an all-core load | 103.98 W, against `turbostat` 104.10 W | `exp-0012` |
+| One sweep of 24 threads, `pread()` | **0.070 ms** | `exp-0012` |
+| One sweep of 24 threads, the `rdmsr` process | 8.5-9.1 ms | `exp-0012` |
+
+Three traps:
+
+1. **The counter is 32 bits and it wraps.** At 104 W one core wraps in about
+   ten minutes. The rise is taken modulo 2³².
+2. **It is per core, not per thread.** The two threads of a core read the same
+   register, so only one thread of each core is read. Reading both would count
+   the core twice in the sum.
+3. **Two things are needed and neither is the default.** The `msr` module must
+   be loaded (`/etc/modules-load.d/sensors-gui.conf`) and the process needs
+   `CAP_SYS_RAWIO`. Without them the channels say so instead of disappearing.
 
 ## C. CPU frequency and state
 
@@ -148,6 +182,13 @@ protocol can give a percent. **Open question Q4.**
 
 ## H. Missing — motherboard Super-I/O
 
+> **This section was overtaken by events on 2026-09-21.** The chip is a Nuvoton
+> NCT6687D at ISA 0x0a20, the `nct6687d` DKMS driver reads it, and the patch of
+> `exp-0010` added the EZ Conn fan and corrected the voltage map. The board now
+> gives **9 fans, 10 voltages and 7 temperatures**. The text below is kept as
+> it was written, because it records what was true and what the reasoning was.
+> See `exp-0007`, `exp-0009` and `exp-0010`.
+
 **This is the biggest gap.** No Super-I/O hwmon device is present. There is no
 `nct6775`, `nct6683` or `it87` module loaded, and no such device in hwmon.
 
@@ -174,7 +215,10 @@ need root and publishes them on `/run/sensors-gui.sock`, mode `0660`, group
 | Source | Channels | Interval the helper reads at |
 |---|---|---|
 | RAPL, 2 domains | 4: power and energy for each | 1 s |
+| Per-core energy registers, 12 cores | 13: one for each core and their sum | 1 s |
 | NVMe SMART, 1 drive | 15 | 60 s |
+
+**32 channels in total.** Section B2 covers the middle row.
 
 The 15 SMART channels, from `nvme smart-log -o json` under nvme-cli 2.8:
 
@@ -205,7 +249,7 @@ Install: `sudo ./scripts/install-helper.sh`. Remove:
 
 | Source | Note | Status |
 |---|---|---|
-| AMD SMU / SVI2 telemetry (`zenpower3`, `ryzen_smu`) | per-core power, SoC power, VID | TODO |
+| AMD SMU / SVI2 telemetry (`zenpower3`, `ryzen_smu`) | per-core power, SoC power, VID | **CLOSED 2026-09-22, ADR 0010.** Per-core power arrived from the energy registers (section B2), with no write. The rest of the SMU needs a **write** to the mailbox, which ADR 0007 forbids, so it is dropped. |
 | `/dev/i2c-*` (15 buses) | SMBus, DDC on the monitors | TODO |
 | Monitors through DDC/CI (`ddcutil`) | brightness, and some panel data | TODO |
 | Chassis intrusion, board LEDs | needs Super-I/O | TODO |

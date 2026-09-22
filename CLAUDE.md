@@ -75,10 +75,16 @@ scripts/               Helper scripts for the developer.
 - **Keep what disproves a claim.** When a later experiment corrects an earlier
   one, both stay, and the correction is written into each.
 - **THIS PROJECT WRITES NOTHING TO HARDWARE.** No exceptions, no conditions.
-  See ADR 0007 and `data/evidence/2026-09-22-thermal-shutdown/`. A script that
-  wrote fan control values stopped the CPU radiator fans, could not start them
-  again, and the machine shut itself down at 98 °C. Reading is safe. Writing is
-  not. If a question can only be answered by writing, drop the question.
+  See ADR 0007, ADR 0010 and `data/evidence/2026-09-22-thermal-shutdown/`.
+  A script that wrote fan control values stopped the CPU radiator fans, could
+  not start them again, and the machine shut itself down at 98 °C. Reading is
+  safe. Writing is not. If a question can only be answered by writing, drop the
+  question.
+  **Before you plan a route to a sensor, ask whether the route writes.** A DKMS
+  module can be a write: `ryzen_smu` and `zenpower3` write a command word into
+  the SMU mailbox to read a value, and that route stayed in the plan for five
+  sessions because it did not look like a write. A register read is allowed; a
+  mailbox write is not. ADR 0010.
 - **Root access:** some sensors need root (RAPL energy, SMART data, Super-I/O).
   Ask Gova before you install a kernel module or change permissions.
 - **No mocks in tests** unless Gova asks for them.
@@ -90,6 +96,7 @@ scripts/               Helper scripts for the developer.
 |---|---|---|
 | CPU temperature | `/sys/class/hwmon/hwmon*/` (`k10temp`) | no |
 | CPU package power | `/sys/class/powercap/intel-rapl:0/energy_uj`, through `sensors-guid` | the helper, not the screen |
+| CPU per-core power | MSR `0xc001029a` on `/dev/cpu/N/msr`, through `sensors-guid` — 12 cores and their sum. **Read only; never write an MSR or the SMU mailbox.** ADR 0010. | the helper, not the screen |
 | CPU frequency | `/sys/devices/system/cpu/cpu*/cpufreq/` | no |
 | NVIDIA RTX 4090 | `nvidia-smi`, NVML | no |
 | AMD iGPU | `/sys/class/hwmon/hwmon*/` (`amdgpu`) | no |

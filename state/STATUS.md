@@ -1,12 +1,13 @@
 # STATUS
 
-Last update: 2026-09-22 (end of session 5)
+Last update: 2026-09-22 (end of session 6)
 
 ## Phase
 
 **Phase 2 — Coverage repair. Done for the root-only sources.** The privileged
-helper of ADR 0005 runs, and the last two sources that needed root are on the
-screen. What is left of phase 2 is the sensor target list of `exp-0005`.
+helper of ADR 0005 runs, and the three sources that need root are on the
+screen. What is left of phase 2 is the sensor target list of `exp-0005`, which
+is one item shorter: the Ryzen SMU is closed by ADR 0010.
 
 Phases 0, 1 and 3 are done. Phase 4 (history and alarms) is next.
 
@@ -32,7 +33,8 @@ below holds the hard targets. None of them is out of scope because of effort.
 | Target | Why it is hard | Value |
 |---|---|---|
 | Motherboard fans, VRM temperature and voltage rails | needs the out-of-tree `nct6687d` DKMS driver | the largest gap; 8 fans and 10 voltages |
-| Per-core and SoC power, and the real VID | needs `ryzen_smu` or `zenpower3`, which read the AMD SMU mailbox | the true CPU power picture on Zen 5 |
+| ~~Per-core power~~ | ~~needs `ryzen_smu` or `zenpower3`~~ | **DONE 2026-09-22.** It needed neither. `0xc001029a` holds one energy counter for each core and reading it writes nothing. 13 channels. `exp-0012`, ADR 0010. |
+| ~~SoC power and the real VID~~ | needs a **write** to the SMU mailbox | **DROPPED, ADR 0010.** ADR 0007 has no exceptions. |
 | RTX 4090 hotspot temperature | NVML does not give it; it needs an I2C read of the board controller | the temperature that limits a 4090 |
 | ~~SSD wear, TBW and throttle state~~ | ~~needs NVMe admin commands as root~~ | **DONE 2026-09-22**, 15 channels through the helper. `exp-0011`. |
 | Monitor data through DDC/CI | needs `ddcutil` and i2c group access | model, brightness, input |
@@ -135,6 +137,25 @@ rules before any code is written. Reading comes first.
   way, because `socketserver` calls `server_close()` when `server_bind()`
   raises. Same shape as fault 1 of the thermal shutdown. Fixed, with a test.
 
+- **Session 6. Per-core power, with no write.** `exp-0012`: the processor holds
+  one energy counter for each core at MSR `0xc001029a`, and `pread()` on
+  `/dev/cpu/N/msr` reads it. All twelve cores are live, the sum matched
+  `turbostat` to **0.1 %** under load (103.98 W against 104.10 W), and one sweep
+  of 24 threads costs **0.070 ms**. 13 new channels.
+- **The route the plan named would have broken ADR 0007.** `ryzen_smu` and
+  `zenpower3` **write** a command word into the SMU mailbox to get the same
+  numbers. ADR 0010 writes the distinction down: a register may be read, a
+  mailbox may not be written, and the three unmapped voltage rails are dropped
+  for that reason.
+- Two defects found by looking at the screen, neither by the tests: two rows
+  both labelled `CPU Core 0 Power`, and rows ordered as text, so `Core 10` came
+  between `Core 1` and `Core 2`. Both fixed; the sort now reads a number as a
+  number, which also repairs `CPU0 use` to `CPU23 use`.
+- The two readings of core 0 — powercap and the register — agree to
+  **0.001 W**, which is a third confirmation that the powercap `core` domain is
+  core 0 alone.
+- The screen: **166 channels, 5 hidden, 1.95 ms per pass. 350 tests pass.**
+
 - **Published.** The project is at <https://github.com/govarthenan/sensors-gui>,
   **private**, 32 signed commits, 223 files. A sweep for credentials and
   personal data ran first and found nothing critical. The 8 hardware
@@ -148,16 +169,22 @@ rules before any code is written. Reading comes first.
 
 ## Waiting for Gova
 
-Nothing. Gova approved two root commands on 2026-09-22 through the
-`run-as-root` skill: the read-only probe and the helper install.
+Nothing. Gova approved three more root commands on 2026-09-22 through the
+`run-as-root` skill: the read-only core-energy probe and two helper installs.
 
-Verified on the machine at the end of session 5, not assumed:
+Verified on the machine at the end of session 6, not assumed:
 
-- `sensors-guid.service` is **enabled and active**, with 0 restarts.
-- The socket is `srw-rw---- root:gova`, and the user `gova` reads all 19
+- `sensors-guid.service` is **enabled and active**, and it answers **32 of 32
+  channels** with a value.
+- The socket is `srw-rw---- root:gova`, and the user `gova` reads all 32
   channels from it **with no password**.
 - The installed helper and the repository copy have the same SHA-256.
-- The application runs: **153 channels, 2.02 ms per pass, 5 hidden.**
+- The application runs: **166 channels, 1.95 ms per pass, 5 hidden.**
+- `CPU Core 0 (RAPL) Power` and `CPU Core 0 Power` read **1.624 W each**, from
+  two different parts of the processor.
+- The `msr` module now loads at boot, from
+  `/etc/modules-load.d/sensors-gui.conf`. **This is untested across a reboot**;
+  the next session should check it first.
 - From the earlier reboot, still true: the patched driver loads by itself and
   is signed, `fan/pwm mask=0x1ff` (9 channels), `EZ Conn Fan` 963 RPM,
   `CMOS Battery` 3.116 V, and all eight fan headers are at `enable=2`.
@@ -178,14 +205,17 @@ numbered 5, and one of them was already done.
    limit.
 
 3. `exp-0005` steps 2 and 3 — work down the target list in
-   `lab/exp-0005-component-census/README.md`, in order: the Ryzen SMU
-   (`ryzen_smu` or `zenpower3`, which would give the per-core power RAPL cannot),
-   then the RTX 4090 board over I2C, then the DDR5 PMICs, then the unknown
-   clients `0x4f` and USB `1-11`, then the Wi-Fi chip, then MYSTIC LIGHT.
+   `lab/exp-0005-component-census/README.md`. Target 2, the Ryzen SMU, is
+   **closed** by ADR 0010. The next one is the RTX 4090 board over I2C, then the
+   DDR5 PMICs, then the unknown client `0x4f`, then the Wi-Fi chip, then MYSTIC
+   LIGHT. Read `data/evidence/` before the I2C work: an I2C write near the DDR5
+   power management chips is in the same family of risk as the fan write.
 
-4. **Fix the remaining wrong voltages.** The patch corrected the map, and
-   `exp-0010` left `VDD MISC`, `CPU 1P8` and `CHIPSET Core` unaccounted for. No
-   register in the chip's voltage block is known to hold them.
+4. ~~**Fix the remaining wrong voltages.**~~ **DROPPED 2026-09-22, ADR 0010.**
+   `exp-0010` proved `VDD MISC`, `CPU 1P8` and `CHIPSET Core` are not in the
+   board chip's voltage block. The only remaining route is the SMU or SMN, and
+   both need a write. ADR 0007: if a question can only be answered by writing,
+   drop the question.
 
 5. **Gova looks inside the case** (about 5 minutes). Three questions, in
    `lab/exp-0005-component-census/README.md`, section "Step 5". It would say
