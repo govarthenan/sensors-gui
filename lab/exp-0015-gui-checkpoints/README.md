@@ -251,3 +251,55 @@ opens the panel of whichever sensor it names at that moment.
 
 Overhead not measured again: the change adds four event listeners to each
 value and no work on a frame.
+
+### Checkpoint 4 — the processor and the memory, 2026-09-23 (session 10)
+
+| File | What it shows |
+|---|---|
+| `2026-09-23-checkpoint-4-cpu-2560.png` | the processor view, maximised |
+| `2026-09-23-checkpoint-4-cpu-column-tooltip.png` | the panel of one frequency column, reached with the keyboard |
+| `2026-09-23-checkpoint-4-cpu-1280.png` | the processor view at half width |
+| `2026-09-23-checkpoint-4-memory-2560.png` | the memory view, with the panel of DIMM A2 |
+| `2026-09-23-checkpoint-4-memory-1280.png` | the memory view at half width |
+| `2026-09-23-checkpoint-4-cpu-overhead.json`, `…-memory-overhead.json` | the cost of each view |
+
+Checked in the page: every value element of both views opens the panel (18
+in each), the arrow keys move the panel from column to column, and the card
+wireframe still opens its dot panel after the dots moved into
+`views/dots.js`.
+
+**Seven defects found by opening the views**, none by a test:
+
+1. The three temperature tiles ran out of their card: a tile's own minimum
+   width, 170 px, was kept inside a row of three.
+2. The unit of each column display ("W", "%", "GHz") was drawn on top of its
+   highest tick.
+3. The power axis had ticks at 0.8, 1.5 and 2.2 W: a following top cut into
+   quarters. The ticks are now whole round steps; `barTicks` has a test.
+4. At 2560 px a fifth grid column stayed empty, because every wide card
+   spanned two. The column displays span three now.
+5. **At 1280 px the page scrolled sideways** and the right column was cut:
+   a card that spans three cells in a grid of two makes the browser add a
+   third. A container query now gives it the whole row below 1240 px of view.
+6. The memory drawing was scaled up so far that one line of text ran over
+   another.
+7. The panel said "not described yet" after the descriptions were written:
+   the server loads them at start, and the test server was the old one.
+   Nothing to fix in the code; the trap is in the handoff.
+
+**One screen text was withdrawn for want of a source.** The load card said
+"tasks running or waiting". The copy of `proc.rst` says only "Load average of
+last 1, 5 & 15 minutes", so the card now says that.
+
+**Cost** (30 s each, on Gova's desktop in use):
+
+| View | Rate | Python | Chrome | Total | Of the machine |
+|---|---|---|---|---|---|
+| Processor | 1 Hz | 0.0113 | 0.0630 | **0.0743 cores** | 0.31 % |
+| Processor | 10 Hz | 0.0417 | 0.1573 | **0.1990 cores** | 0.83 % |
+| Memory | 1 Hz | 0.0117 | 0.0203 | **0.0320 cores** | 0.13 % |
+| Memory | 10 Hz | 0.0417 | 0.0503 | **0.0920 cores** | 0.38 % |
+
+The processor view is the most costly view so far. Against the memory view
+it has 16 pulsing dots, where the card has 8, and three column displays that
+redraw on every frame. Which of the two costs more is not measured.

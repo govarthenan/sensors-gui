@@ -119,3 +119,60 @@ agrees. The table above is kept as written; this one replaces it.
 The fractions from photographs are approximate, to a few per cent: all three
 photographs are taken at an angle, and the bracket end of the card is out of
 frame in 06 and 07.
+
+## The processor — `src/sensors_gui/web/static/views/cpu-diagram.js`
+
+Written 2026-09-23, at checkpoint 4. The sources are in
+`data/evidence/ryzen-9900x-package-layout-2026-09-23/` (called "the layout
+folder" below); its `README.md` answers six questions and marks two of them
+"not established".
+
+### What the drawing is
+
+A drawing of the package by its dies, **not to scale inside the package**: the
+dies at their true size, about 11 and 8 mm across in a 40 mm square, would not
+hold a dot for each core. The die areas are written on them. The drawing says
+both things in its own two lines of notes.
+
+### The claims
+
+| Claim | Source |
+|---|---|
+| The package is square, 40 x 40 mm | `wikipedia-socket-am5.txt`, layout folder |
+| An I/O die, "centrally located" | TechPowerUp: "a centrally located client I/O die (cIOD)", `techpowerup-granite-ridge-annotated.txt` |
+| Two core dies, close together | TechPowerUp: the "Zen 5" CCDs "snuck up closer to each other"; Guru3D says the same, `guru3d-annotated-die-shots.txt` |
+| **The I/O die above, the two core-die seats side by side below it** | **Observation, not text.** The research agent's description of the annotated package photograph in the TechPowerUp article, recorded under "OBSERVATION" in `techpowerup-granite-ridge-annotated.txt`. The photograph is of a one-die part (a 9600X) with the second seat empty. |
+| I/O die 6 nm, 122 mm²; core die 70.6 mm² | `techpowerup-die-sizes.txt`, from AMD through HardwareLuxx |
+| Two core dies; cores 0-5 on die 1, 8-13 on die 2; `cpuN` and `cpuN+12` are one core | this machine, `data/probes/2026-09-22-cpu-topology.txt` |
+| `Tccd1` on die 1, `Tccd2` on die 2 | the same probe, and `docs/hardware-inventory.md` |
+| Inside a die, cores in two columns either side of the shared L3 | TechPowerUp's text: "a centrally located 32 MB L3 cache", with each core's L2 "facing the shared L3 cache"; the two columns are an **observation** of the annotated die photograph, in the same file |
+| 6 of 8 cores on, in each die | 12 cores on 2 dies (`docs/hardware-inventory.md`); 8 cores to a die (TechPowerUp) |
+| `Tctl` in a box of its own, "Not a place" | the k10temp documentation, quoting AMD: "a non-physical temperature on an arbitrary scale", `linux-k10temp-hwmon-doc.txt` |
+| The package readings on the package outline | RAPL's package domain is the whole package; see the tooltip sources in `src/sensors_gui/descriptions.py` |
+
+### Not established, and drawn so
+
+| Question | Why not | How the drawing shows it |
+|---|---|---|
+| Which seat holds die 1 | The k10temp driver takes `Tccd1` from a loop index over register slots, and its own header says the register map "is not confirmed from chip datasheets" (`linux-k10temp-driver-source.txt`). No source ties a die number to a seat. | The dies are drawn in the kernel's order; the note line says so, and the tooltip of each die says so. |
+| Which 6 of the 8 core places on a die are on | Set by eFuses when the chip is binned (`xda-developers-disabled-cores.txt`); no map is published | The 6 cores are drawn in the kernel's order, 3 either side of the L3; the tooltip of each core says so. |
+| How the package turns in the socket | No text source names the corner mark | Not claimed. |
+| Where on a die its temperature sensor is | No source | The die's dot is at its corner, and the tooltip says the place is not established. |
+
+## The memory — `src/sensors_gui/web/static/views/memory-diagram.js`
+
+Written 2026-09-23, at checkpoint 4.
+
+| Claim | Source |
+|---|---|
+| Four slots, in the order DIMMA1, DIMMA2, DIMMB1, DIMMB2 from the processor socket outward, to the right of the socket | the manual, "Overview of Components", page 27, `docs/reference/mobo-board-layout.png` |
+| Modules in DIMMA2 and DIMMB2; A1 and B1 empty | `docs/hardware-inventory.md`, from `dmidecode -t memory` |
+| The sensor of A2 is at i2c `0-0051`, of B2 at `0-0053` | `docs/hardware-inventory.md`: DDR5 puts the SPD hub of slot *n* at `0x50 + n` |
+
+**Not established:** where on the module its SPD hub sits. The dot marks the
+module, halfway along it, and the tooltip says it does not mark the chip. The
+drawing is not to scale.
+
+The system memory readings (used, cached, available and the rest) are the
+kernel's account across both modules together, so no dot carries them: no
+channel says how much of it is on one module.

@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-23 (end of session 9; checkpoint 3 built and reviewed, history pushed)
+Last update: 2026-09-23 (session 10; checkpoint 4 built and waiting for Gova's review)
 
 ## Phase
 
@@ -23,12 +23,15 @@ empty space is left for the later views to fill.
 **The core display is accepted**, in its solid form; blocks of 5 % were
 removed.
 
-**Checkpoint 3 is built and waits for Gova's review** (session 9,
-2026-09-23): the graphics card view, with all 21 card channels, the card
-diagram, the three temperatures that cannot be read, and a tooltip on every
-value. Open it with `uv run python -m sensors_gui.web --page "/#gpu"`, or pick
-"Graphics card" in the navigation. Checkpoint 4 does not start before Gova
-answers.
+**Checkpoint 3 is reviewed** ("The GPU screen looks OK"), and its standard
+is on the summary too (session 10).
+
+**Checkpoint 4 is built and waits for Gova's review** (session 10,
+2026-09-23): the processor and the memory, 88 channels, every one described
+with its sources, two drawings, and the core columns at sensor granularity
+(Gova: "If we 24 freq data, then 24 columns"). Open it with
+`uv run python -m sensors_gui.web --page "/#cpu"`, then "Memory". Checkpoint 5
+does not start before Gova answers.
 
 **The command.** This is the one `docs/gui-goal.md` section 5 rule 2 asks for:
 
@@ -322,6 +325,16 @@ rules before any code is written. Reading comes first.
 - The view costs **0.0450 cores at 1 Hz and 0.1440 cores at 10 Hz**.
   **472 tests pass.**
 
+- **Session 10. The summary gets the tooltip, and checkpoint 4 is built.**
+  Every value of the summary opens the panel. The processor and memory views
+  are built: 88 channels described with sources, a drawing of the package by
+  its dies and one of the memory slots, 12 power and 24 frequency and use
+  columns. Sources copied: the kernel's k10temp, spd5118, cpufreq, powercap
+  and proc documents at v7.0, psutil 7.2.2, and the package layout. Tctl is
+  "a non-physical temperature" (AMD, in the kernel documentation), and which
+  seat holds die 1 is not established. The processor view costs 0.074 cores
+  at 1 Hz and 0.199 at 10 Hz. `exp-0015`, checkpoint 4.
+
 - **Session 9, Gova's answer to checkpoint 3 applied.** Q13 and Q16: the card
   has 24 channels (clock event reasons, PCIe generation, PCIe width; the
   memory clock has its maximum). **A reading past its ceiling** now shows on
@@ -331,6 +344,10 @@ rules before any code is written. Reading comes first.
   kernel limits** many times a minute (Q17). 178 channels; 504+ tests pass.
 
 ## Waiting for Gova
+
+**Session 10: checkpoint 4.** The processor and memory views, for review.
+The questions are in the `JOURNAL.md` entry of session 10 and in the reply
+of that session. Still open from before: Q14, Q18, Q20.
 
 **Session 9, end.** Gova approved the force push ("Force push."). The
 rewritten, re-signed history is on GitHub at `6ae8c64`, GitHub shows the
@@ -385,13 +402,21 @@ Verified on the machine at the end of session 6, not assumed:
    It is the picture of the GUI stream: what runs, what is decided, what Gova
    has said, and the traps.
 
-0b. **Checkpoint 3 is built; apply Gova's feedback on it.** `docs/gui-goal.md`
+0a. **Checkpoint 4 waits for Gova.** Apply the answer to the processor and
+   memory views, and to every earlier view, before checkpoint 5 starts.
+
+0b. ~~**Checkpoint 3 is built; apply Gova's feedback on it.**~~ **DONE in
+   session 10**: the summary has the tooltip. The original text follows.
+   **Checkpoint 3 is built; apply Gova's feedback on it.** `docs/gui-goal.md`
    calls it the reference for every other group, so the feedback is applied
    to the summary view and to every later group before they are built. The
    tooltip is only on the graphics card view so far; the summary gets it with
    the feedback.
 
-0c. **Gova's idea, for the processor view at checkpoint 4**: one `CoreBars`
+0c. ~~**Gova's idea, for the processor view at checkpoint 4**~~ **BUILT in
+   session 10**: power, frequency and use each have their columns; the
+   temperatures are two dies and Tctl, on one chart. The original text follows.
+   **Gova's idea, for the processor view at checkpoint 4**: one `CoreBars`
    display for each measure — load, power, and so on — because the spread
    across the cores is what it shows well. **Temperature cannot be one of
    them.** `k10temp` on Zen 5 gives `Tctl` and one `Tccd` for each die and

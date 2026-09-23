@@ -1690,3 +1690,77 @@ label photograph.
 - GitHub can keep unreferenced old commits for a while; a complete purge on
   its side needs GitHub Support. Not requested.
 - `tmp/HANDOFF-gui-stream.md` rewritten for the next conversation.
+
+---
+
+## 2026-09-23 — Session 10: the summary gets the tooltip, and checkpoint 4 starts
+
+**Item 1 of the handoff: the checkpoint 3 standard on the summary.** Every
+value on the summary opens the tooltip panel now: 46 of 47 value elements, the
+47th being a sum of two channels that says so. Opening the view found three
+defects no test caught: the place names of the temperatures lived in a native
+`title` that the panel removes, the colour legend had no meaning for "above
+ceiling" and "below floor", and the fan note still counted "nine case fans".
+`lab/exp-0015-gui-checkpoints/README.md`, checkpoint 3e. Commit `c7beb5d`.
+
+**Gova's answer to the question the handoff left for checkpoint 4**, verbatim:
+
+> Display at the sensor level granularity. If we 24 freq data, then 24
+> columns. SImple as that.
+
+So a column is one channel, never a figure made from two: **use and frequency
+get 24 thread columns, power gets 12 core columns.** The two threads of a core
+stay side by side, as built.
+
+**Checkpoint 4 built: the processor and the memory.**
+
+- **All 88 channels of the two groups are described**, 72 for the processor
+  and 16 for the memory, in `src/sensors_gui/descriptions.py`, and every
+  sentence names its source. The tests were written first and failed first
+  (8 of them); they take the channels from the real collectors, so a channel
+  that appears on this machine without a description fails the suite.
+- **Two new views.** Processor: a drawing of the package by its dies with a
+  dot on each core, each die, the package and Tctl; temperature; power; the
+  power of each core (12 columns); the frequency and the use of each thread
+  (24 columns each); the load average. Memory: the four slots with a dot on
+  each fitted module, the module temperatures, the kernel's memory account,
+  swap.
+- **`CoreBars` grew** a floor that is not zero (frequency starts at
+  613.954 MHz), one unit for the whole axis, a top that follows the readings
+  where no scale is published (the power of one core), and the full tooltip
+  panel on each column, by pointer and by the arrow keys.
+- **The dots of a drawing are one module now**, `views/dots.js`, shared by
+  the card wireframe, the processor and the memory.
+- A third series colour, `--series-3`, slot 3 of the dataviz skill's fixed
+  order, validated with the first two: worst CVD ΔE 9.4, all pairs pass.
+
+**Findings**
+
+1. **Tctl is not a temperature of a place.** The kernel's k10temp
+   documentation quotes AMD: "a non-physical temperature on an arbitrary
+   scale", used for fan control. The drawing puts it in a box of its own,
+   "Not a place". The driver applies no offset to it on this processor: its
+   offset table stops at family 0x17, and this is 0x1a.
+2. **Which seat in the package holds die 1 is not established**, and neither
+   is which 6 of the 8 core places on a die are on. The driver's own header
+   says its register map for the die sensors "is not confirmed from chip
+   datasheets", and the cores are fused off when the chip is binned. The
+   drawing says both in its own note line.
+3. **psutil's "used" is total less available**, not total less free, which
+   its own docstring says. So used, free and cached do not add up to the
+   total here (14.3 + 7.0 + 40.1 GiB against 60.4). A stacked bar of them
+   would have been false, and none was drawn; the tooltip says why.
+4. **psutil's frequency limits are the policy's**, `scaling_min_freq` and
+   `scaling_max_freq`, never `cpuinfo_*`. That is the Q17 floor again, now
+   with the source line behind it.
+5. **Seven defects found by opening the views**, among them a page that
+   scrolled sideways at 1280 px. `lab/exp-0015-gui-checkpoints/README.md`,
+   checkpoint 4.
+6. **The processor view is the most costly view so far**: 0.074 cores at
+   1 Hz, 0.199 at 10 Hz (0.83 % of the machine). The memory view: 0.032 and
+   0.092.
+
+Sources copied this session: `data/evidence/cpu-memory-sources-2026-09-23/`
+(kernel v7.0 documents, psutil 7.2.2, a probe of this machine) and
+`data/evidence/ryzen-9900x-package-layout-2026-09-23/` (the package layout),
+each gathered by a research agent and checked against its quotes before use.
