@@ -274,15 +274,23 @@ function thePanel() {
  * The dataviz skill: the same details on focus as on hover, so the element
  * takes a place in the tab order.
  *
+ * A line whose channel changes, such as "the hottest sensor", passes a
+ * function instead of a channel; it is asked each time the panel opens.
+ *
  * @param {HTMLElement|SVGElement} element what the pointer or the focus lands on
- * @param {object} channel the channel it shows
+ * @param {object|function(): (object|null)} channel the channel it shows, or a function that returns it
  * @param {import("./stream.js").Stream} stream the live frames
  */
 export function attachTooltip(element, channel, stream) {
   if (!channel) return;
   element.classList.add("has-tip");
+  // A native `title` would open a second box over the panel.
+  element.removeAttribute("title");
   if (!element.hasAttribute("tabindex")) element.setAttribute("tabindex", "0");
-  const open = () => thePanel().open(element, channel, stream);
+  const open = () => {
+    const shown = typeof channel === "function" ? channel() : channel;
+    if (shown) thePanel().open(element, shown, stream);
+  };
   const close = () => thePanel().close(element);
   element.addEventListener("pointerenter", open);
   element.addEventListener("pointerleave", close);

@@ -9,6 +9,11 @@
  * Every fact about the hardware here has a source under `docs/`. Where a
  * number cannot be read on this machine, the card says so and says why; it
  * never shows a zero in place of a value that does not exist.
+ *
+ * Checkpoint 3 is the standard for every view (`docs/gui-goal.md` 5), so
+ * every value here carries the tooltip of section 4.2, as on the card view.
+ * The one number that is no channel, the sum of the measured power, says in
+ * its own tooltip how it is made.
  */
 
 import {
@@ -22,6 +27,7 @@ import {
   setText,
   stateOf,
 } from "../widgets.js";
+import { attachTooltip } from "../tooltip.js";
 import { card, factLine, missing } from "./parts.js";
 
 /**
@@ -88,11 +94,21 @@ export function summaryView(catalogue, stream) {
 
   const restRows = new Map();
   for (const channel of temperatures) {
-    const { row, value } = factLine(channel.label, WHERE[channel.label]);
+    // The place is on screen, not in a `title`: the tooltip replaces the
+    // title, and a channel not yet described would lose its place with it.
+    const { row, value } = factLine(channel.label);
+    const place = document.createElement("span");
+    place.className = "fact-place";
+    place.textContent = WHERE[channel.label];
+    row.querySelector(".fact-label").append(" ", place);
     row.classList.add("fact-small");
     heroRest.appendChild(row);
+    attachTooltip(row, channel, stream);
     restRows.set(channel.i, value);
   }
+  attachTooltip(hot.body.querySelector(".hero"), leadChannel, stream);
+  let hottestChannel = null;
+  attachTooltip(heroHottest, () => hottestChannel, stream);
   painters.push(() => {
     let hottest = null;
     for (const channel of temperatures) {
@@ -103,6 +119,8 @@ export function summaryView(catalogue, stream) {
         hottest = { channel, reading };
       }
     }
+
+    hottestChannel = hottest?.channel ?? null;
 
     const lead = leadChannel === null ? null : stream.value(leadChannel);
     if (leadChannel === null) {
@@ -148,10 +166,12 @@ export function summaryView(catalogue, stream) {
     }
     const { row, value } = factLine(name);
     power.body.appendChild(row);
+    attachTooltip(row, channel, stream);
     powerValues.push([channel, value]);
   }
   const { row: totalRow, value: totalValue } = factLine("Measured together");
   totalRow.classList.add("fact-strong");
+  totalRow.title = "The sum of the two readings above, made here; no sensor reads it.";
   power.body.appendChild(totalRow);
   const note = document.createElement("p");
   note.className = "absent";
@@ -181,6 +201,7 @@ export function summaryView(catalogue, stream) {
     }
     const meter = new Meter(channel);
     load.body.appendChild(meter.element);
+    attachTooltip(meter.element, channel, stream);
     painters.push(() => meter.update(stream.value(channel), stream.extra(channel)));
   }
 
@@ -194,6 +215,7 @@ export function summaryView(catalogue, stream) {
     }
     const { row, value } = factLine(label);
     memory.body.appendChild(row);
+    attachTooltip(row, channel, stream);
     painters.push(() => setText(value, formatValue(stream.value(channel), channel)));
   }
 
@@ -207,6 +229,7 @@ export function summaryView(catalogue, stream) {
     }
     const meter = new Meter(channel);
     storage.body.appendChild(meter.element);
+    attachTooltip(meter.element, channel, stream);
     painters.push(() => meter.update(stream.value(channel), stream.extra(channel)));
   }
   for (const label of ["Critical Warning", "Media Errors", "Unsafe Shutdowns", "Power Cycles", "Power-On Hours"]) {
@@ -217,6 +240,7 @@ export function summaryView(catalogue, stream) {
     }
     const { row, value } = factLine(label);
     storage.body.appendChild(row);
+    attachTooltip(row, channel, stream);
     painters.push(() => setText(value, formatValue(stream.value(channel), channel)));
   }
 
@@ -226,16 +250,18 @@ export function summaryView(catalogue, stream) {
   const fanNote = document.createElement("p");
   fanNote.className = "absent";
   fanNote.textContent =
-    "The board sees three of the nine case fans and the pump. The case fans are on the EZ Conn header, " +
-    "which reports as one channel. Five SYS_FAN headers are empty, and the BIOS agrees (exp-0009). " +
+    "The case has 7 fans (3 front, 3 top on the CPU radiator, 1 rear) and the pump; the board reads them on " +
+    "four headers. The BIOS put case fans on the EZ Conn header, which reports as one channel (exp-0009). Which " +
+    "fans each header reads is not established. Five SYS_FAN headers are empty, and the BIOS agrees. " +
     "A header that reads 0 RPM is shown, never hidden: a fan that has stopped must not disappear. " +
     "The graphics card is the SUPRIM LIQUID X: one fan on its underside, and the radiator at the bottom of the " +
     "case with its two fans is the card's own (docs/physical-build.md, corrected 2026-09-23). NVML reads two fan " +
     "channels, one for each fan header on the card's board; which fans each drives is not established. Both stop " +
     "while the card is idle; exp-0013 measured 1205 and 1520 RPM under load.";
   for (const channel of fans) {
-    const { row, value } = factLine(channel.label, channel.origin);
+    const { row, value } = factLine(channel.label);
     cooling.body.appendChild(row);
+    attachTooltip(row, channel, stream);
     painters.push(() => {
       const reading = stream.value(channel);
       setText(value, formatValue(reading, channel));
@@ -267,6 +293,7 @@ export function summaryView(catalogue, stream) {
   } else {
     const trace = new Trace(charted, { width: 420, height: 180, title: "Tctl" });
     movement.body.appendChild(trace.element);
+    attachTooltip(trace.element.querySelector("figcaption"), charted, stream);
     painters.push(() => trace.update(stream.series(charted), stream.seconds));
   }
 
@@ -278,6 +305,7 @@ export function summaryView(catalogue, stream) {
   } else {
     const trace = new Trace(gpuPower, { width: 420, height: 180, title: "GPU power" });
     gpuMovement.body.appendChild(trace.element);
+    attachTooltip(trace.element.querySelector("figcaption"), gpuPower, stream);
     painters.push(() => trace.update(stream.series(gpuPower), stream.seconds));
   }
 
@@ -288,6 +316,7 @@ export function summaryView(catalogue, stream) {
     missing(helperTile.body, "CPU Package Power");
   } else {
     helperTile.body.appendChild(packageTile.element);
+    attachTooltip(packageTile.element, packagePower, stream);
     painters.push(() =>
       packageTile.update(stream.value(packagePower), stream.series(packagePower), stream.extra(packagePower)),
     );
@@ -311,6 +340,8 @@ const LEGEND_MEANING = {
   warning: "past the warning threshold the hardware publishes",
   serious: "two thirds of the way from the warning to the critical threshold",
   critical: "at or past the critical threshold the hardware publishes",
+  over: "past the top of the published scale; the Alerts screen logs it",
+  under: "under the bottom of the published scale; the Alerts screen logs it",
   stale: "the value is older than one pass; the helper samples on its own clock",
   unavailable: "the value cannot be read now, and the reason is shown",
 };

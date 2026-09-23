@@ -212,7 +212,7 @@ main {
 .hero-rest {
   margin-top: 14px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 2px 20px;
 }
 
@@ -870,4 +870,9 @@ footer #alerts-link[data-state="over"] b {
   stroke: var(--ink-muted);
   stroke-width: 1.2;
   stroke-dasharray: 5 4;
+}
+
+/* Where a reading sits on the machine, beside its name, in the summary. */
+.fact-place {
+  color: var(--ink-muted);
 }

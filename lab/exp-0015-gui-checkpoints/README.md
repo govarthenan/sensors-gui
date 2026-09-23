@@ -222,3 +222,32 @@ the frame rate: any smooth animation makes Chrome produce about 60 frames a
 second. Twelve steps over three seconds is 4 changes a second, and the pulse
 now costs about 0.005 cores at 1 Hz and 0.008 at 10 Hz. One 30-second window
 each, so these are rough; the order of the saving is not.
+
+### Checkpoint 3e — the checkpoint 3 standard on the summary, 2026-09-23 (session 10)
+
+`docs/gui-goal.md` 5: the feedback on checkpoint 3 applies to every view
+before the next group is built. The summary had no tooltips.
+
+| File | What it shows |
+|---|---|
+| `2026-09-23-checkpoint-3e-summary-tooltip.png` | the summary at 2560 x 1440, the panel open on `Tctl` |
+
+Checked in the page, not only in the code: of the 47 value elements in the
+summary (lines, meters, tiles, chart titles, the hero), **46 carry the panel**.
+The 47th is "Measured together", which is no channel: it is the sum of two,
+and a short native note says so. The line "Hottest sensor on the machine"
+opens the panel of whichever sensor it names at that moment.
+
+**Three defects found by opening it**, none by a test:
+
+1. The place of each temperature ("SN770, sensor 1") was in a native `title`.
+   The panel replaces the title, and these channels have no description yet,
+   so the place would have gone from the screen. It is now written beside the
+   name.
+2. The colour legend gave no meaning for "above ceiling" and "below floor".
+   The two states were added in checkpoint 3b and the legend was not.
+3. The fan note said "three of the nine case fans". The case has 7 fans and
+   the machine 10 (`docs/physical-build.md`, correction of 2026-09-23).
+
+Overhead not measured again: the change adds four event listeners to each
+value and no work on a frame.
