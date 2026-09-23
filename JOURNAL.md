@@ -1657,3 +1657,15 @@ label photograph.
    channel left its scale. With the margin, the log recorded **no alert**. The
    run was on an idle desktop, so a limit only reached under load, such as the
    card's 480 W, was not tested.
+4. **The card fan's RPM is most likely already on screen**, as one of the
+   two card fan channels (`exp-0017`). The radiator's fans plug into a hub on
+   the radiator, cabled to the card, so both NVML channels are the card's.
+   Which channel is the fan on the card is **not established**: NVML's cooler
+   information is the same for both, and Tom's Hardware, with this card in
+   hand, wrote "It's not clear which fan speeds are reported by GPU-Z". The
+   research agent guessed channel 2 from speeds and fan sizes; that guess is
+   not used for a label. Gova can settle it by eye, with no disassembly and
+   no synthetic load: `lab/exp-0017-gpu-fan-channels/README.md`, "The
+   procedure by eye".
+5. **One display defect found by opening the Alerts screen**: a scaled range
+   read "614 MHz to 5.7 GHz Hz". Fixed.

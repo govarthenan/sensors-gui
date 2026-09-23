@@ -104,7 +104,9 @@ export function alertsView(catalogue, stream) {
     const ceiling = (channel.high ?? null) === null ? "—" : scaleLabel(channel.high, channel);
     item.innerHTML = "<b></b><em></em>";
     item.querySelector("b").textContent = channel.label;
-    item.querySelector("em").textContent = `${floor} to ${ceiling} ${channel.symbol}`.trim();
+    // A scaled end already carries its unit ("5.7 GHz"); a plain one does not ("100").
+    const unit = /\s/.test(ceiling) || (ceiling === "—" && /\s/.test(floor)) ? "" : ` ${channel.symbol}`;
+    item.querySelector("em").textContent = `${floor} to ${ceiling}${unit}`.trim();
     attachTooltip(item, channel, stream);
     list.appendChild(item);
   }

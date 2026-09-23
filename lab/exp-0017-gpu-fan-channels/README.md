@@ -110,3 +110,31 @@ fields) has nothing to offer here.
 | `probe.py` | reads the once-off fan/cooler facts and a 60 s / 2 Hz series. Read-only. |
 | `results/probe.json` | the full report: meta, once-off reads, all 120 samples |
 | `results/probe-series.csv` | the 120-row series alone, for a quick look or a plot |
+
+## The procedure by eye, for Gova (added 2026-09-23)
+
+No disassembly, nothing written to the card, and no synthetic load.
+
+1. Open the application on the graphics card view. The **Fans** card shows
+   both channels live, side by side, and on one chart.
+2. With the side panel open, look where you can see the fan on the card's
+   underside and the two fans on the radiator at the bottom at the same time.
+   At idle both channels read 0 RPM and all three fans stand still.
+3. Start something that loads the card in ordinary use: a game, or a video
+   encode. The card holds its fans at 0 until it passes its own temperature,
+   then starts them at once.
+4. **The moment one channel leaves 0 RPM, look at which fans turn.**
+   - If channel 1 starts first and only the fan on the card turns, channel 1
+     is the card fan and channel 2 is the radiator pair; and the other way
+     round.
+   - If both channels start together, wait for a moment when one channel
+     changes speed and the other does not, and watch which fans change.
+5. Say what you saw. The labels on screen then change from "GPU fan 1" and
+   "GPU fan 2" to the fan they name, with your observation as the source.
+
+Why it can work: the board's schematic gives each channel its own fan header,
+and the radiator fans reach the card through their own cable
+(`data/evidence/rtx4090-liquidx-fans-2026-09-23/`). That makes it **likely**,
+not established, that each channel drives a different group of fans. The
+procedure tests that too: if the card fan and the radiator fans always start
+and change together, the likely answer is wrong, and that is worth knowing.
