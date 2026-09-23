@@ -1,0 +1,71 @@
+Source:  WCCFTech — "MSI GeForce RTX 4090 SUPRIM X & SUPRIM Liquid X Review – When Air & Water
+         Collide!" — page 10, "MSI GeForce RTX 4090 SUPRIM Liquid X Closer Look + Teardown"
+         (confirmed by this article's own table of contents, item 10)
+URL:     https://wccftech.com/review/msi-geforce-rtx-4090-suprim-x-suprim-liquid-x-review-when-air-water-collide/10/
+Author:  Hassan Mujtaba, Oct 12, 2022
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://wccftech.com/review/msi-geforce-rtx-4090-suprim-x-suprim-liquid-x-review-when-air-water-collide/10/"
+         (fetched directly from the live site, no block encountered)
+Why saved: Kept ONLY to establish that the SUPRIM Liquid X is a physically different product
+           from the air-cooled SUPRIM/SUPRIM X (different dimensions, 2-slot vs. 4-slot,
+           single block-fan vs. triple shroud fan, separate radiator), which rules the Liquid
+           X out as this machine's card (2 NVML fan-control channels would not fit a
+           single-fan pump + separate radiator-fan design described here). Also kept to record
+           an apparent internal inconsistency in this same article (see the note at the
+           bottom) and the memory-chip count.
+
+---
+
+"Unlike the massive monstrosities that the air coolers are in, the RTX 4090 SUPRIM Liquid X
+comes in a very attractive 2-slot design. The card is a semi-hybrid design with a pump that
+leads to a 240mm AIO radiator and a singular Torx 5.0 fan with axial tech that further helps
+to dissipate heat. The RTX 4090 SUPRIM Liquid X measures 280x140x43mm while the radiator
+(with fans installed) measures 274x121x55mm. The whole thing weighs in at just 2353g."
+
+"Coming to the fans, the card actually features the latest fan designs based on the Torx 5.0
+system. The singular fan features a ring-based design to allow for higher airflow to be
+channeled within the main heatsink. [...] The fan body has three blades that form three sets
+and each fan has three sets of them that make up a total of 9 fan blades."
+
+"With the outside of the card done, I will now start taking a glance at what's beneath the
+hood of the SUPRIM Liquid X. Unlike the SUPRIM X, the Liquid X is a dual-slot design and as
+such, it doesn't use a huge aluminum fin block. It is also a liquid-cooled variant and as
+such, it has a fully enclosed body with just two tubes leading into the central chamber."
+
+"The pump makes use of a micro-fin copper base which has a large central GPU contact surface
+and four exterior arms with a thicker surface to make direct contact with the 12 memory
+modules that are featured on the RTX 4090. Each arm has thermal pads featured on it to make
+sure that the heat is dissipated effectively."
+
+"MSI adds extra protection to its impressive PCB by including a rugged anti-bending plate.
+This also acts as additional memory and MOSFET cooling plate while the PWM heatsink with
+micro fins keeps the VRM cool under stressful conditions. The 240mm radiator comes with MSI's
+latest MEG Silent GALE P12 fans [...]"
+
+"I/O on the graphics card sticks with the reference scheme which includes three Display Port
+1.4a & a single HDMI 2.1 port."
+
+"There's also a dual-BIOS switch on the card which comes pre-configured with Silent & Gaming
+modes. [...] The limits are 450W for the silent and 480W (with 530W Power Limit) for the
+gaming profile."
+
+"MSI makes use of a 26+2 phase PWM design that is made up of high-quality components such as
+HCI or High-Efficiency Carbony Inductors, SPS (Smart Power Stages), and hardened defense
+fuse." [heading immediately above: "MSI GeForce RTX 4090 SUPRIM Liquid X Teardown:"]
+
+CAUTION — internal inconsistency in this source, kept rather than silently corrected:
+1. This page's backplate paragraph says almost word for word what page 8 (the air SUPRIM X
+   section) says: "The graphics card also comes with a compact PCB design which means that
+   the shroud, heatsink, and backplate are all extended beyond the PCB. The third fan blows
+   air through the heatsink and blows it out from the cutouts that are situated at the very
+   end of the backplate." This sentence mentions a "third fan", but the Liquid X (per this
+   same page) has only one fan on its cold-plate/pump assembly plus separate radiator fans —
+   it does not have three shroud fans. This looks like a copy/paste leftover from the air
+   SUPRIM X section of the same article, so it is NOT treated as evidence about the Liquid
+   X's own PCB/cooler length in the README.
+2. This page states "530 Power Limit" for the Liquid X's gaming-mode maximum, while the air
+   SUPRIM X section of the very same article (wccftech-suprimx-air-teardown.txt) states
+   "550 power limit" / "up to 550 Watts" for the same 480 W gaming-mode default. This
+   machine's own probe (data/probes/2026-09-23-nvidia-smi-q.txt) shows a 150-530 W range,
+   matching the number given here for the Liquid X, not the number given for the air SUPRIM X
+   elsewhere in this same article.

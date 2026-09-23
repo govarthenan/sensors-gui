@@ -1,0 +1,45 @@
+Source:  TechPowerUp — "MSI GeForce RTX 4090 Suprim X Review" — page 1, Introduction & Specifications
+URL:     https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-x/
+Fetched via: Internet Archive Wayback Machine snapshot (direct fetch of the live TechPowerUp
+             page returned an automated bot-check / 403, so the Archive's copy of the same
+             page was read instead):
+             https://web.archive.org/web/20221204132007/https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-x/
+             (capture timestamp 2022-12-04T13:20:07Z; original review published/dated
+             Oct 12th, 2022 by W1zzard)
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://web.archive.org/web/2022/https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-x/"
+Why saved: TechPowerUp's own review introduction and its GPU comparison table. Establishes
+           the card's fan count ("a trio of fans"), the slot width of the cooler, and the
+           reference GPU die/memory numbers that the Suprim X shares with the reference
+           RTX 4090 (AD102 die, GDDR6X memory clock, CUDA/ROP counts).
+
+---
+
+"MSI GeForce RTX 4090 Suprim X is the company's flagship air-cooled graphics card, based on
+NVIDIA's new flagship GPU, the RTX 4090 "Ada Lovelace," which we've extensively reviewed for
+you today across as many brands as we could get our hands on. The Suprim Liquid X builds on
+the short legacy of MSI's refreshing new Suprim graphics card brand, which replaced the
+Lightning and Gaming Z brands at the top of MSI's product stack. [...] We're also reviewing
+the liquid-cooled sibling of this card, the RTX 4090 Suprim Liquid X."
+
+"The RTX 4090 is based on the 4 nm Ada AD102 silicon, with an incredible 76 billion
+transistor-count, triple that of its predecessor while actually being physically smaller;
+and fitting into the same power envelope, with 450 W typical board power. NVIDIA carved the
+RTX 4090 out of the AD102 silicon by enabling 128 out of 144 SM, or 16,384 out of 18,432
+CUDA cores; 128 RT cores, 512 Tensor cores, 512 TMUs, and 192 ROPs. The memory configuration
+is unchanged, with 24 GB of 21 Gbps GDDR6X memory across a 384-bit wide bus."
+
+"The MSI RTX 4090 Suprim X uses a stunning-looking 4-slot cooling solution that's made of
+premium multi-tone alloys, with a powerful aluminium fin-stack heatsink underneath. This is
+a conventional air-cooled solution unlike the Suprim Liquid X; and uses a trio of fans. MSI
+has given the card a healthy overclock of 2.62 GHz compared to 2.52 GHz reference, which
+interestingly is the same factory-OC as the liquid-cooled card. MSI is pricing this card at
+$1,700, a mere $100 premium over the $1600 NVIDIA baseline."
+
+Comparison table row (columns: Price | Cores | ROPs | Core Clock | Boost Clock | Memory
+Clock | GPU | Transistors | Memory):
+
+"| RTX 4090 | $1600 | 16384 | 176 | 2235 MHz | 2520 MHz | 1313 MHz | AD102 | 76300M | 24 GB,
+GDDR6X, 384-bit |
+| MSI RTX 4090 Suprim X | $1700 | 16384 | 176 | 2235 MHz | 2625 MHz | 1313 MHz | AD102 |
+76300M | 24 GB, GDDR6X, 384-bit |"

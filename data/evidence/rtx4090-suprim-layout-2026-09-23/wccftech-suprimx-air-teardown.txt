@@ -1,0 +1,85 @@
+Source:  WCCFTech — "MSI GeForce RTX 4090 SUPRIM X & SUPRIM Liquid X Review – When Air & Water
+         Collide!" — page 8, "MSI GeForce RTX 4090 SUPRIM X Closer Look + Teardown" (the
+         air-cooled SUPRIM X section; confirmed by this article's own table of contents,
+         which lists page 8 as "MSI GeForce RTX 4090 SUPRIM X Closer Look + Teardown")
+URL:     https://wccftech.com/review/msi-geforce-rtx-4090-suprim-x-suprim-liquid-x-review-when-air-water-collide/8/
+Author:  Hassan Mujtaba, Oct 12, 2022
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://wccftech.com/review/msi-geforce-rtx-4090-suprim-x-suprim-liquid-x-review-when-air-water-collide/8/"
+         (fetched directly from the live site, no block encountered)
+Why saved: An independent teardown of the air-cooled SUPRIM X (not TechPowerUp), giving its
+           own dimension/weight check, explicit fan count and blade design, VRM phase count,
+           and — most importantly for the wireframe — an explicit statement that the PCB is
+           shorter than the cooler shroud/backplate and that the third (outermost) fan
+           exhausts through the heatsink past the end of the PCB.
+
+---
+
+"MSI's Tri Frozr heat sinks are some of the biggest heatsink cooling solutions that I have
+ever tested. [...] The card measures the same at 336 x 142 x 78 mm and weighs in at 2413
+grams, respectively. The card features a standard 3.5 slot height which is expected of
+today's high-end cards."
+
+"You would have to keep in mind the height when going for a triple or quad-slot card solution
+as your case or motherboard PCIe slot combination may not allow such a setup. The cooling
+shroud extends all the way to the back of the PCB and it requires a casing with good interior
+space for proper installation."
+
+"In terms of design, we are looking at an updated version of the Tri Frozr heatsink known as
+Tri Frozr 3S which is now in its eighth variation while for the SUPRIM X series, this is the
+2nd iteration."
+
+"Coming to the fans, the card actually features the latest fan designs based on the Torx 5.0
+system. All three fans feature a ring-based design to allow for higher airflow to be
+channeled within the main heatsink. All fans deploy a double ball bearing design and can last
+a long time while operating silently. Each fan has three blades that form three sets and each
+fan has three sets of them that make up a total of 9 fan blades. Each blade is tilted at a 22
+degrees angle to the main high-pressure airflow."
+
+"MSI also features its Zero Frozr technology on the Tri Frozr heatsink. This feature won't
+spin the fans on the card unless they reach a certain threshold. [...] In the case of the Tri
+Frozr heatsink, that limit is set to 60C. If the card is operating under 60C, the fans won't
+spin which means no extra noise would be generated."
+
+"I am back at talking about the full-coverage, full metal-based backplate that the card uses.
+[...] The graphics card also comes with a compact PCB design which means that the shroud,
+heatsink, and backplate are all extended beyond the PCB. The third fan blows air through the
+heatsink and blows it out from the cutouts that are situated at the very end of the
+backplate."
+
+"The large fin stack runs all the way from the front and to the back of the PCB [...] The
+card also uses antegrade fins on the back that direct and optimize air pass through on the
+back, allowing more warm air to pass out of the card like a nozzle."
+
+"Talking about the heatsink, the massive block is comprised of 11 copper squared-shaped heat
+pipes with a more concentrated design to transfer heat from the copper base to the heatsink
+more effectively. The base itself is a solid nickel-plated base plate [...]"
+
+"MSI adds extra protection to its impressive PCB by including a rugged anti-bending plate.
+This also acts as a memory and MOSFET cooling plate while the PWM heatsink with micro fins
+keeps the VRM cool under stressful conditions."
+
+"The card also uses the latest GDDR6X DRAM from Micron which operates at 21.0 Gbps alongside
+a 384-bit wide memory interface."
+
+"I/O on the graphics card sticks with the reference scheme which includes three Display Port
+1.4a & a single HDMI 2.1 port."
+
+"There's also a dual-BIOS switch on the card which comes pre-configured with Silent & Gaming
+modes. [...] The limits are 450W for the silent and 480W (550W power limit) for the gaming
+profile."
+
+"MSI makes use of a 26+2 phase PWM design that is made up of high-quality components such as
+HCI or High-Efficiency Carbony Inductors, SPS (Smart Power Stages), and hardened defense
+fuse." [heading immediately above: "MSI GeForce RTX 4090 SUPRIM X Teardown:"]
+
+"The MSI GeForce RTX 4090 SUPRIM X is a very power-hungry graphics card as showcased by its
+custom design. Being so, the card utilizes a single 16-pin connector which can deliver up to
+550 Watts of power to the graphics card. The card is rated at 480W but ends up around 550W
+with its full power limit."
+
+Note on the "550W" figure: this article states 550 W twice for the SUPRIM X's maximum power
+limit, but states "530 Power Limit" for the SUPRIM Liquid X elsewhere in the same article
+(see wccftech-suprim-liquidx-teardown.txt) — closer to this machine's own probed range of
+150–530 W (data/probes/2026-09-23-nvidia-smi-q.txt). This 550 vs. 530 discrepancy is kept
+here as-is rather than resolved, since both numbers come from the same named source.

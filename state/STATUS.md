@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-23 (session 9; checkpoint 3 built, waiting for Gova)
+Last update: 2026-09-23 (session 9; Gova's checkpoint 3 answer applied, waiting for Gova)
 
 ## Phase
 
@@ -322,10 +322,18 @@ rules before any code is written. Reading comes first.
 - The view costs **0.0450 cores at 1 Hz and 0.1440 cores at 10 Hz**.
   **472 tests pass.**
 
+- **Session 9, Gova's answer to checkpoint 3 applied.** Q13 and Q16: the card
+  has 24 channels (clock event reasons, PCIe generation, PCIe width; the
+  memory clock has its maximum). **A reading past its ceiling** now shows on
+  every widget and is logged on a new **Alerts** screen, in memory only. The
+  card view has a **wireframe** with pulsing dots, beside the schematic.
+  **The alert log found at once that the CPU thread frequencies pass their
+  kernel limits** many times a minute (Q17). 178 channels; 504+ tests pass.
+
 ## Waiting for Gova
 
-**Checkpoint 3 review.** What to look at, and three questions, are in the
-`JOURNAL.md` entry of 2026-09-23. Checkpoint 4 waits for the answer.
+**Review of the checkpoint 3 changes**, and Q17 and Q18. The `JOURNAL.md`
+entry "Gova's answer" of 2026-09-23 has the list. Checkpoint 4 waits.
 
 
 
@@ -424,10 +432,13 @@ Verified on the machine at the end of session 6, not assumed:
 | ~~Q9~~ | ~~Monitors on the integrated graphics?~~ **ANSWERED: no, they are on the RTX 4090.** Claude guessed the DRM card order instead of reading it. `card1` is the 4090. | — | closed 2026-09-21 |
 | ~~Q11~~ | **ANSWERED 2026-09-22.** Gova: *"choose the option that gives the best experience"*. Decided: sample on a worker thread, leave the two PCIe channels at their present interval, and correct `docs/architecture.md` to state the measured distribution. Raising the budget hides the fact; lengthening the interval slows two live channels to buy what the thread gives free. Measured after: 10.00 Hz with no dropped frame. The original question follows. **The 50 ms pass budget of `docs/architecture.md` was not being kept.** `exp-0014` timed 600 passes at 10 Hz: p50 2.157 ms, p95 26.448 ms, **max 56.839 ms**. The NVIDIA collector owns all of the tail (max 68.523 ms), because the two PCIe calls of `exp-0006` cost about 20 ms each and run when their interval expires. The GUI works around it by sampling on a worker thread. Should the budget be raised to match the machine, or should those two channels get a longer interval so the tail goes away? | the GUI's smoothness, and the honesty of `docs/architecture.md` | Claude proposes, Gova decides |
 | Q12 | The status bar has reported "about 2 ms per pass" since session 3. That is the **last** pass, which is close to the median, and it hid the tail above. Every later count of this number in `JOURNAL.md`, `HANDOFF.md` and this file is a median, not a mean. Nothing is wrong on the screen; the number was simply never the whole picture. | nothing | recorded, no action |
-| Q13 | NVML gives two things about the card that the collector does not read: the **clock event reasons** (why the clocks are low — idle, power limit, thermal slowdown) and the **PCIe link** generation and width. `docs/gui-goal.md` 4.1 names both for the card, and 2 says the catalogue is closed for this stream. Both are on screen as "not collected". Add them to the collector? It is the same source, read only, no new route. | the card view's completeness | Gova |
-| Q14 | How many physical fans does the RTX 4090 SUPRIM have, and which is NVML fan 0 and which fan 1? NVML reports 2; nothing in this repository says more. A photograph of the card, or MSI's drawing, answers the count; which is which is harder. Until then both fans sit in the diagram's "position not established" area. | the card diagram | Gova |
+| ~~Q13~~ | **ANSWERED 2026-09-23: yes.** Both are channels now (`exp-0016`). The original question follows. NVML gives two things about the card that the collector does not read: the **clock event reasons** (why the clocks are low — idle, power limit, thermal slowdown) and the **PCIe link** generation and width. `docs/gui-goal.md` 4.1 names both for the card, and 2 says the catalogue is closed for this stream. Both are on screen as "not collected". Add them to the collector? It is the same source, read only, no new route. | the card view's completeness | Gova |
+| Q14 | **Part-answered 2026-09-23: three fans**, from four published sources (`data/evidence/rtx4090-suprim-layout-2026-09-23/`). Which NVML channel drives which fans is still open; no source says. The original question follows. How many physical fans does the RTX 4090 SUPRIM have, and which is NVML fan 0 and which fan 1? NVML reports 2; nothing in this repository says more. A photograph of the card, or MSI's drawing, answers the count; which is which is harder. Until then both fans sit in the diagram's "position not established" area. | the card diagram | Gova |
 | Q15 | Which temperature does the card's own fan curve follow? The view shows the edge temperature beside the fans "for reference" and says the link is not established. | the fan card's wording | not established; no read-only route known |
-| Q16 | The VRAM clock has no meter because the spec carries no maximum. The card reports one (10501 MHz, `data/probes/2026-09-23-nvidia-smi-q.txt`) and NVML gives it with `nvmlDeviceGetMaxClockInfo`, which the collector already calls for the SM clock. Give the memory clock the same `high`? | one meter | Gova |
+| ~~Q16~~ | **ANSWERED 2026-09-23: yes.** The memory clock carries 10501 MHz as its `high`. The original question follows. The VRAM clock has no meter because the spec carries no maximum. The card reports one (10501 MHz, `data/probes/2026-09-23-nvidia-smi-q.txt`) and NVML gives it with `nvmlDeviceGetMaxClockInfo`, which the collector already calls for the SM clock. Give the memory clock the same `high`? | one meter | Gova |
+| Q17 | **The CPU thread frequencies pass their kernel limits all the time.** `scaling_cur_freq` read above `cpuinfo_max_freq` (5662.016 MHz) in 33 of 9600 readings, up to 5695.5 MHz (+0.59 %), and below `scaling_min_freq` (3001.551 MHz, the lowest the frequency policy asks for, not the hardware minimum of 614 MHz) down to 2.7 GHz. `data/probes/2026-09-23-cpu-frequency-above-max.txt`. The alert log took 500 alerts in about 20 minutes, almost all from these 24 channels. Options: keep watching them; stop watching the frequency channels, because their limits are the kernel's policy and not a ceiling of the part; or keep the ceiling and use the hardware minimum as the floor. | the Alerts screen being readable | Gova |
+| Q18 | The wireframe places two dots on the card: the power connector (seen in photograph 02) and the chip (inferred from the backplate plate). Memory, VRM, PCIe, the fans and the hotspot are in a "position not established" row. A photograph of the card's fan side, or of the bare board, would place more. Will Gova take one, or is the row the answer? | the wireframe | Gova |
+| Q19 | The pulse of the wireframe dots costs about 0.045 cores while it is on screen, and roughly doubles the view's cost at 1 Hz (0.0876 against 0.0450 cores). Keep it, slow it, or pulse only a dot whose state is not normal? | overhead | Gova |
 | Q10 | **The screen now shows this live**: on 2026-09-22 it read 31 unsafe shutdowns in 150 power cycles, about one in five. One of them was the thermal shutdown of 2026-09-22. Does Gova know what causes the rest? (This row no longer holds a copy of the number. `HANDOFF.md` said 29 and this file said 28; both were true when written, at 145 and 144 power cycles.) | health | Gova |
 
 ## Expected fan count (Gova, 2026-09-21)

@@ -55,3 +55,47 @@ A photograph of the card with the shroud and the backplate in view, or MSI's
 own drawing of the SUPRIM, saved under `docs/photos/` or `docs/reference/`.
 With it the regions could move to where the parts sit, and the fans could
 leave the unplaced area. Without it, they stay where they are.
+
+## The graphics card, wireframe — `src/sensors_gui/web/static/views/card-wireframe.js`
+
+Written 2026-09-23, on Gova's answer at checkpoint 3: *"a wireframe of the
+GPU ... the sensors could be shown as pulsating dots on the wireframe - where
+the sensors would be ... This is purely cosmetic."* The schematic above is
+kept, on a second tab.
+
+### What the drawing is
+
+The card as photograph 02 shows it through the side glass: the backplate face,
+the output bracket at the left end, the edge that goes into the motherboard at
+the top, and the edge that faces the glass at the bottom.
+
+| Claim | Source |
+|---|---|
+| Outline 336 x 142 mm, drawn to scale | MSI's own specification pages, SUPRIM and SUPRIM X agree — `data/evidence/rtx4090-suprim-layout-2026-09-23/msi-suprim-air-specification.txt`, `msi-suprimx-specification.txt`; WCCFTech measured the same |
+| Three fans, on the far face (not drawn: their positions are not established) | `techpowerup-introduction-specifications.txt`, `wccftech-suprimx-air-teardown.txt` |
+| 4 outputs: 3 DisplayPort, 1 HDMI, on the bracket at the left end | all four sources in that folder; the bracket is seen in photographs 02 and 04. The order of the ports on the bracket is not established; they are drawn as four slots. |
+| The backplate runs past the end of the circuit board, with vents at its far end | `wccftech-suprimx-air-teardown.txt`. Where the board ends is not established, so no line is drawn for it. |
+| The cross-shaped plate with four screws, at about 0.46 of the length and the middle of the height | seen in photograph 02; read on the gridded crop `data/evidence/rtx4090-suprim-layout-2026-09-23/photo-02-card-with-grid.png` |
+| The 12VHPWR connector on the near edge, at about 0.84 of the length | seen in photograph 02, same crop. The dual-BIOS switch ("SILENT / GAMING") is visible just before it, which agrees with TheFPSReview: "near the rear of the PCB". |
+
+The photograph is taken at an angle, so every fraction read from it is
+**approximate**, to a few per cent.
+
+### The dots
+
+| Dot | Where | Basis |
+|---|---|---|
+| Graphics chip — edge temperature, use, SM clock, P-state, NVENC, NVDEC | on the cross-shaped plate | **Inferred, and labelled so in its tip.** The chip is under the backplate and cannot be seen; the plate and its four screws are where a cooler is held down over a chip. No source in the repository states it for this card. |
+| Power connector — power, energy | on the connector | **Seen**, photograph 02. NVIDIA's power figure is for the whole board, so the dot stands where the power enters it. |
+| Memory, VRM, PCIe fingers, fan channel 1, fan channel 2, hotspot | in the dashed row "Position on the card not established" | No source places them. None of the four published sources gives a position for the memory chips or the VRM, and none says which fans each NVML channel drives. |
+
+A dot pulses in the colour of the worst state among its readings. A part that
+cannot be read has a hollow dot that does not pulse: nothing is measured
+there. The pulse stops when the desktop asks for reduced motion.
+
+### What would place the rest
+
+A photograph of the card's other face (the fans) or of the bare board. Either
+would place the memory and the VRM, and a photograph of the fan side would
+show the three fans. Which fans each NVML channel drives would still need a
+source of its own. Q18 in `state/STATUS.md`.

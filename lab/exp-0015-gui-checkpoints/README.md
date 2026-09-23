@@ -168,3 +168,36 @@ Lower than the summary at 10 Hz (0.1720), although this view draws more:
 seven line charts against two. One 30-second window each, on an idle desktop;
 the difference is inside what ordinary desktop use moves, so it is not a
 finding.
+
+### Checkpoint 3b — Gova's answer applied, 2026-09-23
+
+| File | What it shows |
+|---|---|
+| `2026-09-23-checkpoint-3b-above-ceiling-test-frame.png` | the view with three readings pushed past their ceiling **inside the page only** (power 528 W, fan 1 duty 104 %, SM clock 3300 MHz): the meter crosses its ceiling mark, the chart turns only the part above the ceiling, the diagram marks the value. The server and the hardware never saw these values. |
+| `2026-09-23-checkpoint-3b-alerts.png` | the Alerts screen, with real alerts: the CPU thread frequencies past their kernel limits |
+| `2026-09-23-checkpoint-3b-wireframe.png` | the wireframe with the chip dot open |
+| `2026-09-23-checkpoint-3b-overhead.json` | the cost with the pulsing wireframe on screen |
+
+**How the test frame was made.** In the browser, `JSON.parse` was wrapped so
+that three values in each incoming frame were replaced before the page saw
+them. Heating the card to reach 480 W for a screenshot was not an option
+(`HANDOFF-gui-stream.md` section 4), and the alert log, which runs on the
+server, correctly logged none of them.
+
+**Two defects found by opening it**: the whole line turned the "above
+ceiling" colour, not only the part above the ceiling, and the ceiling's word
+sat on top of the end label. An old cached `index.html` also met a new status
+bar, and every frame raised an error; the page routes are now revalidated.
+
+### What the view costs with the pulsing wireframe
+
+| Rate | Python | Chrome | Total | Of the machine |
+|---|---|---|---|---|
+| 1 Hz | 0.0103 | 0.0773 | **0.0876** | 0.37 % |
+| 10 Hz | 0.0367 | 0.1503 | **0.1870** | 0.78 % |
+
+Against checkpoint 3 the pulse adds about **0.045 cores**, at either rate:
+the animation runs whether or not a frame arrives. It runs only while the
+wireframe tab of the graphics card view is on screen. A first 1 Hz run counted
+five Python processes because a test server of mine was still stopping; it
+was run again with nothing else up, and the second run is the one recorded.

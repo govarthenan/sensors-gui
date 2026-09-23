@@ -1439,3 +1439,72 @@ every later group before checkpoint 4 starts.
 again here.** So this is not the old phase 4 coming back uninvited. The log
 lives in memory only: history storage is still dropped, and nothing is
 written to disk.
+
+**What was done**
+
+1. **Q13 and Q16, "yes".** Three new card channels — the clock event reasons,
+   the PCIe generation and the PCIe width — and the memory clock's maximum.
+   `exp-0016` timed every call: the three live ones cost under 0.01 ms and
+   are read every pass; the maxima are read once. The card has **24
+   channels**, the machine 178. The clock event reasons show as nine named
+   badges, the active ones lit. The bit names come from the NVML binding,
+   copied into `data/evidence/nvml-binding-2026-09-23/`, and a test holds the
+   Python and JavaScript copies of the table together.
+2. **A reading past its ceiling.** The ceiling is the spec's `high`, the
+   floor its `low`. Past either, a reading gets its own state, "above
+   ceiling" or "below floor", with its own icon and words.
+   - **Meter:** the track stretches so the ceiling moves inward as a white
+     mark, the fill crosses it, the part past it is hatched, and a line under
+     the meter says by how much.
+   - **Line chart:** the ceiling is a dashed reference line with its word.
+     Once crossed, the axis always holds it, the space above it takes a faint
+     wash, its word reads "exceeded", and only the part of the line above it
+     changes colour.
+   - **Core columns:** a cap sits on a column that cannot grow any more.
+   - **Tooltip:** "Now 48.00 W above the ceiling; the reading is in the alert
+     log."
+3. **The alert log**, on a new **Alerts** screen. The Python service checks
+   every pass, so an alert is caught on any view, or with no window open.
+   One excursion is one alert; a return within 5 s reopens it. In memory
+   only, the newest 500, emptied by a restart. The screen gives a summary by
+   channel, then every alert, with the limit, the furthest value and how far
+   past. The navigation and the status bar carry the count.
+4. **The wireframe**, beside the schematic on a second tab. The outline is
+   the card as photograph 02 shows it, to scale from MSI's specification.
+   Every value on it is also in the cards. See finding 3 on the dots.
+
+**Findings**
+
+1. **The alert log found something within a minute of first running.** The
+   CPU thread frequencies read above the kernel's own maximum, 5662.016 MHz,
+   in 33 of 9600 readings, up to 5695.5 MHz, and below the floor the channel
+   carries, 3001.551 MHz, down to 2.7 GHz. The floor turned out to be
+   `scaling_min_freq`, the lowest the frequency policy asks for, and not the
+   part's minimum (614 MHz). So these limits are the kernel's policy, not
+   ceilings of the part. The log took 500 alerts in about 20 minutes.
+   Recorded as Q17 and left unchanged: Gova asked for every ceiling, and this
+   one is his call.
+2. **The published sources gave the card's outline, and no positions.** A
+   research agent read MSI's pages and three teardowns: 336 x 142 x 78 mm,
+   three fans, one 12VHPWR connector, 3 DisplayPort and 1 HDMI, a board
+   shorter than the cooler. None of them says where the chip, the memory or
+   the VRM sit, or which fans each NVML channel drives. The sources disagree
+   on the slot width, the fan diameter and the VRM phase count, and all three
+   disagreements are kept as stated.
+3. **Gova's own photograph placed two parts.** Photograph 02 shows the power
+   cable entering the card at about 0.84 of its length, and a cross-shaped
+   plate with four screws at about 0.46. The connector is seen; the chip under
+   the plate is inferred, and its tip says so. Everything else is in a row
+   marked "position not established". `docs/gui-goal.md` 4.3 says a sensor
+   goes "not on a guessed spot", and "purely cosmetic" did not seem a reason
+   to change that without asking (Q18).
+4. **Two defects found by opening it**: the whole chart line turned yellow
+   when only the part above the ceiling should, and the ceiling's word sat on
+   the end label. And an old cached `index.html` met the new status bar, so
+   every frame raised an error; the page routes are revalidated now, too.
+5. **The pulse costs about 0.045 cores** while it is on screen (Q19).
+
+**Tests.** 504 pass before the wireframe. New: the alert log (13), the
+ceiling in the widgets, the meter's geometry, the axis that must not hide a
+reading below the floor, the clock event bits in both languages, and the new
+card channels against the real card.

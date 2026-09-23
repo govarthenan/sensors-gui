@@ -1,0 +1,44 @@
+Source:  TechPowerUp — "MSI GeForce RTX 4090 Suprim X Review" — page 3, Pictures & Teardown
+URL:     https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-x/3.html
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-x/3.html"
+         (fetched directly from the live site; this page did not trigger the bot-check that
+         blocked pages 1 and 4 on the first attempts)
+Why saved: TechPowerUp's own physical measurements and teardown observations of the card:
+           dimensions, weight, slot count, display outputs, power connector, heatpipe count,
+           dual-BIOS switch, backplate/brace.
+
+---
+
+"The MSI GeForce 40 Suprim Series retains most of the design elements and color theme of
+their GeForce 30 offerings. The dominant color is metal gray in various shades. On the back
+you'll find a high-quality metal backplate."
+
+"The Suprim X is considerably bigger than the NVIDIA Founders Edition."
+
+"Dimensions of the card are 34.0 x 14.0 cm, and it weighs 2441 g."
+
+"Installation requires four slots in your system."
+
+"Display connectivity includes three standard DisplayPort 1.4a ports and one HDMI 2.1a
+(same as Ampere)."
+
+"The card uses the new 12+4 pin ATX 12VHPWR connector, which is rated for up to 600 W of
+power draw. An adapter cable from 4x PCIe 8-pin is included, you can also run the card with
+just three 8-pins."
+
+"This dual BIOS switch lets you toggle between the default "silent" BIOS and a "gaming" BIOS
+with a more aggressive fan curve."
+
+"The main heatsink provides cooling for the memory GPU, memory chips and VRM circuitry. It
+uses a large vapor-chamber base with ten heatpipes (the 10th heatpipe goes in the other
+direction and wraps around)."
+
+"MSI has installed a metal reinforcement brace on their card to protect against sagging."
+
+"The backplate is made of metal and protects the card against damage during installation and
+handling."
+
+(Photo captions on this page, for reference — no numeric position is given for any of them:
+"Graphics Card Dimensions", "Monitor Outputs, Display Connectors", "Graphics Card Power
+Plugs", "Graphics Card Cooler Front", "Graphics Card Cooler Back".)

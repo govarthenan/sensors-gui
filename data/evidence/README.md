@@ -59,6 +59,27 @@ Supports: the card tooltips in `src/sensors_gui/descriptions.py`, and
 `docs/diagram-positions.md`. The full query report of the same day is a probe:
 `data/probes/2026-09-23-nvidia-smi-q.txt`.
 
+### `nvml-binding-2026-09-23/`
+
+| File | Contents |
+|---|---|
+| `pynvml-extracts.txt` | The clock event reason bits and the PCIe link and maximum clock calls, from the installed `nvidia-ml-py`, with its version and SHA-256. |
+
+Supports: `CLOCK_EVENT_REASONS` in `src/sensors_gui/collectors/nvidia.py`,
+`lab/exp-0016-nvml-new-channels/`.
+
+### `rtx4090-suprim-layout-2026-09-23/`
+
+Published sources on the card's size, fan count, outputs, board and power
+connector: MSI's own specification pages, TechPowerUp, WCCFTech,
+TheFPSReview, and one parts retailer. Web research only; each file gives its
+URL, the date and the tool in its first lines, and quotes the text. Its own
+`README.md` lists every fact, every disagreement between sources, and what
+was not found. Also `photo-02-card-with-grid.png`: photograph 02 cropped to
+the card, with a grid, used to read where the connector and the plate sit.
+
+Supports: `docs/diagram-positions.md`, the wireframe of the card.
+
 ### `nct6687-driver-source/`
 
 Extracts from the out-of-tree driver, pinned to the commit that is installed, so

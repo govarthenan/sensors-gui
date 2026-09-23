@@ -1,0 +1,28 @@
+Source:  GPUFanReplacement.com — product listing "MSI GeForce RTX 4070Ti, 4080, 4090 SUPRIM X
+         GPU Fan Replacement"
+URL:     https://www.gpufanreplacement.com/products/msi-geforce-rtx-4070-4070ti-4080-4080ti-4090-4090ti-suprim-x-gpu-fan-replacement
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://www.gpufanreplacement.com/products/msi-geforce-rtx-4070-4070ti-4080-4080ti-4090-4090ti-suprim-x-gpu-fan-replacement"
+         (fetched directly from the live site, no block encountered)
+Why saved: A second, independent number for the SUPRIM X fan diameter, from a third-party
+           aftermarket-parts retailer rather than a review site. Saved specifically because it
+           DISAGREES with TheFPSReview's "100mm" (see thefpsreview-suprimx.txt): this listing
+           gives 95mm for the same fan/card. Both numbers are kept; neither is treated as
+           settled, since neither source is a primary teardown with calipers on the actual
+           part removed from this exact card family.
+
+---
+
+"MSI GeForce RTX 4070Ti, 4080, 4090 SUPRIM X GPU Fan Replacement. Specifications: Model:
+PLD10020B12H Fan Diameter: 95mm Voltage: DC 12V Current: 0.65A Mounting holes distance: 40mm
+Power Connector: 4 Pin Compatible with the following graphics cards: MSI GeForce RTX 4070 Ti
+SUPRIM 12G MSI..." [product blurb, truncated by the site's own listing snippet]
+
+Spec list on the product page:
+"- Fan Diameter: 95mm
+- Mounting holes distance: 40mm"
+(further down the same page: "Power Connector: 4 Pin")
+
+Caveat: this is a commercial listing for an aftermarket replacement fan, not a measurement
+published by a reviewer or by MSI. It is included as a second data point on fan size only,
+and is explicitly marked lower-confidence in the README.

@@ -21,6 +21,7 @@
 import { Meter, StatTile, Trace, formatValue, hasScale, setText } from "../widgets.js";
 import { attachTooltip } from "../tooltip.js";
 import { cardDiagram } from "./card-diagram.js";
+import { cardWireframe } from "./card-wireframe.js";
 import { card, factLine, missing } from "./parts.js";
 
 /** The fixed facts of the card, each from a file in this repository. */
@@ -148,11 +149,39 @@ export function gpuView(catalogue, stream) {
   }
 
   // --- the diagram ---------------------------------------------------------
-  const drawing = card("The card", "hover any reading for what it is and where it comes from");
+  // Gova, 2026-09-23: a wireframe with a pulsing dot on each part, and the
+  // schematic kept beside it. Only the drawing on screen is painted.
+  const drawing = card("The card", "hover a dot for its readings; every value is also in the cards");
   drawing.element.classList.add("card-diagram");
+  const tabs = document.createElement("div");
+  tabs.className = "drawing-tabs";
+  tabs.setAttribute("role", "tablist");
+  const wireframe = cardWireframe(find, stream);
   const diagram = cardDiagram(find, findMissing, stream);
-  drawing.body.appendChild(diagram.element);
-  painters.push(() => diagram.update());
+  const drawings = [
+    ["Wireframe", wireframe.element, wireframe],
+    ["Schematic", diagram.element, diagram],
+  ];
+  let shown = 0;
+  const holder = document.createElement("div");
+  drawings.forEach(([name], index) => {
+    const tab = document.createElement("button");
+    tab.textContent = name;
+    tab.setAttribute("role", "tab");
+    tab.addEventListener("click", () => {
+      shown = index;
+      holder.replaceChildren(drawings[index][1]);
+      for (const [position, button] of [...tabs.children].entries()) {
+        button.setAttribute("aria-selected", String(position === index));
+      }
+      drawings[index][2].update();
+    });
+    tab.setAttribute("aria-selected", String(index === 0));
+    tabs.appendChild(tab);
+  });
+  holder.appendChild(wireframe.element);
+  drawing.body.append(tabs, holder);
+  painters.push(() => drawings[shown][2].update());
 
   // --- temperature --------------------------------------------------------
   const heat = card("Temperature", "one sensor; three more cannot be read");

@@ -1,0 +1,54 @@
+Source:  TheFPSReview — "MSI GeForce RTX 4090 SUPRIM X 24G Video Card Review"
+URL:     https://www.thefpsreview.com/2023/05/12/msi-geforce-rtx-4090-suprim-x-24g-video-card-review/
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://www.thefpsreview.com/2023/05/12/msi-geforce-rtx-4090-suprim-x-24g-video-card-review/"
+         (fetched directly from the live site, no block encountered)
+Why saved: This is the only source found that states an explicit fan diameter in running
+           text ("The 100mm fans..."), and it gives a PCB position for one named component
+           (the dual-BIOS switch, "near the rear of the PCB"). It independently confirms the
+           card is air-cooled, 3-fan, 16-pin 12VHPWR, and its physical dimensions.
+
+---
+
+"In today's review, the focus is on the MSI GeForce RTX 4090 SUPRIM X video card. The SUPRIM
+X represents the top-of-the-line air-cooled RTX 4090 video card from MSI. The features of
+this particular model include: full cover brushed aluminum shroud, front and back, with
+particular emphasis on distinct design elements and beveled polished edging; improved
+TRI-FROZR 3S thermal design: raised fan cowls, new TORX Fan 5.0 design, and a massive vapor
+chamber heatsink; dual BIOS and improved PCB electronic components."
+
+"MSI has a three-tiered RTX 4090 product stack. The video cards are the Ventus, Gaming TRIO,
+and the SUPRIM. In each case, there is a plain version and an overclocked version. [...] Also,
+the MSI GeForce RTX 4090 SUPRIM X is in rarified air as one of only a few air-cooled RTX 4090s
+with a Boost clock of 2625MHz right out of the box. [...] There is also a liquid-cooled
+version of the SUPRIM X which carries the same overclock, but also a slight price premium
+over the air-cooled version."
+
+"The fit and finish of the video card are simply superb. [...] The heatsink is a
+nickel-coated copper vapor chamber that runs the full length of the PCB."
+
+"The fans are called TORX 5.0 by MSI. The 100mm fans are 9-bladed in three groups, connected
+by an interrupted outer rim. This apparently directs airflow more specifically and quietly.
+The fan cowls are raised slightly above the shroud surface to improve airflow. The BIOS is
+programmed to enable "ZERO FROZR" where-by the fans are stopped below a certain temperature."
+
+"A dual BIOS switch is positioned near the rear of the PCB. The 2-position switch is labeled
+"gaming" and "silent". The gaming mode allows an increase of TBP to 480 Watts and more
+aggressive fan cycles."
+
+"When you pick this video card up, it's heavy and thick. The design is identical to the 4080
+SUPRIM X, measuring 13 ¼ x 5 x 3 inches. This nearly 4-slot card is however heavier than its
+4080 brother by 3 ounces, weighing in at 5 pounds 5 ounces. The I/O is equipped with a 3 x
+rev 1.4 Display Port and 1 rev 2.1 HDMI."
+
+"Accessories included in the box are pictured, a large mousing pad, and a video card support
+stand. The RTX 4090 requires sufficient power input. Included is an NVIDIA branded 4 port
+PCIe power adapter to the 16-pin 12VHPWR card connector. MSI recommends at least an 850 Watt
+PSU for regular use and a 1000 Watt if overclocking. The TDP in "silent mode" is 450W and in
+"gaming mode" is 480W."
+
+NOTE on "9-bladed in three groups": read in context, and confirmed by the near-identical
+sentence in the wccftech teardown ("Each fan has three blades that form three sets [...] a
+total of 9 fan blades"), this describes the blade layout WITHIN a single 100mm fan (3 blades
+x 3 linked sets = 9 blades per fan), not how the card's three fans are grouped for PWM/tach
+control. It is NOT evidence for or against NVML's 2 fan-control channels.

@@ -1,0 +1,46 @@
+Source:  MSI — "GeForce RTX 4090 SUPRIM 24G" — official Specification page (the plain, non-X,
+         air-cooled SUPRIM)
+URL:     https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-24G/Specification
+Fetched via: Internet Archive Wayback Machine snapshot (direct fetch of the live MSI page
+             returned HTTP 403 "Access Denied"; the Archive's copy was read instead):
+             https://web.archive.org/web/20240301150336/https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-24G/Specification
+             (capture timestamp 2024-03-01T15:03:36Z)
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://web.archive.org/web/2023/https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-24G/Specification"
+Why saved: MSI's own published specification table for the non-X air-cooled SUPRIM, to
+           compare directly against the SUPRIM X table (msi-suprimx-specification.txt) and
+           test whether dimensions or the 480 W default power limit can tell the two variants
+           apart. They cannot: every physical and power figure below is identical to the
+           SUPRIM X page; only the Core Clocks figures differ.
+
+---
+
+Full specification table, as published (row label — value):
+
+- Model Name — GeForce RTX™ 4090 SUPRIM 24G
+- Graphics Processing Unit — NVIDIA® GeForce RTX™ 4090
+- Interface — PCI Express® Gen 4
+- Core Clocks — Extreme Performance: 2610 MHz (MSI Center) / Boost: 2595MHz (GAMING & SILENT
+  Mode)
+- CUDA® CORES — 16384 Units
+- Memory Speed — 21 Gbps
+- Memory — 24GB GDDR6X
+- Memory Bus — 384-bit
+- Output — DisplayPort x 3 (v1.4a) / HDMI™ x 1 (Supports 4K @120Hz HDR, 8K@60Hz HDR, and
+  Variable Refresh Rate as specified in HDMI™ 2.1a)
+- HDCP Support — Y
+- Power consumption — Silent mode: 450W / Gaming mode: 480W
+- Power connectors — 16-pin x 1
+- Recommended PSU — 1000W (Min. 850W)
+- Card Dimension (mm) — 336 x 142 x 78 mm
+- Weight (Card / Package) — 2413g / 3636g
+- DirectX Version Support — 12 Ultimate
+- OpenGL Version Support — 4.6
+- Maximum Displays — 4
+- G-SYNC® technology — Y
+- Digital Maximum Resolution — 7680 x 4320
+
+Note: this table does not list a VBIOS version, and has no field for fan count/size/wiring.
+Dimensions (336 x 142 x 78 mm), weight, power connector, and Silent/Gaming power consumption
+(450W/480W) are word-for-word identical to the SUPRIM X page. Only the Core Clocks entry
+differs (2595/2610 MHz here vs. 2625/2640 MHz for the SUPRIM X).

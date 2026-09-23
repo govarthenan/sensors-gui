@@ -1,0 +1,42 @@
+Source:  TechPowerUp — "MSI GeForce RTX 4090 Suprim X Review" — page 4, Circuit Board (PCB)
+         Analysis
+URL:     https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-x/4.html
+Fetched via: Internet Archive Wayback Machine snapshot (direct fetch of this specific page
+             returned HTTP 403 "Access Denied" on every retry, including with a fresh proxy
+             and cache bypass; the Archive's copy was read instead):
+             https://web.archive.org/web/20221015025239/https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-x/4.html
+             (capture timestamp 2022-10-15T02:52:39Z)
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://web.archive.org/web/2022/https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-x/4.html"
+Why saved: This is TechPowerUp's actual "Circuit Board (PCB) Analysis" page — the section the
+           task specifically asked for. It gives the VRM phase counts and controller/DrMOS
+           part numbers, the memory chip part number and speed, and the GPU die size. It does
+           NOT state where on the board any of these parts sit (no left/right, no fan-header
+           or fan-grouping information).
+
+---
+
+"These pictures are for the convenience of volt modders and people who would like to see all
+the finer details on the PCB." [caption on the high-resolution front/back PCB photos]
+
+"GPU voltage is a massive 26-phase design managed by a Monolithic Power Systems MP2891
+controller, which also handles memory voltage."
+
+"Monolithic MP86957 DrMOS components are used for GPU voltage; they are rated for 70 A of
+current each."
+
+"Memory voltage is a four-phase design, managed by the same MP2891 that's uses for GPU
+voltage." [sic]
+
+"For memory, Monolithic MP86957 DrMOS with a 70 A rating are used too."
+
+"The GDDR6X memory chips are made by Micron and carry the model number D8BZC, which decodes
+to MT61K512M32KPA-21:U. They are specified to run at 1313 MHz (21 Gbps effective)."
+
+"NVIDIA's AD102 graphics processor is the company's flagship Ada Lovelace GPU. It's the
+world's first 4 nanometer GPU, built at TSMC Taiwan with a transistor count of 76.3 billion
+and a die size of 608 mm²."
+
+Photo captions on this page (identify what is shown, but state no board coordinates):
+"GPU Voltage, VRM Configuration"; "GPU Chip Voltage Controller"; "Memory Voltage, VRM
+Configuration"; "Graphics Card Memory Chips"; "Graphics Chip GPU".

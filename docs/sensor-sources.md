@@ -122,8 +122,11 @@ Decided in ADR 0003 after `exp-0002`, and built on 2026-09-21. All fields
 read as a normal user. A warmed pass of all 17 channels costs **0.023 ms**.
 See `exp-0006` for why the two PCIe channels need their own interval.
 
-Collector: `sensors_gui/collectors/nvidia.py`. **21 channels** since
-`exp-0013` added a speed for each fan.
+Collector: `sensors_gui/collectors/nvidia.py`. **24 channels**: 21 since
+`exp-0013` added a speed for each fan, and 3 more on 2026-09-23 on Gova's
+answer to Q13 — the clock event reasons, the PCIe generation and the PCIe
+width (`exp-0016`). The memory clock carries its maximum, 10501 MHz, since the
+same day (Q16).
 
 | Field | Unit | Status | Note |
 |---|---|---|---|
@@ -137,11 +140,11 @@ Collector: `sensors_gui/collectors/nvidia.py`. **21 channels** since
 | Memory used / total | MiB | OK | **use `nvmlMemory_v2`**, see ADR 0003 |
 | Memory reserved | MiB | OK | v2 only, about 503 MiB |
 | SM / memory clock | MHz | OK | maximum SM clock 3165 MHz |
-| PCIe generation / width | — | OK | drops to gen 1 at idle |
+| PCIe generation / width | — | **channels since 2026-09-23** | drops to gen 1 at idle; the ceiling is the link maximum, PCIe 4.0 x16 |
 | PCIe transmit / receive | kB/s | OK | |
 | Encoder / decoder use | % | OK | NVENC, NVDEC |
 | Performance state | P-state | OK | |
-| Throttle reasons | bit field | OK | |
+| Clock event reasons (throttle reasons) | bit field | **channel since 2026-09-23** | 9 bits, named in `data/evidence/nvml-binding-2026-09-23/` |
 | BAR1 memory | MiB | OK | |
 | Compute / graphics processes | count | OK | |
 | VBIOS version | text | OK | 95.02.3C.40.D1 |

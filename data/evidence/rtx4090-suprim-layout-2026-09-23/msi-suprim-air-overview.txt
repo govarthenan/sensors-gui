@@ -1,0 +1,47 @@
+Source:  MSI — "GeForce RTX 4090 SUPRIM 24G" — official Overview page (the plain, non-X,
+         air-cooled SUPRIM)
+URL:     https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-24G/Overview
+Fetched via: Internet Archive Wayback Machine snapshot (direct fetch of the live MSI page
+             returned HTTP 403 "Access Denied"; the Archive's copy was read instead):
+             https://web.archive.org/web/20230930171529/https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-24G/Overview
+             (capture timestamp 2023-09-30T17:15:29Z)
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://web.archive.org/web/2023/https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-24G/Overview"
+Why saved: The non-X SUPRIM's own MSI overview page, to compare word-for-word against the
+           SUPRIM X overview page (msi-suprimx-overview.txt). The cooler-design text below is
+           identical to the SUPRIM X page, including the underlying image folder name
+           ".../RTX-4090-SUPRIM/RTX-4090-SUPRIM-24G/images2/..." — evidence that MSI presents
+           the same "TRI FROZR 3S" / "TORX FAN 5.0" cooler description for both air variants.
+
+---
+
+"The second iteration of SUPRIM inherits the exterior design philosophy of its predecessor,
+with a brushed metal cover, octagon-shaped fan cutouts and chevrons around each fan."
+
+"TRI-FROZR 3S THERMAL DESIGN" / "Upgraded fans, airflow control, and other thermal innovation
+make TRI-FROZR 3S the best air-cooling solution yet from MSI."
+
+"TORX FAN 5.0 incorporates design improvements that result in +23% increased airflow compared
+to an axial fan."
+
+"Ring arcs link sets of three fan blades that focus airflow into the heatsink. Blades tilt 22
+degrees to maintain high-pressure airflow even at slower rotational speeds."
+
+"ZERO FROZR — The fans completely stop when temperatures are relatively low, eliminating all
+noise when active cooling is not needed. The fans will automatically start spinning again
+[when temperatures rise]."
+
+"Two sets of durable ball bearings spin the TORX FANs for years of intense and [reliable
+use]."
+
+Specification summary bullets on this page:
+"Extreme Performance: 2610 MHz (MSI Center)" / "Boost: 2595MHz (GAMING & SILENT Mode)" /
+"DisplayPort x 3 (v1.4a)" / "HDMI™ x 1 (...HDMI™ 2.1a)".
+
+"TRI FROZR 3S Thermal Design — TORX Fan 5.0: Fan blades linked by ring arcs and a fan cowl
+work together to stabilize and maintain high-pressure airflow."
+
+Note: every sentence quoted above about the cooler ("TRI-FROZR 3S", "TORX FAN 5.0", the ring
+arcs/blade tilt, "Two sets of durable ball bearings", "ZERO FROZR") is worded identically on
+the SUPRIM X overview page. Only the Boost/Extreme Performance clock numbers differ between
+the two pages.
