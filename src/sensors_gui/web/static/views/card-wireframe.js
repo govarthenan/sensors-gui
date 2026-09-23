@@ -23,9 +23,8 @@
  * `docs/diagram-positions.md` holds every claim and its source.
  */
 
-import { STATES, colourOf, formatValue, stateOf } from "../widgets.js";
+import { Dots, make } from "./dots.js";
 
-const SVG = "http://www.w3.org/2000/svg";
 const MM = 2.6; // drawing units per millimetre
 const LENGTH = 280; // mm, MSI specification of the SUPRIM LIQUID X
 const HEIGHT = 140; // mm, the same
@@ -133,17 +132,6 @@ const UNPLACED = [
   },
 ];
 
-/** Make one SVG element with attributes. */
-function make(tag, attributes = {}, text = null) {
-  const node = document.createElementNS(SVG, tag);
-  for (const [name, value] of Object.entries(attributes)) node.setAttribute(name, String(value));
-  if (text !== null) node.textContent = text;
-  return node;
-}
-
-/** The order of the states, worst last, for the colour of a dot with several readings. */
-const SEVERITY = ["normal", "stale", "under", "over", "warning", "serious", "critical"];
-
 /**
  * Build the wireframe.
  *
@@ -161,17 +149,23 @@ export function cardWireframe(find, stream) {
   svg.appendChild(make("title", {}, "Wireframe of the MSI RTX 4090 SUPRIM, backplate side, with its readings"));
   element.appendChild(svg);
 
-  const tip = document.createElement("div");
-  tip.className = "wire-tip";
-  tip.hidden = true;
-  element.appendChild(tip);
+  const dots = new Dots(element, svg, width, height, stream);
+  /** The rows of a part, with each NVML key turned into its channel. */
+  const resolve = (part) => ({
+    ...part,
+    rows: part.rows.map(([label, key, format, missing]) => ({
+      label,
+      channel: key ? find(key) : null,
+      format,
+      missing,
+    })),
+  });
 
   drawCard(svg);
 
-  const dots = [];
   for (const part of PLACED) {
     const [x, y] = at(part.along, part.across);
-    dots.push(makeDot(svg, part, x, y));
+    dots.add(resolve(part), x, y);
   }
 
   // The unplaced row: the same dots, in a dashed box that says what it is.
@@ -185,108 +179,11 @@ export function cardWireframe(find, stream) {
   const step = (LENGTH * MM) / UNPLACED.length;
   UNPLACED.forEach((part, index) => {
     const x = LEFT + step * (index + 0.5);
-    dots.push(makeDot(svg, part, x, boxTop + 52));
+    dots.add(resolve(part), x, boxTop + 52);
     svg.appendChild(make("text", { x, y: boxTop + 84, class: "wire-dot-name", "text-anchor": "middle" }, part.name));
   });
 
-  /** Build one dot: a pulsing ring, a solid centre and a hit area. */
-  function makeDot(parent, part, x, y) {
-    const group = make("g", { class: "wire-dot", tabindex: 0 });
-    group.appendChild(make("circle", { cx: x, cy: y, r: 6, class: "wire-core" }));
-    // The pulse is an HTML element over the drawing, not an SVG circle: it
-    // animates only `transform` and `opacity`, which the browser runs on the
-    // compositor. The SVG pulse cost about 0.045 cores (exp-0015, 3b).
-    const pulse = document.createElement("i");
-    pulse.className = "wire-pulse";
-    pulse.style.left = `${(x / width) * 100}%`;
-    pulse.style.top = `${(y / height) * 100}%`;
-    element.appendChild(pulse);
-    group.appendChild(make("circle", { cx: x, cy: y, r: 18, class: "wire-hit" }));
-    parent.appendChild(group);
-    const readings = part.rows.map(([label, key, format, missing]) => ({
-      label,
-      channel: key ? find(key) : null,
-      format,
-      missing,
-    }));
-    const dot = { part, group, pulse, readings, x, y };
-    const open = () => showTip(dot);
-    const close = () => {
-      tip.hidden = true;
-      tip.dataset.for = "";
-    };
-    group.addEventListener("pointerenter", open);
-    group.addEventListener("focus", open);
-    group.addEventListener("pointerleave", close);
-    group.addEventListener("blur", close);
-    return dot;
-  }
-
-  /** Return each reading of a dot as text, and the worst state among them. */
-  function read(dot) {
-    let worst = "normal";
-    const lines = dot.readings.map(({ label, channel, format, missing }) => {
-      if (missing || channel === null) return { label, text: "○ not readable", state: "unavailable" };
-      const value = stream.value(channel);
-      const state = stateOf(value, channel, stream.extra(channel));
-      if (SEVERITY.indexOf(state) > SEVERITY.indexOf(worst)) worst = state;
-      const shown = value === null ? "—" : format ? format(value) : formatValue(value, channel);
-      return { label, text: state === "normal" ? shown : `${STATES[state]?.icon ?? ""} ${shown}`, state };
-    });
-    const allMissing = dot.readings.every(({ missing, channel }) => missing || channel === null);
-    return { lines, state: allMissing ? "unavailable" : worst };
-  }
-
-  /** Show the values of one dot beside it. */
-  function showTip(dot) {
-    tip.dataset.for = dot.part.id;
-    tip.hidden = false;
-    fillTip(dot);
-    const box = svg.getBoundingClientRect();
-    const scale = box.width / width;
-    const left = dot.x * scale + 16;
-    tip.style.left = `${Math.min(left, box.width - 280)}px`;
-    tip.style.top = `${Math.max(dot.y * scale - 20, 0)}px`;
-  }
-
-  /** Write the values of one dot into the tip. */
-  function fillTip(dot) {
-    const { lines } = read(dot);
-    tip.replaceChildren();
-    const title = document.createElement("b");
-    title.textContent = dot.part.name;
-    tip.appendChild(title);
-    for (const line of lines) {
-      const row = document.createElement("div");
-      row.className = "wire-tip-row";
-      const name = document.createElement("span");
-      name.textContent = line.label;
-      const value = document.createElement("span");
-      value.textContent = line.text;
-      if (line.state !== "normal") value.style.color = colourOf(line.state);
-      row.append(name, value);
-      tip.appendChild(row);
-    }
-    const basis = document.createElement("p");
-    basis.textContent = dot.part.basis;
-    tip.appendChild(basis);
-  }
-
-  return {
-    element,
-    update() {
-      for (const dot of dots) {
-        const { state } = read(dot);
-        if (dot.group.dataset.state !== state) {
-          dot.group.dataset.state = state;
-          dot.pulse.dataset.state = state;
-          dot.group.style.setProperty("--dot", colourOf(state));
-          dot.pulse.style.setProperty("--dot", colourOf(state));
-        }
-        if (tip.dataset.for === dot.part.id) fillTip(dot);
-      }
-    },
-  };
+  return { element, update: () => dots.update() };
 }
 
 /** Draw the card: the backplate outline, the bracket, the plate, the edges and the sizes. */

@@ -11,8 +11,9 @@ answer, the text says "not established" and the question is in
 `state/STATUS.md`. Nothing here is guessed.
 
 The graphics card is described first, at checkpoint 3, because it is the
-reference for every other group. A channel of another group has no
-description yet, and `describe` returns None for it, never a guess.
+reference for every other group; the processor and the memory follow at
+checkpoint 4. A channel of another group has no description yet, and
+`describe` returns None for it, never a guess.
 """
 
 from __future__ import annotations
@@ -39,6 +40,25 @@ PHYSICAL_BUILD = "docs/physical-build.md"
 SCHEMATIC = "data/evidence/rtx4090-suprim-layout-2026-09-23/scribd-ms-v510-schematic-extract.txt"
 LABEL_PHOTO = "docs/photos/06-gpu-backplate-label.jpg"
 COLLECTOR = "src/sensors_gui/collectors/nvidia.py"
+
+# Checkpoint 4: the processor and the memory. The kernel documents are copies
+# of tag v7.0, the kernel this machine runs; psutil is the installed 7.2.2.
+_CPU_MEM = "data/evidence/cpu-memory-sources-2026-09-23/"
+K10TEMP_DOC = _CPU_MEM + "k10temp.rst"
+K10TEMP_SOURCE = _CPU_MEM + "k10temp-c-extracts.txt"
+SPD5118_DOC = _CPU_MEM + "spd5118.rst"
+POWERCAP_DOC = _CPU_MEM + "powercap.rst-extract.txt"
+PROC_DOC = _CPU_MEM + "proc-meminfo-loadavg-stat.txt"
+CPUFREQ_DOC = _CPU_MEM + "cpufreq.rst-extract.txt"
+PSUTIL = _CPU_MEM + "psutil-7.2.2-extracts.txt"
+CPU_MEM_PROBE = _CPU_MEM + "probe-cpu-memory-sysfs.txt"
+LAYOUT = "data/evidence/ryzen-9900x-package-layout-2026-09-23/README.md"
+TOPOLOGY = "data/probes/2026-09-22-cpu-topology.txt"
+FREQUENCY_MARGIN = "data/probes/2026-09-23-cpu-frequency-margin.txt"
+EXP_0011 = "lab/exp-0011-privileged-helper/README.md"
+EXP_0012 = "lab/exp-0012-per-core-energy/README.md"
+HELPER = "src/sensors_gui/helper/sensors_guid.py"
+SYSTEM_COLLECTOR = "src/sensors_gui/collectors/system.py"
 
 
 @dataclass(frozen=True, slots=True)
@@ -337,6 +357,360 @@ def _fan(index: int, kind: str) -> Description | None:
     )
 
 
+# --- the processor --------------------------------------------------------------
+
+# From the topology probe: the kernel numbers the cores 0-5 on die 1 and 8-13
+# on die 2, and a thread's sibling is 12 away.
+_DIE_CORES = {1: (0, 1, 2, 3, 4, 5), 2: (8, 9, 10, 11, 12, 13)}
+_THREADS = 24
+_SIBLING_STEP = 12
+
+
+def _die_of_core(core: int) -> int | None:
+    """Return the die a kernel core number is on, or None for a number this processor does not have."""
+    for die, cores in _DIE_CORES.items():
+        if core in cores:
+            return die
+    return None
+
+
+def _core_of_thread(thread: int) -> int:
+    """Return the kernel core number of one thread, from the topology probe's pairs."""
+    position = thread % _SIBLING_STEP
+    return (*_DIE_CORES[1], *_DIE_CORES[2])[position]
+
+
+_TEMPERATURES: dict[str, Description] = {
+    "temp1": Description(
+        measures=(
+            "The processor's temperature control value, Tctl. AMD's own words, quoted by the kernel: it is used by "
+            "the platform to control cooling systems, and it is not an actual physical temperature."
+        ),
+        call="k10temp, temp1_input",
+        neighbours=(
+            "Tccd1 and Tccd2 are temperatures of the two core dies; Tctl is not the temperature of a place. The "
+            "kernel documentation says Tdie is the real measured temperature and Tctl is used for fan control. "
+            "The driver subtracts an offset from Tctl only on a few older processors, and its table has no entry "
+            "for this one (family 0x1a), so the value is shown as the processor gives it. k10temp on this machine "
+            "publishes no maximum and no critical threshold for Tctl, so no state is judged. The BIOS fan curve "
+            "names its source CPU Core; whether that is Tctl is not established."
+        ),
+        sources=(K10TEMP_DOC, K10TEMP_SOURCE, _CPU_MEM + "FINDINGS.md", CPU_MEM_PROBE, INVENTORY),
+    ),
+}
+for _die in (1, 2):
+    _first, _last = _DIE_CORES[_die][0], _DIE_CORES[_die][-1]
+    _TEMPERATURES[f"temp{_die + 2}"] = Description(
+        measures=f"The temperature of core die {_die} (CCD {_die}), from the processor's own sensor for that die.",
+        call=f"k10temp, temp{_die + 2}_input",
+        neighbours=(
+            f"Core die {_die} holds cores {_first}-{_last}. There is no temperature for each core: k10temp gives "
+            f"one for each die, and Tctl. Tccd{3 - _die} is the other die. Tctl is a control value, not the "
+            "temperature of a place. The driver's register map for these sensors is not confirmed from AMD's "
+            "datasheets, its own source says. k10temp publishes no threshold, so no state is judged."
+        ),
+        sources=(K10TEMP_DOC, K10TEMP_SOURCE, TOPOLOGY, CPU_MEM_PROBE),
+    )
+
+_RAPL: dict[tuple[str, str], Description] = {
+    ("package-0", "power"): Description(
+        measures=(
+            "The power of the whole processor package, from the RAPL package energy counter: the rise of the "
+            "counter, divided by the time between two reads."
+        ),
+        call="/sys/class/powercap/intel-rapl:0/energy_uj, read by sensors-guid once a second",
+        neighbours=(
+            "CPU Cores Power is the 12 cores alone; the package is more, because it is the whole package and not "
+            "only its cores. exp-0012 measured the cores at 17.8 % of the package at idle and 66.1 % under an "
+            "all-core load. The board declares no RAPL power limit, so there is no scale and no state."
+        ),
+        sources=(POWERCAP_DOC, EXP_0011, EXP_0012, HELPER),
+    ),
+    ("package-0", "energy"): Description(
+        measures="The RAPL energy counter of the whole processor package. It only grows, and wraps at its range.",
+        call="/sys/class/powercap/intel-rapl:0/energy_uj",
+        neighbours="CPU Package Power is the rate of this counter. The helper reads the counter once a second.",
+        sources=(POWERCAP_DOC, EXP_0011, HELPER),
+    ),
+    ("package-0.core", "power"): Description(
+        measures=("The power of the RAPL core domain. On this processor that domain is core 0 alone, not every core."),
+        call="/sys/class/powercap/intel-rapl:0:0/energy_uj, read by sensors-guid once a second",
+        neighbours=(
+            "CPU Core 0 Power reads the same core from its own energy register, and the two agreed to 0.001 W "
+            "(exp-0012). exp-0011 found this domain follows core 0 and not the twelve cores: 1.69 W against 22.8 "
+            "to 28.0 W for all of them. The per-core register channels give every core."
+        ),
+        sources=(POWERCAP_DOC, EXP_0011, EXP_0012, HELPER),
+    ),
+    ("package-0.core", "energy"): Description(
+        measures="The RAPL energy counter of the core domain, which is core 0 alone on this processor.",
+        call="/sys/class/powercap/intel-rapl:0:0/energy_uj",
+        neighbours="CPU Core 0 (RAPL) Power is the rate of this counter.",
+        sources=(POWERCAP_DOC, EXP_0011, HELPER),
+    ),
+    ("cpu-cores", "power"): Description(
+        measures="The sum of the power of the 12 cores, each from its own energy register.",
+        call="MSR 0xc001029a on /dev/cpu/N/msr, one read for each core, by sensors-guid; read only",
+        neighbours=(
+            "CPU Package Power is the whole package; this is the cores alone. Under an all-core load exp-0012 "
+            "measured 103.98 W here against 104.10 W from turbostat."
+        ),
+        sources=(EXP_0012, HELPER),
+    ),
+}
+
+
+def _core_power(core: int) -> Description | None:
+    """Return the description of one core's power, or None for a core this processor does not have."""
+    die = _die_of_core(core)
+    if die is None:
+        return None
+    first_thread = (*_DIE_CORES[1], *_DIE_CORES[2]).index(core)
+    second = first_thread + _SIBLING_STEP
+    return Description(
+        measures=(
+            f"The power of core {core}, from its own energy counter: the rise of the counter, divided by the time "
+            "between two reads."
+        ),
+        call=f"MSR 0xc001029a on /dev/cpu/{first_thread}/msr, by sensors-guid once a second; read only",
+        neighbours=(
+            f"Core {core} is on die {die}, and its threads are cpu{first_thread} and cpu{second}. The register "
+            "gives one counter for each core: in exp-0012 one busy thread moved one counter and no other. No "
+            "limit for one core is published, so there is no scale."
+            + (" CPU Core 0 (RAPL) Power reads the same core another way." if core == 0 else "")
+        ),
+        sources=(EXP_0012, TOPOLOGY, HELPER),
+    )
+
+
+def _thread(thread: int, kind: str) -> Description | None:
+    """Return the description of one thread's use or frequency, or None for a thread this processor lacks."""
+    if not 0 <= thread < _THREADS:
+        return None
+    core = _core_of_thread(thread)
+    sibling = thread + _SIBLING_STEP if thread < _SIBLING_STEP else thread - _SIBLING_STEP
+    die = _die_of_core(core)
+    pair = f"cpu{thread} and cpu{sibling} are the two threads of core {core}, on die {die}."
+    if kind == "percent":
+        return Description(
+            measures=(
+                f"The share of time thread cpu{thread} was busy since the last read, from the kernel's CPU time "
+                "counters in /proc/stat."
+            ),
+            call="psutil.cpu_percent(percpu=True)",
+            neighbours=(
+                f"CPU{thread} is a thread, not a core: {pair} CPU use is all 24 threads together. The frequency "
+                f"of this thread is CPU{thread} frequency."
+            ),
+            sources=(PSUTIL, PROC_DOC, TOPOLOGY, SYSTEM_COLLECTOR),
+        )
+    return Description(
+        measures=(
+            f"The frequency of thread cpu{thread}, as the kernel reports it in scaling_cur_freq. The kernel "
+            "documentation says this is in most cases the frequency last requested from the hardware, and may not "
+            "be the frequency the processor runs at."
+        ),
+        call=f"psutil.cpu_freq(percpu=True), from /sys/devices/system/cpu/cpu{thread}/cpufreq/scaling_cur_freq",
+        neighbours=(
+            f"{pair} The scale runs from the lowest frequency the processor can run at, cpuinfo_min_freq "
+            "(613.954 MHz), to scaling_max_freq (5662.016 MHz, the same as cpuinfo_max_freq here). The reading "
+            "passed the top by up to 2.23 % in 28 800 readings."
+        ),
+        sources=(CPUFREQ_DOC, PSUTIL, CPU_MEM_PROBE, FREQUENCY_MARGIN, TOPOLOGY, SYSTEM_COLLECTOR),
+    )
+
+
+_CPU_SYSTEM: dict[str, Description] = {
+    "percent": Description(
+        measures="The share of time all 24 threads together were busy since the last read.",
+        call="psutil.cpu_percent()",
+        neighbours="CPU0 use to CPU23 use give each thread; this is all of them in one figure.",
+        sources=(PSUTIL, PROC_DOC, SYSTEM_COLLECTOR),
+    ),
+}
+for _minutes, _name in ((1, "load1"), (5, "load5"), (15, "load15")):
+    _CPU_SYSTEM[_name] = Description(
+        measures=f"The load average of the last {_minutes} minutes, as the kernel gives it in /proc/loadavg.",
+        call="os.getloadavg(), which psutil uses as it is",
+        neighbours=(
+            "The three load averages cover 1, 5 and 15 minutes. It is a count, not a percent, so it has no scale; "
+            "this processor has 24 threads."
+        ),
+        sources=(PROC_DOC, PSUTIL, TOPOLOGY),
+    )
+
+
+# --- the memory -----------------------------------------------------------------
+
+_DIMMS = {"0-0051": "A2", "0-0053": "B2"}
+
+
+def _dimm(hub: str) -> Description | None:
+    """Return the description of one module's temperature, or None for a hub address not on this board."""
+    slot = _DIMMS.get(hub)
+    if slot is None:
+        return None
+    other_hub, other_slot = next((key, value) for key, value in _DIMMS.items() if key != hub)
+    return Description(
+        measures=(
+            f"The temperature of the memory module in slot {slot}, from the SPD5118 sensor on the module (the SPD hub)."
+        ),
+        call=f"spd5118, i2c {hub}, temp1_input",
+        neighbours=(
+            f"The module in {slot} is the one at i2c {hub}; DIMM {other_slot} is the other module, at "
+            f"{other_hub}. The kernel driver owns the bus; this application only reads what it publishes. "
+            "The chip carries a maximum of 55 °C and a critical threshold of 85 °C, which the scale and the "
+            "state use. The driver's documentation says these limits can be configured."
+        ),
+        sources=(SPD5118_DOC, INVENTORY, CPU_MEM_PROBE),
+    )
+
+
+_MEMORY: dict[str, Description] = {
+    "total": Description(
+        measures="All the memory the kernel can use: the modules' memory less a few reserved parts and the kernel.",
+        call="psutil.virtual_memory().total, MemTotal in /proc/meminfo",
+        neighbours="Two modules of 32 GB are fitted; the kernel can use this much of them.",
+        sources=(PSUTIL, PROC_DOC, INVENTORY),
+    ),
+    "available": Description(
+        measures=(
+            "The kernel's estimate of how much memory can be given to new programs without swapping, MemAvailable."
+        ),
+        call="psutil.virtual_memory().available, MemAvailable in /proc/meminfo",
+        neighbours=(
+            "It counts free memory and the cache the kernel can take back, so it is much more than Memory free. "
+            "Memory used is Memory total less this."
+        ),
+        sources=(PSUTIL, PROC_DOC),
+    ),
+    "used": Description(
+        measures="Memory total less Memory available: the memory the kernel cannot give to a new program now.",
+        call="psutil.virtual_memory().used, total - available",
+        neighbours=(
+            "psutil 7.2.2 on Linux computes it as total less available, not total less free. So used, free and "
+            "cached do not add up to the total: cached memory is partly in available."
+        ),
+        sources=(PSUTIL, PROC_DOC),
+    ),
+    "percent": Description(
+        measures="Memory used as a percent of Memory total.",
+        call="psutil.virtual_memory().percent, (total - available) / total",
+        neighbours="The same figure as Memory used, on a scale of 0 to 100.",
+        sources=(PSUTIL,),
+    ),
+    "free": Description(
+        measures="Memory that holds nothing at all, MemFree.",
+        call="psutil.virtual_memory().free, MemFree in /proc/meminfo",
+        neighbours=("Memory available is larger, because the kernel can take back cache when a program needs memory."),
+        sources=(PSUTIL, PROC_DOC),
+    ),
+    "cached": Description(
+        measures=(
+            "The cache for files read from the drive, with tmpfs and shared memory, and the part of the kernel's "
+            "own caches it can take back."
+        ),
+        call="psutil.virtual_memory().cached, Cached plus SReclaimable in /proc/meminfo",
+        neighbours="Memory shared is part of it. Much of it is also counted in Memory available.",
+        sources=(PSUTIL, PROC_DOC),
+    ),
+    "buffers": Description(
+        measures="Temporary storage for raw blocks of the drive, Buffers.",
+        call="psutil.virtual_memory().buffers, Buffers in /proc/meminfo",
+        neighbours="The kernel documentation says it should stay small, about 20 MB.",
+        sources=(PSUTIL, PROC_DOC),
+    ),
+    "shared": Description(
+        measures="Memory used by shared memory and tmpfs, Shmem.",
+        call="psutil.virtual_memory().shared, Shmem in /proc/meminfo",
+        neighbours="The kernel counts it inside Cached, so it is also inside Memory cached.",
+        sources=(PSUTIL, PROC_DOC),
+    ),
+}
+
+_NO_SWAP = "On 2026-09-23 SwapTotal read 0 kB: this machine had no swap, and every swap reading was 0."
+
+_SWAP: dict[str, Description] = {
+    "total": Description(
+        measures="The swap space the kernel has, SwapTotal.",
+        call="psutil.swap_memory().total, SwapTotal in /proc/meminfo",
+        neighbours=_NO_SWAP,
+        sources=(PSUTIL, PROC_DOC, CPU_MEM_PROBE),
+    ),
+    "used": Description(
+        measures="Swap space in use: SwapTotal less SwapFree.",
+        call="psutil.swap_memory().used",
+        neighbours=_NO_SWAP,
+        sources=(PSUTIL, PROC_DOC, CPU_MEM_PROBE),
+    ),
+    "free": Description(
+        measures="Swap space not in use, SwapFree.",
+        call="psutil.swap_memory().free, SwapFree in /proc/meminfo",
+        neighbours=_NO_SWAP,
+        sources=(PSUTIL, PROC_DOC, CPU_MEM_PROBE),
+    ),
+    "percent": Description(
+        measures="Swap used as a percent of Swap total.",
+        call="psutil.swap_memory().percent",
+        neighbours=_NO_SWAP,
+        sources=(PSUTIL, CPU_MEM_PROBE),
+    ),
+    "sin_rate": Description(
+        measures=(
+            "The rate at which memory comes back in from swap: the rise of the kernel's pswpin counter between two "
+            "reads, in bytes each second."
+        ),
+        call="psutil.swap_memory().sin, from pswpin in /proc/vmstat",
+        neighbours="Swap out is the other direction. " + _NO_SWAP,
+        sources=(PSUTIL, SYSTEM_COLLECTOR, CPU_MEM_PROBE),
+    ),
+    "sout_rate": Description(
+        measures=(
+            "The rate at which memory goes out to swap: the rise of the kernel's pswpout counter between two "
+            "reads, in bytes each second."
+        ),
+        call="psutil.swap_memory().sout, from pswpout in /proc/vmstat",
+        neighbours="Swap in is the other direction. " + _NO_SWAP,
+        sources=(PSUTIL, SYSTEM_COLLECTOR, CPU_MEM_PROBE),
+    ),
+}
+
+_THREAD_PATTERN = re.compile(r"^core(?P<thread>\d+)_(?P<kind>percent|frequency)$")
+_CORE_DEVICE_PATTERN = re.compile(r"^cpu-cores\.core-(?P<core>\d+)$")
+
+
+def _describe_hwmon(spec: SensorSpec) -> Description | None:
+    """Return the description of a processor or memory channel read through hwmon, or None."""
+    driver, _, path = spec.id.device.partition("@")
+    if driver == "k10temp":
+        return _TEMPERATURES.get(spec.id.channel)
+    if driver == "spd5118" and spec.id.channel == "temp1":
+        return _dimm(path.rsplit("/", 1)[-1])
+    return None
+
+
+def _describe_privileged(spec: SensorSpec) -> Description | None:
+    """Return the description of a RAPL or core energy channel, or None."""
+    matched = _CORE_DEVICE_PATTERN.match(spec.id.device)
+    if matched and spec.id.channel == "power":
+        return _core_power(int(matched["core"]))
+    return _RAPL.get((spec.id.device, spec.id.channel))
+
+
+def _describe_system(spec: SensorSpec) -> Description | None:
+    """Return the description of a processor, memory or swap channel read through psutil, or None."""
+    if spec.id.device == "cpu":
+        matched = _THREAD_PATTERN.match(spec.id.channel)
+        if matched:
+            return _thread(int(matched["thread"]), matched["kind"])
+        return _CPU_SYSTEM.get(spec.id.channel)
+    if spec.id.device == "memory":
+        return _MEMORY.get(spec.id.channel)
+    if spec.id.device == "swap":
+        return _SWAP.get(spec.id.channel)
+    return None
+
+
 def describe(spec: SensorSpec) -> Description | None:
     """Return the description of one channel, or None when it has none yet.
 
@@ -348,6 +722,12 @@ def describe(spec: SensorSpec) -> Description | None:
         The description, or None. None is an honest answer: the tooltip then
         says the channel is not described yet, and nothing is guessed.
     """
+    if spec.id.source == "hwmon":
+        return _describe_hwmon(spec)
+    if spec.id.source == "privileged":
+        return _describe_privileged(spec)
+    if spec.id.source == "system":
+        return _describe_system(spec)
     if spec.id.source != "nvidia":
         return None
     matched = _FAN_PATTERN.match(spec.id.channel)

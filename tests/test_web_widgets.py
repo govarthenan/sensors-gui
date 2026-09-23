@@ -358,3 +358,61 @@ def test_the_front_end_names_the_clock_event_bits_as_the_collector_does(tmp_path
     table, active = json.loads(finished.stdout)
     assert {bit: name for bit, name in table} == CLOCK_EVENT_REASONS
     assert active == ["GPU idle", "Software power cap", "Hardware thermal slowdown"]
+
+
+# --- the core columns, checkpoint 4 ---------------------------------------------
+
+CPU_FREQUENCY = {"label": "CPU0 frequency", "unit": "hertz", "symbol": "Hz", "decimals": 1}
+
+
+@NEEDS_NODE
+def test_axis_unit_writes_a_frequency_axis_in_one_prefix(tmp_path: Path) -> None:
+    """614 MHz to 5.7 GHz on one axis: one unit, GHz, and every tick a plain number."""
+    answer = run_widgets(f"console.log(JSON.stringify(w.axisUnit(5662016000, {json.dumps(CPU_FREQUENCY)})));", tmp_path)
+    assert answer == {"factor": 1_000_000_000, "unit": "GHz"}
+
+
+@NEEDS_NODE
+def test_axis_unit_leaves_a_unit_with_no_prefix_alone(tmp_path: Path) -> None:
+    answer = run_widgets(f"console.log(JSON.stringify(w.axisUnit(480, {json.dumps(GPU_POWER)})));", tmp_path)
+    assert answer == {"factor": 1, "unit": "W"}
+
+
+@NEEDS_NODE
+def test_following_top_rounds_up_to_a_round_step_above_the_peak(tmp_path: Path) -> None:
+    answer = run_widgets("console.log(JSON.stringify(w.followingTop(2.3, null, 2)));", tmp_path)
+    assert answer == 3
+
+
+@NEEDS_NODE
+def test_following_top_does_not_move_while_the_peak_still_fits(tmp_path: Path) -> None:
+    """The columns must not jump on every frame; the line chart keeps the same rule."""
+    answer = run_widgets("console.log(JSON.stringify(w.followingTop(2.9, 3, 2)));", tmp_path)
+    assert answer == 3
+
+
+@NEEDS_NODE
+def test_following_top_grows_when_a_column_leaves_it(tmp_path: Path) -> None:
+    answer = run_widgets("console.log(JSON.stringify(w.followingTop(4.1, 3, 2)));", tmp_path)
+    assert answer > 4.1
+
+
+@NEEDS_NODE
+def test_following_top_comes_down_to_the_floor_when_the_peak_is_small(tmp_path: Path) -> None:
+    answer = run_widgets("console.log(JSON.stringify(w.followingTop(0.5, 3, 2)));", tmp_path)
+    assert answer == 2
+
+
+@NEEDS_NODE
+def test_bar_ticks_of_a_frequency_scale_start_at_the_hardware_floor(tmp_path: Path) -> None:
+    """The floor is the processor's lowest frequency, a published end, and it is labelled as one."""
+    answer = run_widgets("console.log(JSON.stringify(w.barTicks(613954000, 5662016000, true)));", tmp_path)
+    assert answer[0] == 613954000
+    assert answer[-1] == 5662016000
+    assert all(tick % 1_000_000_000 == 0 for tick in answer[1:-1])
+
+
+@NEEDS_NODE
+def test_bar_ticks_of_a_following_scale_are_round(tmp_path: Path) -> None:
+    answer = run_widgets("console.log(JSON.stringify(w.barTicks(0, 3, false)));", tmp_path)
+    assert answer == [0, 1, 2, 3]

@@ -298,6 +298,26 @@ export function attachTooltip(element, channel, stream) {
   element.addEventListener("blur", close);
 }
 
+/**
+ * Open the panel for one channel beside `anchor`, from code and not an event.
+ *
+ * For a display that draws many values on one canvas, such as `CoreBars`:
+ * the canvas knows which column is under the pointer, and the anchor is any
+ * object with `getBoundingClientRect`.
+ *
+ * @param {{getBoundingClientRect: function(): object}} anchor where the panel goes
+ * @param {object} channel the channel to explain
+ * @param {import("./stream.js").Stream} stream the live frames
+ */
+export function openTooltip(anchor, channel, stream) {
+  if (channel) thePanel().open(anchor, channel, stream);
+}
+
+/** Close the panel, if `anchor` opened it. */
+export function closeTooltip(anchor) {
+  panel?.close(anchor);
+}
+
 /** Keep the open panel live. The shell calls this on every frame. */
 export function refreshTooltip() {
   panel?.refresh();

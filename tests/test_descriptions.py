@@ -62,9 +62,30 @@ def _gpu_spec(channel: str) -> SensorSpec:
     )
 
 
+def _machine_specs(groups: tuple[Group, ...]) -> list[SensorSpec]:
+    """Return the specs the real collectors find on this machine, in the given groups.
+
+    The fixture is the hardware, as for the card: what the collectors find, the
+    tooltips must cover. The helper's channels are discovered even when the
+    helper is not running (ADR 0005 rule 3), so none of these needs root.
+    """
+    from sensors_gui.collectors.hwmon import HwmonCollector
+    from sensors_gui.collectors.privileged import PrivilegedCollector
+    from sensors_gui.collectors.system import SystemCollector
+
+    specs: list[SensorSpec] = []
+    for collector in (HwmonCollector(), PrivilegedCollector(), SystemCollector()):
+        try:
+            specs.extend(spec for spec in collector.discover() if spec.group in groups)
+        finally:
+            collector.close()
+    return specs
+
+
 def _all_descriptions() -> list[Description]:
-    """Return the description of every card channel."""
+    """Return the description of every card channel, and of every processor and memory channel here."""
     found = [describe(_gpu_spec(channel)) for channel in GPU_CHANNELS]
+    found += [describe(spec) for spec in _machine_specs((Group.CPU, Group.MEMORY))]
     return [description for description in found if description is not None]
 
 
@@ -81,12 +102,12 @@ def test_describe_every_card_channel_names_the_call_it_is_read_with(channel: str
 
 
 def test_describe_a_channel_of_another_group_has_no_description_yet() -> None:
-    """Only the graphics card is described at checkpoint 3. The rest say so; none is guessed."""
+    """The card, the processor and the memory are described by checkpoint 4. The board is not yet; none is guessed."""
     spec = SensorSpec(
-        id=SensorId(source="hwmon", device="k10temp@/sys/devices/pci0000:00/0000:00:18.3", channel="temp1"),
-        label="Tctl",
-        group=Group.CPU,
-        unit=Unit.CELSIUS,
+        id=SensorId(source="hwmon", device="nct6687@/sys/devices/platform/nct6687.2592", channel="fan1"),
+        label="CPU Fan",
+        group=Group.BOARD,
+        unit=Unit.RPM,
     )
     assert describe(spec) is None
 
@@ -168,3 +189,69 @@ def test_every_channel_the_real_card_reports_is_described() -> None:
     finally:
         collector.close()
     assert missing == []
+
+
+# --- the processor and the memory, checkpoint 4 --------------------------------
+
+
+def _one(label: str) -> Description:
+    """Return the description of the channel with this label on this machine."""
+    from sensors_gui.naming import friendly
+
+    for spec in _machine_specs((Group.CPU, Group.MEMORY)):
+        if friendly(spec).label == label:
+            description = describe(spec)
+            assert description is not None, label
+            return description
+    pytest.skip(f"{label} is not on this machine")
+
+
+def test_every_processor_and_memory_channel_on_this_machine_is_described() -> None:
+    """Checkpoint 4: all 88 channels of the two groups, from the real collectors."""
+    specs = _machine_specs((Group.CPU, Group.MEMORY))
+    if not specs:
+        pytest.skip("no processor or memory channel found")
+    missing = [spec.id.key for spec in specs if describe(spec) is None]
+    assert missing == []
+
+
+def test_every_processor_and_memory_description_names_the_call_or_path() -> None:
+    for spec in _machine_specs((Group.CPU, Group.MEMORY)):
+        description = describe(spec)
+        assert description is not None and description.call.strip(), spec.id.key
+
+
+def test_tctl_says_how_it_differs_from_the_two_die_sensors() -> None:
+    tctl = _one("Tctl")
+    assert "Tccd1" in tctl.neighbours and "Tccd2" in tctl.neighbours
+
+
+def test_each_die_sensor_names_the_cores_on_its_die() -> None:
+    assert "0-5" in _one("Tccd1").neighbours
+    assert "8-13" in _one("Tccd2").neighbours
+
+
+def test_the_rapl_core_domain_says_it_is_core_0_alone() -> None:
+    rapl = _one("CPU Core 0 (RAPL) Power")
+    assert "core 0" in rapl.measures.lower() or "core 0" in rapl.neighbours.lower()
+    assert "register" in rapl.neighbours
+
+
+def test_a_core_power_names_its_core_and_its_die() -> None:
+    first = _one("CPU Core 0 Power")
+    last = _one("CPU Core 13 Power")
+    assert "core 0" in first.measures and "die 1" in first.neighbours
+    assert "core 13" in last.measures and "die 2" in last.neighbours
+
+
+def test_a_thread_names_the_other_thread_of_its_core() -> None:
+    """The sibling is 12 away: cpu0 and cpu12 are one core (the topology probe)."""
+    assert "cpu12" in _one("CPU0 use").neighbours
+    assert "cpu11" in _one("CPU23 frequency").neighbours
+
+
+def test_each_dimm_names_its_slot_and_its_address() -> None:
+    a2 = _one("DIMM A2")
+    b2 = _one("DIMM B2")
+    assert "A2" in a2.measures and "0-0051" in a2.neighbours
+    assert "B2" in b2.measures and "0-0053" in b2.neighbours

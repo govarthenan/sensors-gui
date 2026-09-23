@@ -32,6 +32,10 @@
   /* categorical slot 2, for a second series on one axis (the two card fans).
      Validated with the first against this surface: worst CVD ΔE 26.8. */
   --series-2: #d95926;
+  /* categorical slot 3, for the three processor temperatures on one axis.
+     The skill's fixed order, dark step. validate_palette.js --pairs all with
+     slots 1 and 2 on #1a1a19: worst CVD ΔE 9.4, normal-vision 20.9, all pass. */
+  --series-3: #199e70;
 
   /* status, fixed, never themed */
   --good: #0ca30c;

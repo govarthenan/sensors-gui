@@ -352,7 +352,8 @@ footer .read-only {
 
 /* --- the graphics card view -------------------------------------------------- */
 
-.view-gpu {
+.view-gpu,
+.view-detail {
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   /* Fill the holes a tall card leaves; the cards are independent. */
   grid-auto-flow: row dense;
@@ -526,7 +527,9 @@ footer .read-only {
     grid-row: auto;
   }
 
-  .view-gpu .card-wide {
+  .view-gpu .card-wide,
+  .view-detail .card-wide,
+  .view-detail .card-span-3 {
     grid-column: 1 / -1;
   }
 }
@@ -875,4 +878,60 @@ footer #alerts-link[data-state="over"] b {
 /* Where a reading sits on the machine, beside its name, in the summary. */
 .fact-place {
   color: var(--ink-muted);
+}
+
+/* --- the processor and memory views ------------------------------------------ */
+
+/* Tiles side by side, as many as fit: the three temperatures, the two powers.
+   A tile's own minimum width is for a tile alone; in a row, the row decides. */
+.tile-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tile-row .tile {
+  min-width: 0;
+}
+
+/* The core columns want width: 24 of them read better across three cells.
+   Three cells need 3 x 400 px and two gaps; a narrower view has fewer cells,
+   and a span it cannot hold would add a column off the edge. So below that
+   width the card takes the whole row. The query asks the view, not the
+   window, because the navigation takes part of the window. */
+.view-detail {
+  container-type: inline-size;
+}
+
+.card-span-3 {
+  grid-column: span 3;
+}
+
+@container (max-width: 1240px) {
+  .card-span-3 {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Short facts side by side, such as the three load averages. */
+.fact-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2px 24px;
+  margin-top: 8px;
+}
+
+/* A fitted memory module, inside its slot. */
+.wire-module {
+  fill: var(--series-wash);
+  stroke: var(--series-deep);
+  stroke-width: 1;
+}
+
+/* One core on a die. Drawn by function, in the kernel's order. */
+.wire-cell {
+  fill: none;
+  stroke: var(--axis);
+  stroke-width: 1;
 }

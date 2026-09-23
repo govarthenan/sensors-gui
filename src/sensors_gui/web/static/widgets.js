@@ -1040,24 +1040,116 @@ export class StatTile {
  */
 const MAX_BAR = 16; // the widest a column may be, so the leftover of a slot is air
 const MAX_SLOT = 26; // the furthest apart two columns may stand
+const PEAKS = 600; // the updates the following axis remembers: 60 s at 10 Hz
+
+/**
+ * Return the prefix a whole axis is written in, from its top.
+ *
+ * An axis from 614 MHz to 5.7 GHz labelled tick by tick reads "614 MHz,
+ * 2 GHz, 4 GHz": two units on one axis. One prefix for the axis, written once,
+ * keeps the ticks short numbers.
+ *
+ * @param {number} top the top of the axis, in the base unit
+ * @param {object} spec the channel
+ * @returns {{factor: number, unit: string}}
+ */
+export function axisUnit(top, spec) {
+  const scaling = UNIT_SCALING[spec.unit] ?? null;
+  if (scaling === null) return { factor: 1, unit: spec.symbol ?? "" };
+  const step = scaling === "si" ? 1000 : 1024;
+  const prefixes = scaling === "si" ? SI_PREFIXES : BINARY_PREFIXES;
+  let factor = 1;
+  let index = 0;
+  while (Math.abs(top) / factor >= step && index < prefixes.length - 1) {
+    factor *= step;
+    index += 1;
+  }
+  return { factor, unit: `${prefixes[index]}${spec.symbol}` };
+}
+
+/**
+ * Return the top of an axis that follows the readings, for a scale no spec gives.
+ *
+ * A bar must start at zero, so only the top moves. It keeps the top on screen
+ * while the peak still fits and still fills a quarter of it, the rule the
+ * line chart keeps, so the columns do not jump on every frame.
+ *
+ * @param {number} peak the largest reading remembered
+ * @param {number|null} previous the top now in use
+ * @param {number} floor the smallest top allowed
+ * @returns {number} the new top
+ */
+export function followingTop(peak, previous, floor) {
+  if (previous !== null && peak <= previous && peak >= previous * 0.25) return previous;
+  const target = Math.max(peak, floor);
+  const step = niceStep(target / 4);
+  return Math.ceil(target / step) * step;
+}
+
+/**
+ * Return the values the horizontal lines of a column display sit at.
+ *
+ * A published scale from zero gets its quarters, as the meters do. A top that
+ * follows the readings is a whole number of round steps, so every tick is
+ * round. A floor that is not zero is a published end, and is labelled as one;
+ * the round steps between must not crowd it.
+ *
+ * @param {number} low the bottom of the scale
+ * @param {number} top the top of the scale
+ * @param {boolean} published true when the top comes from the spec
+ * @returns {number[]} the tick values, bottom first
+ */
+export function barTicks(low, top, published) {
+  if (low === 0 && published) return [0, 0.25, 0.5, 0.75, 1].map((fraction) => top * fraction);
+  const step = niceStep((top - low) / 4);
+  if (low === 0) {
+    const ticks = [];
+    for (let tick = 0; tick <= top + step / 2; tick += step) ticks.push(Number(tick.toFixed(6)));
+    return ticks;
+  }
+  const between = [];
+  for (let tick = Math.ceil(low / step) * step; tick < top; tick += step) {
+    if (tick - low > step * 0.4 && top - tick > step * 0.4) between.push(tick);
+  }
+  return [low, ...between, top];
+}
 
 export class CoreBars {
   /**
    * @param {object} options the shape of the display
    * @param {Array<{label: string, channel: object, group: string}>} options.columns
    *   one entry for each column, in hardware order
-   * @param {number} options.high the top of the scale, the same for every column
-   * @param {string} options.unit the symbol to show after a value
+   * @param {number|null} options.high the top of the scale, the same for every
+   *   column; null when no spec publishes one, and the axis then follows the
+   *   readings of the last minute and says so
+   * @param {number} [options.low] the bottom of the scale, 0 unless the spec
+   *   publishes another, as the processor's lowest frequency
+   * @param {object} [options.spec] a channel to format the axis and the values
+   *   with; the first column's channel when not given
+   * @param {string} [options.unit] the symbol for a value, for a caller with no spec
+   * @param {number} [options.floor] the smallest top a following axis may have
    * @param {number} [options.height] the height of the plot in pixels
+   * @param {function(object|null, object|null): void} [options.onHover] called
+   *   with the column under the pointer or the keyboard, and an anchor with
+   *   `getBoundingClientRect`, so a view can open the tooltip panel for it;
+   *   called with nulls when there is none
    */
   constructor(options) {
     this.columns = options.columns;
-    this.high = options.high;
-    this.unit = options.unit ?? "";
+    this.fixedHigh = options.high ?? null;
+    this.low = options.low ?? 0;
+    this.floor = options.floor ?? 1;
+    this.spec = options.spec ??
+      this.columns[0]?.channel ?? { unit: "none", symbol: options.unit ?? "", decimals: 0 };
+    this.unit = options.unit ?? this.spec.symbol ?? "";
     this.height = options.height ?? 150;
+    this.onHover = options.onHover ?? null;
     this.width = 640;
     this.values = this.columns.map(() => null);
-    this.hoverAt = null;
+    this.hoverIndex = null;
+    this.peaks = [];
+    this.top = this.fixedHigh;
+    this.geometry = null;
 
     this.element = document.createElement("figure");
     this.element.className = "cores";
@@ -1070,32 +1162,82 @@ export class CoreBars {
     this.canvas = this.element.querySelector(".cores-canvas");
     this.tip = this.element.querySelector(".cores-tip");
     this.plot = this.element.querySelector(".cores-plot");
+    // One anchor for each column, so the tooltip panel opens beside the
+    // column and not beside the whole display.
+    this.anchors = this.columns.map((_, index) => ({ getBoundingClientRect: () => this.columnBox(index) }));
 
     this.observer = new ResizeObserver(() => this.draw());
     this.observer.observe(this.plot);
 
     this.plot.addEventListener("mousemove", (event) => {
       const box = this.canvas.getBoundingClientRect();
-      this.hoverAt = event.clientX - box.left;
-      this.draw();
+      this.hover(this.columnAt(event.clientX - box.left));
     });
-    this.plot.addEventListener("mouseleave", () => {
-      this.hoverAt = null;
-      this.tip.hidden = true;
-      this.draw();
-    });
+    this.plot.addEventListener("mouseleave", () => this.hover(null));
 
+    // The dataviz skill: the same details on focus as on hover. Tab lands on
+    // the display, the arrow keys move from column to column.
+    this.plot.tabIndex = 0;
+    this.plot.setAttribute("role", "group");
+    this.plot.setAttribute("aria-label", `${this.columns.length} columns; the arrow keys move between them`);
+    this.plot.addEventListener("focus", () => this.hover(this.hoverIndex ?? 0));
+    this.plot.addEventListener("blur", () => this.hover(null));
+    this.plot.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      const step = event.key === "ArrowRight" ? 1 : -1;
+      const next = Math.min(Math.max((this.hoverIndex ?? 0) + step, 0), this.columns.length - 1);
+      this.hover(next);
+    });
   }
 
   /** Take one set of values, in column order, and redraw. */
   update(values) {
     this.values = values;
+    if (this.fixedHigh === null) {
+      const seen = values.filter((value) => value !== null && value !== undefined);
+      this.peaks.push(seen.length ? Math.max(...seen) : 0);
+      if (this.peaks.length > PEAKS) this.peaks.shift();
+      this.top = followingTop(Math.max(...this.peaks), this.top, this.floor);
+    }
     this.draw();
+  }
+
+  /** Move the hover to one column, or to none, and tell the view. */
+  hover(index) {
+    if (index === this.hoverIndex) return;
+    const before = this.hoverIndex;
+    this.hoverIndex = index;
+    this.draw();
+    if (this.onHover === null) return;
+    if (before !== null) this.onHover(null, this.anchors[before]);
+    if (index !== null) this.onHover(this.columns[index], this.anchors[index]);
+  }
+
+  /** Return the index of the column whose slot holds `x`, or null. */
+  columnAt(x) {
+    if (this.geometry === null) return null;
+    const { positions, slot } = this.geometry;
+    // The whole slot is the target, not the column: a 14 px column is a hard
+    // thing to put a pointer on.
+    for (const [index, start] of positions.entries()) {
+      if (x >= start && x <= start + slot) return index;
+    }
+    return null;
+  }
+
+  /** Return where one column is on the page, for the tooltip panel. */
+  columnBox(index) {
+    const box = this.canvas.getBoundingClientRect();
+    if (this.geometry === null) return box;
+    const { positions, slot } = this.geometry;
+    const left = box.left + positions[index];
+    return { left, right: left + slot, top: box.top, bottom: box.bottom, width: slot, height: box.height };
   }
 
   /** Where each column sits, and how wide it is. */
   layout(width) {
-    const pad = { left: 34, right: 6, top: 14, bottom: 30 };
+    const pad = { left: 40, right: 6, top: 26, bottom: 30 };
     const plotWidth = width - pad.left - pad.right;
     // A gap of one column's slot between blocks, so the two dies read apart.
     const blocks = [...new Set(this.columns.map((column) => column.group))].length;
@@ -1118,14 +1260,24 @@ export class CoreBars {
     return { pad, plotWidth, slot, positions, start, used };
   }
 
+  /** Return the values the horizontal lines sit at. */
+  ticks() {
+    return barTicks(this.low, this.top, this.fixedHigh !== null);
+  }
+
   /** Draw the whole display. */
   draw() {
     const measured = this.plot.clientWidth;
     if (measured > 0) this.width = Math.max(measured, 260);
     const { width, height } = this;
     const context = prepare(this.canvas, width, height);
-    const { pad, plotWidth, slot, positions, start, used } = this.layout(width);
+    const geometry = this.layout(width);
+    this.geometry = geometry;
+    const { pad, slot, positions, start, used } = geometry;
     const plotHeight = height - pad.top - pad.bottom;
+    if (this.top === null) return;
+    const { low, top } = this;
+    const yOf = (value) => pad.top + plotHeight * (1 - (value - low) / (top - low));
     // A column is capped rather than filling its slot: the leftover is air,
     // and 24 columns filling a 2500 px screen read as blocks, not as a level
     // meter. A 2 px gap of surface does the separating, so no column needs a
@@ -1133,40 +1285,42 @@ export class CoreBars {
     const barWidth = Math.max(Math.min(slot - 2, MAX_BAR), 2);
     const inset = (slot - barWidth) / 2;
 
+    const axis = axisUnit(top, this.spec);
     context.strokeStyle = token("--grid");
     context.lineWidth = 1;
     context.fillStyle = token("--ink-muted");
     context.font = `11px ${token("--sans")}`;
     context.textAlign = "right";
     context.textBaseline = "middle";
-    for (const fraction of [0, 0.25, 0.5, 0.75, 1]) {
-      const y = Math.round(pad.top + plotHeight * (1 - fraction)) + 0.5;
+    for (const tick of this.ticks()) {
+      const y = Math.round(yOf(tick)) + 0.5;
       context.beginPath();
       context.moveTo(start, y);
       context.lineTo(start + used, y);
       context.stroke();
-      context.fillText(scaleLabel(this.high * fraction, { symbol: "", decimals: 0, unit: "none" }), start - 7, y);
+      const number = tick / axis.factor;
+      context.fillText(fixed(number, Number.isInteger(Number(number.toFixed(6))) ? 0 : 1), start - 7, y);
     }
+    // The unit once, over the tick labels, so every tick stays a number.
+    context.textBaseline = "bottom";
+    context.fillText(axis.unit, start - 7, pad.top - 10);
 
     const colour = token("--series");
-    for (const [index, column] of this.columns.entries()) {
+    for (const [index] of this.columns.entries()) {
       const value = this.values[index];
       if (value === null || value === undefined) continue;
-      const fraction = Math.min(Math.max(value / this.high, 0), 1);
+      const fraction = Math.min(Math.max((value - low) / (top - low), 0), 1);
       const barHeight = Math.max(fraction * plotHeight, fraction > 0 ? 1 : 0);
       context.fillStyle = colour;
       context.fillRect(positions[index] + inset, pad.top + plotHeight - barHeight, barWidth, barHeight);
-      // Past the top of the shared scale, the column cannot grow, so a cap in
-      // the "above ceiling" colour sits on it. Gova, 2026-09-23.
-      if (value > this.high) {
-        const middle = positions[index] + inset + barWidth / 2;
-        context.fillStyle = token("--warning");
-        context.beginPath();
-        context.moveTo(middle - barWidth / 2, pad.top - 1);
-        context.lineTo(middle + barWidth / 2, pad.top - 1);
-        context.lineTo(middle, pad.top - 9);
-        context.closePath();
-        context.fill();
+      // Past an end of the shared scale, the column cannot show it, so a cap
+      // in the "above ceiling" colour points the way it went. Gova, 2026-09-23.
+      // Only a published scale has an end to pass; a following axis grows.
+      const middle = positions[index] + inset + barWidth / 2;
+      if (this.fixedHigh !== null && value > top) {
+        this.drawCap(context, middle, barWidth, pad.top - 1, -8);
+      } else if (value < low) {
+        this.drawCap(context, middle, barWidth, pad.top + plotHeight + 1, 8);
       }
     }
 
@@ -1181,6 +1335,17 @@ export class CoreBars {
 
     this.drawBlockNames(context, positions, slot, pad, plotHeight);
     this.drawHover(context, positions, barWidth, slot, inset, pad, plotHeight);
+  }
+
+  /** Draw a small triangle at `y`, pointing up for a negative `rise`. */
+  drawCap(context, middle, barWidth, y, rise) {
+    context.fillStyle = token("--warning");
+    context.beginPath();
+    context.moveTo(middle - barWidth / 2, y);
+    context.lineTo(middle + barWidth / 2, y);
+    context.lineTo(middle, y + rise);
+    context.closePath();
+    context.fill();
   }
 
   /**
@@ -1205,19 +1370,10 @@ export class CoreBars {
     }
   }
 
-  /** Show which column the pointer is on, and what it reads. */
+  /** Mark the column under the pointer or the keyboard, and what it reads. */
   drawHover(context, positions, barWidth, slot, inset, pad, plotHeight) {
-    if (this.hoverAt === null) {
-      this.tip.hidden = true;
-      return;
-    }
-    let found = -1;
-    for (const [index, x] of positions.entries()) {
-      // The whole slot is the target, not the column: a 14 px column is a
-      // hard thing to put a pointer on.
-      if (this.hoverAt >= x && this.hoverAt <= x + slot) found = index;
-    }
-    if (found < 0) {
+    const found = this.hoverIndex;
+    if (found === null || found === undefined) {
       this.tip.hidden = true;
       return;
     }
@@ -1226,8 +1382,14 @@ export class CoreBars {
     context.strokeStyle = token("--ink-muted");
     context.lineWidth = 1;
     context.strokeRect(positions[found] + inset - 1.5, pad.top - 0.5, barWidth + 3, plotHeight + 1);
+    // With a view listening, the tooltip panel says all of this and more.
+    if (this.onHover !== null) {
+      this.tip.hidden = true;
+      return;
+    }
     this.tip.hidden = false;
-    this.tip.textContent = `${column.label}: ${value === null ? "—" : `${value.toFixed(0)} ${this.unit}`}`;
+    const shown = column.channel ? formatValue(value, column.channel) : `${value?.toFixed(0) ?? "—"} ${this.unit}`;
+    this.tip.textContent = `${column.label}: ${shown}`;
     this.tip.style.left = `${Math.min(positions[found] + inset, this.width - 160)}px`;
     this.tip.style.top = "0px";
   }

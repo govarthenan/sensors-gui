@@ -11,7 +11,9 @@
 import { setPaused, setRate, start } from "./stream.js";
 import { refreshTooltip } from "./tooltip.js";
 import { alertsView } from "./views/alerts.js";
+import { cpuView } from "./views/cpu.js";
 import { gpuView } from "./views/gpu.js";
+import { memoryView } from "./views/memory.js";
 import { summaryView } from "./views/summary.js";
 
 /**
@@ -24,8 +26,8 @@ import { summaryView } from "./views/summary.js";
 const VIEWS = [
   { id: "summary", name: "Summary", build: summaryView },
   { id: "gpu", name: "Graphics card", build: gpuView },
-  { id: "cpu", name: "Processor", checkpoint: 4, note: "AMD Ryzen 9 9900X — temperatures, 12 core powers, clocks" },
-  { id: "memory", name: "Memory", checkpoint: 4, note: "2 x 32 GB DDR5, slots A2 and B2" },
+  { id: "cpu", name: "Processor", build: cpuView },
+  { id: "memory", name: "Memory", build: memoryView },
   { id: "board", name: "Motherboard", checkpoint: 5, note: "MSI PRO X870-P WIFI — 9 fans, 10 voltages, 7 temperatures" },
   { id: "cooling", name: "Cooling", checkpoint: 5, note: "every fan and the pump, beside the temperature it acts on" },
   {
