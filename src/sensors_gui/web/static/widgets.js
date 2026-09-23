@@ -763,14 +763,12 @@ export class CoreBars {
    *   one entry for each column, in hardware order
    * @param {number} options.high the top of the scale, the same for every column
    * @param {string} options.unit the symbol to show after a value
-   * @param {boolean} [options.segmented] draw each column as discrete blocks
    * @param {number} [options.height] the height of the plot in pixels
    */
   constructor(options) {
     this.columns = options.columns;
     this.high = options.high;
     this.unit = options.unit ?? "";
-    this.segmented = options.segmented ?? false;
     this.height = options.height ?? 150;
     this.width = 640;
     this.values = this.columns.map(() => null);
@@ -870,14 +868,9 @@ export class CoreBars {
       const value = this.values[index];
       if (value === null || value === undefined) continue;
       const fraction = Math.min(Math.max(value / this.high, 0), 1);
-      const x = positions[index] + inset;
+      const barHeight = Math.max(fraction * plotHeight, fraction > 0 ? 1 : 0);
       context.fillStyle = colour;
-      if (this.segmented) {
-        this.drawSegments(context, x, barWidth, pad, plotHeight, fraction);
-      } else {
-        const barHeight = Math.max(fraction * plotHeight, fraction > 0 ? 1 : 0);
-        context.fillRect(x, pad.top + plotHeight - barHeight, barWidth, barHeight);
-      }
+      context.fillRect(positions[index] + inset, pad.top + plotHeight - barHeight, barWidth, barHeight);
     }
 
     context.fillStyle = token("--ink-muted");
@@ -912,18 +905,6 @@ export class CoreBars {
     }
     for (const [name, at] of seen) {
       context.fillText(name, (at.first + at.last + slot) / 2, pad.top + plotHeight + 16);
-    }
-  }
-
-  /** Draw one column as discrete blocks, the way a level meter does. */
-  drawSegments(context, x, barWidth, pad, plotHeight, fraction) {
-    const count = 20; // one block for each 5 % of the scale, so a block means something
-    const gap = 2;
-    const blockHeight = (plotHeight - gap * (count - 1)) / count;
-    const lit = Math.round(fraction * count);
-    for (let step = 0; step < lit; step += 1) {
-      const y = pad.top + plotHeight - (step + 1) * blockHeight - step * gap;
-      context.fillRect(x, y, barWidth, blockHeight);
     }
   }
 

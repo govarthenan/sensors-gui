@@ -1274,3 +1274,43 @@ drift apart.
 
 Gova chooses solid columns or blocks of 5 %. Then checkpoint 3, the graphics
 card.
+
+---
+
+## 2026-09-22 — Session 8, end: the core display is chosen
+
+**Gova's words, verbatim**
+
+> Good work.
+> Solid column for each core. I'm thinking that we could experiment showing
+> such a bar graph each for core load, wattage, temperature etc. as this is a
+> great way to visualize spread across the cores. But yes, I'm eager to see
+> the other representations you come up with, as well.
+>
+> We could now move the work to another conversation, as this one's context
+> window is filling up. Could you please end this convo and and write a
+> handoff doc in ./tmp ?
+
+**What was done**
+
+- **Solid columns kept, blocks of 5 % removed** from `CoreBars`, from the
+  review page and from the code. The screenshot in
+  `lab/exp-0015-gui-checkpoints/results/2026-09-22-core-display-review.png`
+  keeps the record of both.
+- `tmp/HANDOFF-gui-stream.md` written, for the conversation that continues
+  this work.
+
+**One thing the next session must not get wrong.** Gova's idea is one of these
+displays for each measure: load, power, temperature. Load and power are there
+— 24 threads and 12 cores. **Temperature is not, and cannot be.** `k10temp` on
+Zen 5 gives `Tctl` and one `Tccd` for each of the two dies, and nothing per
+core (`docs/sensor-sources.md` section A). A bar for each core's temperature
+would be twelve copies of two numbers, which is a picture of a measurement
+this machine never made. The honest version is two columns, or the two blocks
+of the load display shaded by their die temperature, and the tooltip saying
+which sensor it is. Do not draw twelve.
+
+**One question Gova's words leave open.** "Solid column for each core" may
+mean the solid version, which is how it is built (24 columns, one for each
+thread, paired by core), or it may mean one column for each core rather than
+for each thread. The display is unchanged until Gova says which.

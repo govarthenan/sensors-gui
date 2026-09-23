@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-22 (session 8, checkpoint 2 built, core display under review)
+Last update: 2026-09-22 (end of session 8; checkpoint 2 built, checkpoint 3 next)
 
 ## Phase
 
@@ -20,10 +20,8 @@ colour meaning and the status bar. Gova answered two questions on it — the
 processor leads the summary instead of whichever sensor is hottest, and the
 empty space is left for the later views to fill.
 
-**One component is under review**: Gova's idea of a level-meter display of
-every core. It is built, on the review page at `/gallery`, in two versions —
-solid columns and blocks of 5 %. Gova picks one, then checkpoint 3, the
-graphics card in full.
+**The core display is accepted**, in its solid form; blocks of 5 % were
+removed. Next is checkpoint 3, the graphics card in full.
 
 **The command.** This is the one `docs/gui-goal.md` section 5 rule 2 asks for:
 
@@ -334,11 +332,9 @@ Verified on the machine at the end of session 6, not assumed:
 **The GUI stream comes first.** Everything below it was the list before
 `docs/gui-goal.md` arrived, and none of it blocks the GUI.
 
-0. **The core display: wait for Gova.** Solid columns or blocks of 5 %, at
-   `/gallery` section 3, and in
-   `lab/exp-0015-gui-checkpoints/results/2026-09-22-core-display-review.png`.
-   Checkpoint 2 itself is built; its screenshots are in the same folder, at
-   2560, 1280 and 1000 wide.
+0. **Read `tmp/HANDOFF-gui-stream.md` first** if this is a new conversation.
+   It is the picture of the GUI stream: what runs, what is decided, what Gova
+   has said, and the traps.
 
 0b. **Then checkpoint 3: the graphics card, in full.** Every RTX 4090 channel,
    grouped, visualised, with a tooltip on each one and the card diagram.
@@ -347,6 +343,15 @@ Verified on the machine at the end of session 6, not assumed:
    The tooltip needs a long description for each channel, which the model does
    not carry yet; that is the one addition to the collection layer the brief
    allows.
+
+0c. **Gova's idea, for the processor view at checkpoint 4**: one `CoreBars`
+   display for each measure — load, power, and so on — because the spread
+   across the cores is what it shows well. **Temperature cannot be one of
+   them.** `k10temp` on Zen 5 gives `Tctl` and one `Tccd` for each die and
+   nothing per core, so twelve temperature columns would be twelve copies of
+   two numbers. Two columns, or the two blocks shaded by their die, is the
+   honest version. Gova also asked to see other representations, so the
+   processor view is the place to try them.
 
 1. **Offer the driver patch upstream.** `driver/nct6687-ms7e47.patch` applies to
    every MSI PRO X870-P WIFI, not only this one. It adds the EZ Conn fan channel

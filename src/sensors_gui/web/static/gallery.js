@@ -73,20 +73,15 @@ function build() {
   // meter. Two versions, so the choice between them can be seen.
   const threads = threadColumns(state.catalogue);
   const powers = corePowerColumns(state.catalogue);
-  const displays = [
-    ["cores-solid", new CoreBars({ columns: threads, high: 100, unit: "%", segmented: false, height: 170 })],
-    ["cores-segmented", new CoreBars({ columns: threads, high: 100, unit: "%", segmented: true, height: 170 })],
-  ];
-  for (const [where, bars] of displays) {
-    $(where).appendChild(bars.element);
-    state.widgets.push((frame) => bars.update(threads.map((column) => frame.v[column.channel.i] ?? null)));
-  }
+  const bars = new CoreBars({ columns: threads, high: 100, unit: "%", height: 170 });
+  $("cores-solid").appendChild(bars.element);
+  state.widgets.push((frame) => bars.update(threads.map((column) => frame.v[column.channel.i] ?? null)));
   if (powers.length) {
     // The top of this scale is not published by the hardware, so it is taken
     // from what exp-0012 measured under an all-core load: 103.98 W over
     // twelve cores. The caption says so, because an unpublished scale must
     // never look like a published one.
-    const power = new CoreBars({ columns: powers, high: 12, unit: "W", segmented: false, height: 140 });
+    const power = new CoreBars({ columns: powers, high: 12, unit: "W", height: 140 });
     $("cores-power").appendChild(power.element);
     state.widgets.push((frame) => power.update(powers.map((column) => frame.v[column.channel.i] ?? null)));
   }
