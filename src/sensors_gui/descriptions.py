@@ -30,11 +30,12 @@ NVIDIA_QUERY = "data/probes/2026-09-23-nvidia-smi-q.txt"
 EXP_0002 = "lab/exp-0002-nvidia-access/README.md"
 EXP_0006 = "lab/exp-0006-nvml-read-cost/README.md"
 EXP_0013 = "lab/exp-0013-rtx4090-board-sensors/README.md"
+EXP_0016 = "lab/exp-0016-nvml-new-channels/README.md"
+NVML_BINDING = "data/evidence/nvml-binding-2026-09-23/pynvml-extracts.txt"
 ADR_0003 = "docs/decisions/0003-use-nvml-for-the-nvidia-gpu.md"
 ADR_0011 = "docs/decisions/0011-no-i2c-route-to-the-graphics-card.md"
 INVENTORY = "docs/hardware-inventory.md"
 PHYSICAL_BUILD = "docs/physical-build.md"
-GUI_GOAL = "docs/gui-goal.md"
 COLLECTOR = "src/sensors_gui/collectors/nvidia.py"
 
 
@@ -194,10 +195,43 @@ _CARD: dict[str, Description] = {
         measures="The current frequency of the memory clock.",
         call="nvmlDeviceGetClockInfo(handle, NVML_CLOCK_MEM)",
         neighbours=(
-            "The card reports a maximum memory clock of 10501 MHz, and about 405 MHz at idle. The collector does "
-            "not carry that maximum, so no meter is drawn for this channel."
+            "The scale runs to the card's maximum memory clock, 10501 MHz, read once when the application starts. "
+            "At idle the card drops it to about 405 MHz."
         ),
-        sources=(NVIDIA_HELP, NVIDIA_QUERY),
+        sources=(NVIDIA_HELP, NVIDIA_QUERY, EXP_0016),
+    ),
+    "clock_event_reasons": Description(
+        measures=(
+            "Which reasons are holding the card's clocks down now, as a bit field: GPU idle, a software power cap, "
+            "a software or hardware thermal slowdown, a hardware power brake, and others. None set means the clocks "
+            "run as high as they can."
+        ),
+        call="nvmlDeviceGetCurrentClocksEventReasons(handle)",
+        neighbours=(
+            "NVIDIA says a hardware slowdown cuts the core clock by a factor of 2 or more, and the power brake "
+            "is set from outside the card, for example by the power supply. At idle only the idle bit is set. "
+            "Older tools call these the throttle reasons."
+        ),
+        sources=(NVIDIA_HELP, NVML_BINDING, NVIDIA_QUERY, EXP_0016),
+    ),
+    "pcie_link_gen": Description(
+        measures="The PCIe generation the card's link runs at now.",
+        call="nvmlDeviceGetCurrPcieLinkGeneration(handle)",
+        neighbours=(
+            "The ceiling is the most this link can run at with this card in this board: PCIe 4.0. The card lowers "
+            "the generation when it is not in use, so 1 or 2 at idle is expected. PCIe width is the other half of "
+            "the link."
+        ),
+        sources=(NVIDIA_HELP, NVIDIA_QUERY, EXP_0016),
+    ),
+    "pcie_link_width": Description(
+        measures="The number of PCIe lanes the card's link uses now.",
+        call="nvmlDeviceGetCurrPcieLinkWidth(handle)",
+        neighbours=(
+            "The ceiling is the most lanes this link can use, 16. NVIDIA says the width may be reduced when the "
+            "card is not in use. PCIe generation is the other half of the link."
+        ),
+        sources=(NVIDIA_HELP, NVIDIA_QUERY, EXP_0016),
     ),
     "encoder_utilization": Description(
         measures=(
@@ -220,8 +254,7 @@ _CARD: dict[str, Description] = {
         call="nvmlDeviceGetPcieThroughput(handle, NVML_PCIE_UTIL_TX_BYTES)",
         neighbours=(
             "PCIe receive is the other direction. NVML measures the link for about 20 ms on each call, so this "
-            "channel is read every 2 s. The link is PCIe 4.0 x16 at most, and it drops to PCIe 1.0 at idle; "
-            "the collector does not read the link generation."
+            "channel is read every 2 s. PCIe generation and PCIe width give the state of the link itself."
         ),
         sources=(EXP_0006, NVIDIA_QUERY),
     ),
@@ -345,22 +378,6 @@ UNREACHABLE: tuple[Missing, ...] = (
     ),
 )
 
-_NOT_YET = (
-    "The collection layer does not read it yet, and new channels are out of scope for the GUI stream; "
-    "question Q13 in state/STATUS.md asks whether to add it."
-)
-
-NOT_COLLECTED: tuple[Missing, ...] = (
-    Missing(
-        label="Clock event reasons",
-        group=Group.GPU,
-        reason=f"Why the clocks are low: idle, power limit, or thermal slowdown. NVML gives it. {_NOT_YET}",
-        sources=(NVIDIA_HELP, NVIDIA_QUERY, GUI_GOAL),
-    ),
-    Missing(
-        label="PCIe link",
-        group=Group.GPU,
-        reason=f"The link generation and width: PCIe 4.0 x16 at most, PCIe 1.0 at idle. NVML gives it. {_NOT_YET}",
-        sources=(NVIDIA_QUERY, GUI_GOAL),
-    ),
-)
+# Q13 is answered: the clock event reasons and the PCIe link are channels now
+# (Gova, 2026-09-23). The list stays, empty, so a later group can use it.
+NOT_COLLECTED: tuple[Missing, ...] = ()

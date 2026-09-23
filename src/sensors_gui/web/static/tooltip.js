@@ -67,6 +67,10 @@ function range(channel, value) {
     let text = `${named.join(", ")}, published by the hardware.`;
     text = text.charAt(0).toUpperCase() + text.slice(1);
     if (value === null || value === undefined) return text;
+    const ceiling = channel.high ?? null;
+    if (ceiling !== null && ceiling !== critical && value > ceiling) {
+      return `${text} Now ${formatValue(value - ceiling, channel)} above the ceiling of the scale.`;
+    }
     const first = hasWarn ? warn : critical;
     const word = hasWarn ? "warning" : "critical threshold";
     return value < first
@@ -76,7 +80,11 @@ function range(channel, value) {
   const top = scaleTop(channel);
   if (channel.low !== null && channel.low !== undefined && top !== null) {
     let text = `Scale ${scalePhrase(channel.low, top, channel)}, from the spec.`;
-    if (value !== null && value !== undefined && top > channel.low) {
+    if (value !== null && value !== undefined && value > top) {
+      text += ` Now ${formatValue(value - top, channel)} above the ceiling; the reading is in the alert log.`;
+    } else if (value !== null && value !== undefined && value < channel.low) {
+      text += ` Now ${formatValue(channel.low - value, channel)} below the floor; the reading is in the alert log.`;
+    } else if (value !== null && value !== undefined && top > channel.low) {
       const share = Math.round(((value - channel.low) / (top - channel.low)) * 100);
       text += ` Now at ${share} % of the scale.`;
     }

@@ -21,8 +21,9 @@ from sensors_gui.model import Group, SensorId, SensorSpec, Unit
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_ROOTS = ("docs/", "lab/", "data/", "src/")
 
-# Every channel the NVIDIA collector builds on this card: 17 fixed channels and
-# an RPM and a percent channel for each of the 2 fans (exp-0013).
+# Every channel the NVIDIA collector builds on this card: 20 fixed channels and
+# an RPM and a percent channel for each of the 2 fans (exp-0013). Three were
+# added on 2026-09-23, on Gova's answer to Q13 (exp-0016).
 GPU_CHANNELS = (
     "temperature",
     "power",
@@ -41,6 +42,9 @@ GPU_CHANNELS = (
     "performance_state",
     "graphics_processes",
     "compute_processes",
+    "clock_event_reasons",
+    "pcie_link_gen",
+    "pcie_link_width",
     "fan0_rpm",
     "fan0_percent",
     "fan1_rpm",
@@ -130,13 +134,9 @@ def test_the_three_unreadable_card_temperatures_are_listed_with_a_reason() -> No
         assert "docs/decisions/0011-no-i2c-route-to-the-graphics-card.md" in entry.sources
 
 
-def test_what_the_card_gives_and_the_collector_does_not_read_is_listed() -> None:
-    """Throttle reasons and the PCIe link are readable through NVML and not collected."""
-    labels = {entry.label for entry in NOT_COLLECTED if entry.group is Group.GPU}
-    assert {"Clock event reasons", "PCIe link"} <= labels
-    for entry in NOT_COLLECTED:
-        for source in entry.sources:
-            assert (ROOT / source).is_file(), source
+def test_nothing_the_card_gives_is_left_uncollected() -> None:
+    """Q13 is answered: the clock event reasons and the PCIe link are channels now."""
+    assert [entry for entry in NOT_COLLECTED if entry.group is Group.GPU] == []
 
 
 def test_every_source_of_a_missing_value_is_a_file_in_this_repository() -> None:

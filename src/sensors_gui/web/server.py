@@ -27,6 +27,11 @@ STATIC = Path(__file__).parent / "static"
 HOST = "127.0.0.1"
 
 
+# The browser must check a page again before it uses a cached copy. Without it
+# a new status bar met an old `index.html`, and every frame raised an error.
+REVALIDATE = {"Cache-Control": "no-cache"}
+
+
 class RevalidatedFiles(StaticFiles):
     """Static files the browser must check again before it uses a cached copy.
 
@@ -38,7 +43,7 @@ class RevalidatedFiles(StaticFiles):
     def file_response(self, *args: object, **kwargs: object) -> Response:
         """Return the file with a header that says to revalidate it."""
         response = super().file_response(*args, **kwargs)  # type: ignore[arg-type]
-        response.headers["Cache-Control"] = "no-cache"
+        response.headers.update(REVALIDATE)
         return response
 
 
@@ -132,12 +137,12 @@ def build_app(service: SensorService) -> FastAPI:
     @app.get("/", include_in_schema=False)
     async def index() -> FileResponse:
         """Serve the application shell."""
-        return FileResponse(STATIC / "index.html")
+        return FileResponse(STATIC / "index.html", headers=REVALIDATE)
 
     @app.get("/gallery", include_in_schema=False)
     async def gallery() -> FileResponse:
         """Serve the component review page."""
-        return FileResponse(STATIC / "gallery.html")
+        return FileResponse(STATIC / "gallery.html", headers=REVALIDATE)
 
     @app.get("/api/catalogue", summary="Every channel, its unit, its scale and its thresholds")
     async def catalogue() -> dict[str, object]:
@@ -148,6 +153,15 @@ def build_app(service: SensorService) -> FastAPI:
     async def frame() -> dict[str, object]:
         """Return the newest frame, taking a pass if none has been taken yet."""
         return service.sample_once()
+
+    @app.get("/api/alerts", summary="Every reading that left its published scale, newest first")
+    async def alerts() -> dict[str, object]:
+        """Return the alert log. It lives in memory; a restart empties it."""
+        return {
+            "alerts": service.alerts.entries(),
+            "open": service.alerts.open_count(),
+            "total": service.alerts.total(),
+        }
 
     @app.post("/api/rate", summary="Change the sample rate")
     async def set_rate(request: RateRequest) -> dict[str, float]:

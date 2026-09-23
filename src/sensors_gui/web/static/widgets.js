@@ -174,6 +174,10 @@ export const STATES = {
   warning: { word: "warm", icon: "▲" },
   serious: { word: "hot", icon: "◆" },
   critical: { word: "critical", icon: "■" },
+  // Gova, 2026-09-23: a reading past the scale its spec publishes must say
+  // so. The ceiling is the spec's `high`, the floor its `low`.
+  over: { word: "above ceiling", icon: "⤒" },
+  under: { word: "below floor", icon: "⤓" },
   stale: { word: "stale", icon: "◔" },
   unavailable: { word: "unavailable", icon: "○" },
 };
@@ -192,16 +196,19 @@ export const STATES = {
  */
 export function stateOf(value, spec, extra = {}) {
   if (value === null || value === undefined || extra.error) return "unavailable";
-  if (spec.critical !== null && spec.critical !== undefined && value >= spec.critical) return "critical";
-  if (spec.warn !== null && spec.warn !== undefined && value >= spec.warn) {
-    // Two thirds of the way from the warning to the critical threshold, the
-    // state moves on, so the last part of the range is not one flat colour.
-    const critical = spec.critical;
-    if (critical !== null && critical !== undefined && value >= spec.warn + (critical - spec.warn) * 0.66) {
-      return "serious";
-    }
-    return "warning";
-  }
+  const has = (at) => at !== null && at !== undefined;
+  if (has(spec.critical) && value >= spec.critical) return "critical";
+  const warm = has(spec.warn) && value >= spec.warn;
+  // Two thirds of the way from the warning to the critical threshold, the
+  // state moves on, so the last part of the range is not one flat colour.
+  if (warm && has(spec.critical) && value >= spec.warn + (spec.critical - spec.warn) * 0.66) return "serious";
+  // Past the published scale. Weaker than a published critical or serious
+  // threshold, because those name a danger and a ceiling only names the end
+  // of the scale; stronger than a warning, because the meter can no longer
+  // show the value inside its track.
+  if (has(spec.high) && value > spec.high) return "over";
+  if (has(spec.low) && value < spec.low) return "under";
+  if (warm) return "warning";
   return "normal";
 }
 
@@ -281,10 +288,13 @@ export function niceAxis(values, previous = null, floor = 1) {
  *
  * @param {{low: number, high: number, step: number, ticks: number[]}} axis
  * @param {number|null|undefined} bottom the spec's `low`
+ * @param {number|null} lowest the lowest value in the data, if any
  * @returns {{low: number, high: number, step: number, ticks: number[]}}
  */
-export function floorAt(axis, bottom) {
+export function floorAt(axis, bottom, lowest = null) {
   if (bottom === null || bottom === undefined || axis.low >= bottom) return axis;
+  // A reading below the floor is the thing to see, never to cut off.
+  if (lowest !== null && lowest !== undefined && lowest < bottom) return axis;
   const span = axis.high - axis.low;
   const low = bottom;
   const high = Math.max(axis.high, bottom + span / 2);
@@ -330,6 +340,8 @@ const COLOUR_OF_STATE = {
   warning: "--warning",
   serious: "--serious",
   critical: "--critical",
+  over: "--warning",
+  under: "--warning",
   stale: "--unavailable",
   unavailable: "--unavailable",
 };
@@ -337,6 +349,39 @@ const COLOUR_OF_STATE = {
 /** Return the one colour that belongs to a state. */
 export function colourOf(state) {
   return token(COLOUR_OF_STATE[state] ?? "--series");
+}
+
+// --- Meter geometry -------------------------------------------------------------
+
+/**
+ * Return where a meter's fill, its ceiling and its overflow sit, as fractions
+ * of the track.
+ *
+ * Inside the scale the ceiling is the end of the track. Past it, the track is
+ * stretched so the ceiling moves inward to a mark the reader can see, and the
+ * fill runs across that mark: a bar that simply stops at its end would hide
+ * the one fact that matters. Gova, 2026-09-23.
+ *
+ * @param {number|null} value the reading
+ * @param {object} spec the channel
+ * @returns {{fill: number, ceiling: number, over: number, top: number}}
+ *   `fill` up to the ceiling, `ceiling` where the ceiling mark sits, `over`
+ *   the length past it, and `top` the value at the end of the track
+ */
+export function meterGeometry(value, spec) {
+  const low = spec.low ?? 0;
+  const top = scaleTop(spec);
+  if (top === null || top <= low) return { fill: 0, ceiling: 1, over: 0, top };
+  const span = top - low;
+  if (value === null || value === undefined || value <= top) {
+    const fill = value === null || value === undefined ? 0 : Math.min(Math.max((value - low) / span, 0), 1);
+    return { fill, ceiling: 1, over: 0, top };
+  }
+  // The end of the stretched track: a little past the value, and never so
+  // close to the ceiling that the mark sits on the end of the track.
+  const end = Math.max(value + span * 0.05, low + span / 0.88);
+  const ceiling = span / (end - low);
+  return { fill: 1, ceiling, over: (value - top) / (end - low), top: end };
 }
 
 // --- Meter --------------------------------------------------------------------
@@ -363,7 +408,11 @@ export class Meter {
         <span class="meter-label"></span>
         <span class="meter-value"></span>
       </div>
-      <div class="meter-track"><div class="meter-fill"></div><div class="meter-marks"></div></div>
+      <div class="meter-track">
+        <div class="meter-fill"></div><div class="meter-over"></div><div class="meter-marks"></div>
+        <i class="meter-ceiling" hidden></i>
+      </div>
+      <div class="meter-flag" hidden></div>
       <div class="meter-scale"><span></span><span class="meter-top"></span></div>
     `;
     this.element.querySelector(".meter-label").textContent = spec.label;
@@ -372,6 +421,12 @@ export class Meter {
     ends[0].textContent = scaleLabel(spec.low ?? 0, spec);
     ends[1].textContent = top === null ? "" : scaleLabel(top, spec);
     this.fill = this.element.querySelector(".meter-fill");
+    this.overflow = this.element.querySelector(".meter-over");
+    this.ceilingMark = this.element.querySelector(".meter-ceiling");
+    this.flag = this.element.querySelector(".meter-flag");
+    this.topLabel = ends[1];
+    this.topText = ends[1].textContent;
+    this.marks = [];
     this.valueText = this.element.querySelector(".meter-value");
     this.drawMarks();
   }
@@ -393,6 +448,7 @@ export class Meter {
       mark.style.left = `${((at - low) / (top - low)) * 100}%`;
       mark.title = `${name === "warn" ? "warning" : "critical"} at ${at}`;
       marks.appendChild(mark);
+      this.marks.push({ mark, at });
     }
   }
 
@@ -407,9 +463,29 @@ export class Meter {
     if (this.element.dataset.state !== state) this.element.dataset.state = state;
     setText(this.valueText, formatValue(value, this.spec));
     const low = this.spec.low ?? 0;
+    const geometry = meterGeometry(value, this.spec);
+    const over = geometry.over > 0;
+    this.fill.style.width = `${(over ? geometry.ceiling : geometry.fill) * 100}%`;
+    this.overflow.style.left = `${geometry.ceiling * 100}%`;
+    this.overflow.style.width = `${geometry.over * 100}%`;
+    this.ceilingMark.hidden = !over;
+    this.ceilingMark.style.left = `${geometry.ceiling * 100}%`;
+    // The thresholds keep their place on the stretched track.
+    if (geometry.top !== null) {
+      for (const { mark, at } of this.marks) mark.style.left = `${((at - low) / (geometry.top - low)) * 100}%`;
+    }
+    // The label under the track follows the ceiling, and names it.
+    const ceilingText = over ? `ceiling ${this.topText}` : this.topText;
+    setText(this.topLabel, ceilingText);
+    this.topLabel.style.right = over ? `${(1 - geometry.ceiling) * 100}%` : "0";
+    this.topLabel.classList.toggle("is-over", over);
     const top = scaleTop(this.spec);
-    const fraction = value === null || top === null || top <= low ? 0 : (value - low) / (top - low);
-    this.fill.style.width = `${Math.min(Math.max(fraction, 0), 1) * 100}%`;
+    this.flag.hidden = state !== "over" && state !== "under";
+    if (state === "over") {
+      setText(this.flag, `${STATES.over.icon} ${formatValue(value - top, this.spec)} above the ceiling`);
+    } else if (state === "under") {
+      setText(this.flag, `${STATES.under.icon} ${formatValue(low - value, this.spec)} below the floor`);
+    }
   }
 }
 
@@ -535,7 +611,13 @@ export class Trace {
     const seenAll = every.filter((value) => value !== null && value !== undefined);
     const magnitude = seenAll.length ? Math.max(...seenAll.map(Math.abs)) : 1;
     const floor = this.spec.unit === "percent" ? 5 : Math.max(1, magnitude * 0.1);
-    this.axis = floorAt(niceAxis(every, this.axis, floor), this.spec.low);
+    // Past the ceiling, the axis must hold the ceiling too, so the reader sees
+    // the line cross it rather than a line with no reference at all.
+    const ceiling = this.spec.high ?? null;
+    const crossed = ceiling !== null && seenAll.some((value) => value > ceiling);
+    this.crossed = crossed;
+    const lowest = seenAll.length ? Math.min(...seenAll) : null;
+    this.axis = floorAt(niceAxis(crossed ? [...every, ceiling] : every, this.axis, floor), this.spec.low, lowest);
     const { low, high, ticks } = this.axis;
 
     const xOf = (index) => pad.left + (index / Math.max(values.length - 1, 1)) * plotWidth;
@@ -557,7 +639,10 @@ export class Trace {
     }
 
     const state = this.element.dataset.state;
-    const colour = colourOf(state);
+    // Past the scale, only the part of the line past the ceiling changes
+    // colour (`strokeAboveCeiling`); the rest keeps the series colour, so the
+    // crossing itself is what the eye finds.
+    const colour = colourOf(state === "over" || state === "under" ? "normal" : state);
 
     // Any threshold that falls inside the axis is drawn as a reference line,
     // with its word beside it. A reader must not have to know that red means
@@ -581,6 +666,8 @@ export class Trace {
       context.fillStyle = token("--ink-muted");
       context.textAlign = "right";
     }
+
+    this.drawCeiling(context, pad, plotWidth, yOf, low, high);
 
     const pointsOf = (series) =>
       series
@@ -612,6 +699,7 @@ export class Trace {
     context.lineJoin = "round";
     context.lineCap = "round";
     context.stroke();
+    this.strokeAboveCeiling(context, points, pad, plotWidth, yOf);
 
     const [endX, endY] = points[points.length - 1];
     context.beginPath();
@@ -629,6 +717,67 @@ export class Trace {
     context.fillText(formatValue(lastValue ?? null, this.spec), endX + 9, endY);
 
     this.drawCrosshair(context, pad, plotWidth, plotHeight, xOf, yOf);
+  }
+
+  /**
+   * Draw the ceiling, the spec's `high`, as a reference line with its word.
+   *
+   * It is drawn whenever it falls inside the axis. Where the data has crossed
+   * it, the line turns the colour of the "above ceiling" state, the space
+   * above it takes a faint wash of that colour, and its word says it was
+   * exceeded: Gova, 2026-09-23, "the dataviz should clearly show that the
+   * reading exceeds the ceiling marker on the plot".
+   */
+  drawCeiling(context, pad, plotWidth, yOf, low, high) {
+    const ceiling = this.spec.high;
+    if (ceiling === null || ceiling === undefined || ceiling < low || ceiling > high) return;
+    // A ceiling that is also the critical threshold is drawn once, as critical.
+    if (ceiling === this.spec.critical && !this.crossed) return;
+    const y = Math.round(yOf(ceiling)) + 0.5;
+    const over = token("--warning");
+    if (this.crossed) {
+      context.fillStyle = over;
+      context.globalAlpha = 0.08;
+      context.fillRect(pad.left, pad.top, plotWidth, y - pad.top);
+      context.globalAlpha = 1;
+    }
+    context.save();
+    context.strokeStyle = this.crossed ? over : token("--ink-muted");
+    context.lineWidth = this.crossed ? 1.5 : 1;
+    context.setLineDash([5, 4]);
+    context.beginPath();
+    context.moveTo(pad.left, y);
+    context.lineTo(pad.left + plotWidth, y);
+    context.stroke();
+    context.restore();
+    // The word sits at the left end, where the line starts: the right end
+    // belongs to the label of the newest value.
+    context.textAlign = "left";
+    context.textBaseline = "middle";
+    context.font = `${this.crossed ? 600 : 400} 11px ${token("--sans")}`;
+    context.fillStyle = this.crossed ? over : token("--ink-muted");
+    const words = `${this.crossed ? `${STATES.over.icon} exceeded · ` : ""}ceiling ${scaleLabel(ceiling, this.spec)}`;
+    const nearTop = y - pad.top < 14;
+    context.fillText(words, pad.left + 4, nearTop ? y + 9 : y - 8);
+  }
+
+  /** Stroke again, in the "above ceiling" colour, every part of the line above the ceiling. */
+  strokeAboveCeiling(context, points, pad, plotWidth, yOf) {
+    if (!this.crossed) return;
+    const y = yOf(this.spec.high);
+    context.save();
+    context.beginPath();
+    context.rect(pad.left - 6, 0, plotWidth + 12, y);
+    context.clip();
+    context.beginPath();
+    context.moveTo(...points[0]);
+    for (const [x, py] of points) context.lineTo(x, py);
+    context.strokeStyle = token("--warning");
+    context.lineWidth = 2.5;
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.stroke();
+    context.restore();
   }
 
   /**
@@ -782,7 +931,7 @@ export class Sparkline {
     if (seen.length < 2) return;
     const magnitude = Math.max(...seen.map(Math.abs));
     const floor = this.spec.unit === "percent" ? 5 : Math.max(1, magnitude * 0.1);
-    this.axis = floorAt(niceAxis(values, this.axis, floor), this.spec.low);
+    this.axis = floorAt(niceAxis(values, this.axis, floor), this.spec.low, Math.min(...seen));
     const { low, high } = this.axis;
     const points = values
       .map((value, index) =>
@@ -946,7 +1095,7 @@ export class CoreBars {
 
   /** Where each column sits, and how wide it is. */
   layout(width) {
-    const pad = { left: 34, right: 6, top: 8, bottom: 30 };
+    const pad = { left: 34, right: 6, top: 14, bottom: 30 };
     const plotWidth = width - pad.left - pad.right;
     // A gap of one column's slot between blocks, so the two dies read apart.
     const blocks = [...new Set(this.columns.map((column) => column.group))].length;
@@ -1007,6 +1156,18 @@ export class CoreBars {
       const barHeight = Math.max(fraction * plotHeight, fraction > 0 ? 1 : 0);
       context.fillStyle = colour;
       context.fillRect(positions[index] + inset, pad.top + plotHeight - barHeight, barWidth, barHeight);
+      // Past the top of the shared scale, the column cannot grow, so a cap in
+      // the "above ceiling" colour sits on it. Gova, 2026-09-23.
+      if (value > this.high) {
+        const middle = positions[index] + inset + barWidth / 2;
+        context.fillStyle = token("--warning");
+        context.beginPath();
+        context.moveTo(middle - barWidth / 2, pad.top - 1);
+        context.lineTo(middle + barWidth / 2, pad.top - 1);
+        context.lineTo(middle, pad.top - 9);
+        context.closePath();
+        context.fill();
+      }
     }
 
     context.fillStyle = token("--ink-muted");

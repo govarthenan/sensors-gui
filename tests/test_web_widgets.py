@@ -282,3 +282,79 @@ def test_an_axis_never_goes_below_the_bottom_of_the_published_scale(tmp_path: Pa
     )
     finished = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=60, check=True)
     assert json.loads(finished.stdout) == [0, True, True]
+
+
+# --- a reading past its ceiling (Gova, 2026-09-23) ------------------------------
+
+
+def run_widgets(body: str, where: Path) -> object:
+    """Run `body` with every export of the real widgets module in scope."""
+    script = where / "run.mjs"
+    script.write_text(f"import * as w from {json.dumps(str(WIDGETS))};\n{body}\n")
+    finished = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=60, check=True)
+    return json.loads(finished.stdout)
+
+
+@NEEDS_NODE
+def test_state_of_a_reading_above_the_ceiling_says_so(tmp_path: Path) -> None:
+    answer = run_widgets(
+        f"const power = {json.dumps(GPU_POWER)};\n"
+        "console.log(JSON.stringify([w.stateOf(480, power), w.stateOf(512, power), w.stateOf(-2, power),"
+        " w.STATES.over.word, w.STATES.under.word]));",
+        tmp_path,
+    )
+    assert answer == ["normal", "over", "under", "above ceiling", "below floor"]
+
+
+@NEEDS_NODE
+def test_state_of_a_critical_reading_stays_critical_when_it_is_also_past_the_ceiling(tmp_path: Path) -> None:
+    """The edge sensor's ceiling is its critical threshold, and critical is the stronger word."""
+    answer = run_widgets(f"console.log(JSON.stringify(w.stateOf(106, {json.dumps(GPU_EDGE)})));", tmp_path)
+    assert answer == "critical"
+
+
+@NEEDS_NODE
+def test_meter_geometry_inside_the_scale_fills_to_the_value(tmp_path: Path) -> None:
+    answer = run_widgets(f"console.log(JSON.stringify(w.meterGeometry(120, {json.dumps(GPU_POWER)})));", tmp_path)
+    assert answer == {"fill": 0.25, "ceiling": 1, "over": 0, "top": 480}
+
+
+@NEEDS_NODE
+def test_meter_geometry_past_the_ceiling_moves_the_ceiling_in_and_runs_past_it(tmp_path: Path) -> None:
+    """The fill must visibly cross the ceiling mark, never stop at the end of the track."""
+    answer = run_widgets(f"console.log(JSON.stringify(w.meterGeometry(528, {json.dumps(GPU_POWER)})));", tmp_path)
+    assert answer["fill"] == 1
+    assert 0.8 <= answer["ceiling"] < 0.95
+    assert answer["over"] > 0
+    assert answer["top"] > 528
+
+
+@NEEDS_NODE
+def test_an_axis_is_not_floored_when_the_data_is_below_the_floor(tmp_path: Path) -> None:
+    """The floor must never hide a reading that is below it: that reading is the alert."""
+    answer = run_widgets(
+        "const axis = w.floorAt(w.niceAxis([-3, 5, 10], null, 1), 0, -3);\n"
+        "console.log(JSON.stringify(axis.low <= -3));",
+        tmp_path,
+    )
+    assert answer is True
+
+
+GPU_VIEW = WIDGETS.parent / "views/gpu.js"
+
+
+@NEEDS_NODE
+def test_the_front_end_names_the_clock_event_bits_as_the_collector_does(tmp_path: Path) -> None:
+    """Two copies of the bit table, one in Python and one in JavaScript, must not drift."""
+    from sensors_gui.collectors.nvidia import CLOCK_EVENT_REASONS
+
+    script = tmp_path / "run.mjs"
+    script.write_text(
+        "globalThis.document = undefined;\n"
+        f"const m = await import({json.dumps(str(GPU_VIEW))});\n"
+        "console.log(JSON.stringify([m.CLOCK_EVENT_REASONS, m.activeReasons(0x45)]));\n"
+    )
+    finished = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=60, check=True)
+    table, active = json.loads(finished.stdout)
+    assert {bit: name for bit, name in table} == CLOCK_EVENT_REASONS
+    assert active == ["GPU idle", "Software power cap", "Hardware thermal slowdown"]

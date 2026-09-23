@@ -1405,3 +1405,37 @@ cache header.
 
 Wait for Gova. Then apply the feedback to this view, to the summary, and to
 every later group before checkpoint 4 starts.
+
+---
+
+## 2026-09-23 — Session 9, checkpoint 3: Gova's answer
+
+**Gova's feedback, verbatim**
+
+> The GPU screen looks OK.
+> 1. Yeah.... hold onto this schematic. I think a wireframe of the GPU would be
+> much better here. And the sensors could be shown as pulsating dots on the
+> wireframe - where the sensors would be, which show the value upon mouseover.
+> This is purely cosmetic. All the values shown in the schematic currently,
+> must be shown permamently somewhere else as well.
+> 2. yes
+> 3. yes
+>
+> What happens to any fields with a ceiling? If we get a reading higher than
+> the recognized ceiling, what happens then? The dataviz should clearly show
+> that the reading exceeds the ceiling marker on the plot. Log an alert on a
+> seperate screen.
+
+**What that settled**
+
+| # | The question | Gova's answer |
+|---|---|---|
+| 1 | The schematic | Keep it, and add a wireframe of the card with a pulsing dot where each sensor sits, the value on hover. Every value of the schematic must also be on screen permanently elsewhere. |
+| 2 | Q13: read the clock event reasons and the PCIe link | yes |
+| 3 | Q16: give the VRAM clock its maximum | yes |
+| — | A reading above its ceiling | The plot must show clearly that it is past the ceiling, and an alert is logged on a separate screen. |
+
+**Alarms were dropped on 2026-09-22 as part of phase 4, and Gova raised them
+again here.** So this is not the old phase 4 coming back uninvited. The log
+lives in memory only: history storage is still dropped, and nothing is
+written to disk.

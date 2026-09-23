@@ -237,3 +237,39 @@ def test_the_per_fan_channels_get_a_read_interval(collector: NvidiaCollector) ->
     for index in (0, 1):
         assert _spec_named(collector, f"fan{index}_rpm").min_interval >= 1.0
         assert _spec_named(collector, f"fan{index}_percent").min_interval >= 1.0
+
+
+# --- session 9: the channels Gova asked for at checkpoint 3 (Q13, Q16) --------
+
+
+def test_the_memory_clock_has_the_card_maximum_as_its_ceiling(collector: NvidiaCollector) -> None:
+    """Q16. The card reports 10501 MHz; data/probes/2026-09-23-nvidia-smi-q.txt."""
+    spec = _spec_named(collector, "clock_memory")
+    assert spec.low == 0.0
+    assert spec.high == 10501 * 1_000_000
+
+
+def test_the_clock_event_reasons_are_read_as_a_bit_field(collector: NvidiaCollector) -> None:
+    """Q13. At idle the card sets the idle bit, 0x1, and the value is a whole number."""
+    spec = _spec_named(collector, "clock_event_reasons")
+    assert spec.unit is Unit.COUNT
+    assert spec.high is None
+    reading = _reading_named(collector, "clock_event_reasons")
+    assert reading.is_ok
+    assert reading.value == int(reading.value)
+    assert 0 <= reading.value < 2**64
+
+
+def test_the_pcie_link_generation_has_the_link_maximum_as_its_ceiling(collector: NvidiaCollector) -> None:
+    """Q13. PCIe 4.0 at most, and PCIe 1.0 at idle; data/probes/2026-09-23-nvidia-smi-q.txt."""
+    spec = _spec_named(collector, "pcie_link_gen")
+    assert spec.high == 4.0
+    reading = _reading_named(collector, "pcie_link_gen")
+    assert 1.0 <= reading.value <= 4.0
+
+
+def test_the_pcie_link_width_has_the_link_maximum_as_its_ceiling(collector: NvidiaCollector) -> None:
+    spec = _spec_named(collector, "pcie_link_width")
+    assert spec.high == 16.0
+    reading = _reading_named(collector, "pcie_link_width")
+    assert 1.0 <= reading.value <= 16.0

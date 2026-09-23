@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-23T11:28:39+0530",
+  "rounds": 30,
+  "calls": {
+    "nvmlDeviceGetCurrentClocksEventReasons": {
+      "value": 1,
+      "median_ms": 0.0005,
+      "max_ms": 0.0051
+    },
+    "nvmlDeviceGetCurrPcieLinkGeneration": {
+      "value": 2,
+      "median_ms": 0.0005,
+      "max_ms": 0.0015
+    },
+    "nvmlDeviceGetCurrPcieLinkWidth": {
+      "value": 16,
+      "median_ms": 0.0039,
+      "max_ms": 0.0078
+    },
+    "nvmlDeviceGetMaxPcieLinkGeneration": {
+      "value": 4,
+      "median_ms": 0.0004,
+      "max_ms": 0.0007
+    },
+    "nvmlDeviceGetMaxPcieLinkWidth": {
+      "value": 16,
+      "median_ms": 0.0004,
+      "max_ms": 0.0006
+    },
+    "nvmlDeviceGetMaxClockInfo(MEM)": {
+      "value": 10501,
+      "median_ms": 2.0779,
+      "max_ms": 3.983
+    }
+  }
+}

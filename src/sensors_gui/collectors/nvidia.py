@@ -63,6 +63,21 @@ def channel_interval(key: str) -> float:
     return CHANNEL_INTERVALS.get(key, 0.0)
 
 
+# The bits of `nvmlDeviceGetCurrentClocksEventReasons`, from the binding's own
+# constants (data/evidence/nvml-binding-2026-09-23/). Written out, so that the
+# code does not depend on the binding naming them the same way next release.
+CLOCK_EVENT_REASONS: dict[int, str] = {
+    0x001: "GPU idle",
+    0x002: "Applications clocks setting",
+    0x004: "Software power cap",
+    0x008: "Hardware slowdown",
+    0x010: "Sync boost",
+    0x020: "Software thermal slowdown",
+    0x040: "Hardware thermal slowdown",
+    0x080: "Hardware power brake slowdown",
+    0x100: "Display clock setting",
+}
+
 # NVML enumeration values, written out so that the code does not depend on the
 # binding exposing a constant by name.
 TEMPERATURE_THRESHOLD_SHUTDOWN = 0
@@ -218,6 +233,13 @@ class NvidiaCollector:
         memory_total = float(nvml.nvmlDeviceGetMemoryInfo(handle, version=nvml.nvmlMemory_v2).total)
         power_limit = nvml.nvmlDeviceGetEnforcedPowerLimit(handle) / 1000
         max_clock = nvml.nvmlDeviceGetMaxClockInfo(handle, nvml.NVML_CLOCK_SM) * MHZ
+        # Q16, Gova 2026-09-23: the memory clock gets its ceiling too. The call
+        # costs 2.2 ms, so it is made once here and never on a pass (exp-0016).
+        max_memory_clock = nvml.nvmlDeviceGetMaxClockInfo(handle, nvml.NVML_CLOCK_MEM) * MHZ
+        # Q13: the most the link can run at, with this card in this board. The
+        # probe of 2026-09-23 reads PCIe 4.0 x16; the host could give 5.0.
+        max_link_gen = float(nvml.nvmlDeviceGetMaxPcieLinkGeneration(handle))
+        max_link_width = float(nvml.nvmlDeviceGetMaxPcieLinkWidth(handle))
 
         # ADR 0003 rule 3: SHUTDOWN is 0 and SLOWDOWN is 1, so a reader that
         # trusts the order gets a slowdown limit above the shutdown limit.
@@ -315,6 +337,30 @@ class NvidiaCollector:
                 "VRAM clock",
                 Unit.HERTZ,
                 lambda: float(nvml.nvmlDeviceGetClockInfo(handle, nvml.NVML_CLOCK_MEM) * MHZ),
+                low=0.0,
+                high=max_memory_clock,
+            ),
+            # Q13, Gova 2026-09-23. A bit field: which reasons are holding the
+            # clocks down now. The bits are in `CLOCK_EVENT_REASONS`.
+            channel(
+                "clock_event_reasons",
+                "Clock event reasons",
+                Unit.COUNT,
+                lambda: float(nvml.nvmlDeviceGetCurrentClocksEventReasons(handle)),
+            ),
+            channel(
+                "pcie_link_gen",
+                "PCIe generation",
+                Unit.COUNT,
+                lambda: float(nvml.nvmlDeviceGetCurrPcieLinkGeneration(handle)),
+                high=max_link_gen,
+            ),
+            channel(
+                "pcie_link_width",
+                "PCIe width",
+                Unit.COUNT,
+                lambda: float(nvml.nvmlDeviceGetCurrPcieLinkWidth(handle)),
+                high=max_link_width,
             ),
             channel(
                 "encoder_utilization",

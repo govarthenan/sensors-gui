@@ -1,0 +1,61 @@
+# Does scaling_cur_freq read above cpuinfo_max_freq on this machine?
+#
+# Date:    2026-09-23T11:34:52+05:30
+# Host:    dst-gova-pc
+# Kernel:  7.0.0-31-generic
+# Driver:  amd-pstate-epp
+# Command: 400 rounds, 50 ms apart, of every /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq,
+#          compared with that CPU's cpuinfo_max_freq. Read only: sysfs reads, nothing written.
+# Why:     the alert log of the GUI (session 9) logged 9 readings above the ceiling in 20 s.
+#
+cpuinfo_max_freq (kHz), per CPU:
+cpu0=5662016 cpu1=5662016 cpu10=5662016 cpu11=5662016 cpu12=5662016 cpu13=5662016 cpu14=5662016 cpu15=5662016 cpu16=5662016 cpu17=5662016 cpu18=5662016 cpu19=5662016 cpu2=5662016 cpu20=5662016 cpu21=5662016 cpu22=5662016 cpu23=5662016 cpu3=5662016 cpu4=5662016 cpu5=5662016 cpu6=5662016 cpu7=5662016 cpu8=5662016 cpu9=5662016 
+
+above: cpu16/cpufreq cur=5662534 max=5662016
+above: cpu2/cpufreq cur=5662654 max=5662016
+above: cpu16/cpufreq cur=5664092 max=5662016
+above: cpu2/cpufreq cur=5664388 max=5662016
+above: cpu4/cpufreq cur=5662226 max=5662016
+above: cpu16/cpufreq cur=5664116 max=5662016
+above: cpu12/cpufreq cur=5662954 max=5662016
+above: cpu1/cpufreq cur=5662939 max=5662016
+above: cpu4/cpufreq cur=5662208 max=5662016
+above: cpu15/cpufreq cur=5662179 max=5662016
+above: cpu0/cpufreq cur=5662883 max=5662016
+above: cpu3/cpufreq cur=5662860 max=5662016
+above: cpu12/cpufreq cur=5662647 max=5662016
+above: cpu0/cpufreq cur=5663206 max=5662016
+above: cpu15/cpufreq cur=5664248 max=5662016
+above: cpu5/cpufreq cur=5662696 max=5662016
+above: cpu0/cpufreq cur=5668276 max=5662016
+above: cpu17/cpufreq cur=5663374 max=5662016
+above: cpu16/cpufreq cur=5666934 max=5662016
+above: cpu15/cpufreq cur=5662391 max=5662016
+above: cpu17/cpufreq cur=5662358 max=5662016
+above: cpu14/cpufreq cur=5665585 max=5662016
+above: cpu15/cpufreq cur=5664535 max=5662016
+above: cpu17/cpufreq cur=5673259 max=5662016
+above: cpu4/cpufreq cur=5662304 max=5662016
+above: cpu17/cpufreq cur=5662324 max=5662016
+above: cpu17/cpufreq cur=5662654 max=5662016
+above: cpu12/cpufreq cur=5665522 max=5662016
+above: cpu15/cpufreq cur=5666439 max=5662016
+above: cpu13/cpufreq cur=5666333 max=5662016
+above: cpu0/cpufreq cur=5662730 max=5662016
+above: cpu0/cpufreq cur=5662334 max=5662016
+above: cpu4/cpufreq cur=5695488 max=5662016
+
+readings: 9600, above max: 33, highest: 5695488 kHz
+
+# --- Second capture, 2026-09-23T11:37:51+05:30 ---
+# Command: cat of the cpufreq limit files of cpu9, the thread the alert log showed at 2.7 GHz.
+# Why:     the channel floor (psutil cpu_freq().min) was 3.0 GHz, and readings went below it.
+cpuinfo_min_freq=613954
+scaling_min_freq=3001551
+amd_pstate_lowest_nonlinear_freq=3001551
+cpuinfo_max_freq=5662016
+scaling_max_freq=5662016
+scaling_governor=performance
+energy_performance_preference=performance
+
+# psutil.cpu_freq(percpu=True)[9]: scpufreq(current=5399.578, min=3001.551, max=5662.016)

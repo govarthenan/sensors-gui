@@ -27,6 +27,7 @@ from sensors_gui.descriptions import NOT_COLLECTED, UNREACHABLE, describe
 from sensors_gui.model import Group, Reading, Sample, SensorId, SensorSpec
 from sensors_gui.registry import Registry
 from sensors_gui.sampler import Sampler
+from sensors_gui.web.alerts import AlertLog
 
 logger = logging.getLogger(__name__)
 
@@ -168,6 +169,9 @@ class SensorService:
         self._thread: threading.Thread | None = None
         self._paused = False
         self.passes = PassTimes()
+        # Gova, 2026-09-23: every reading past its ceiling is logged. In memory
+        # only; see alerts.py.
+        self.alerts = AlertLog()
         self.started_at = time.time()
         self.last_sample_at: float | None = None
 
@@ -251,6 +255,7 @@ class SensorService:
             "hz": self._hz,
             "paused": self._paused,
             "pass": self.passes.as_dict(),
+            "alerts": {"open": self.alerts.open_count(), "total": self.alerts.total()},
             "v": values,
             "errors": errors,
             "ages": ages,
@@ -262,6 +267,13 @@ class SensorService:
         sample = self._sampler.sample()
         self.passes.record((time.perf_counter() - began) * 1000)
         self.last_sample_at = sample.timestamp
+        channels = self.channels()
+        self.alerts.observe(
+            [channel.spec for channel in channels],
+            sample.readings,
+            sample.timestamp,
+            hidden={channel.spec.id for channel in channels if channel.hidden},
+        )
         return self.frame(sample)
 
     def history(self, sensor_id: SensorId) -> list[float | None]:

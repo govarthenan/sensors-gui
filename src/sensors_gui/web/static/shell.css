@@ -530,3 +530,143 @@ footer .read-only {
     grid-column: 1 / -1;
   }
 }
+
+/* --- alerts ----------------------------------------------------------------- */
+
+.card-full {
+  grid-column: 1 / -1;
+}
+
+footer #alerts-link {
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+
+footer #alerts-link[data-state="over"],
+footer #alerts-link[data-state="over"] b {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.nav-badge {
+  float: right;
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-badge[data-state="over"] {
+  color: var(--plane);
+  background: var(--warning);
+  border-radius: 8px;
+  padding: 0 6px;
+  font-weight: 600;
+}
+
+.alerts-count {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.alerts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.alerts-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 10px 6px 0;
+}
+
+.alerts-table td {
+  padding: 7px 10px 7px 0;
+  border-bottom: 1px solid var(--grid);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+
+.alerts-table tr[data-state="over"] td:first-child {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.alerts-table tr[data-state="closed"] td:first-child {
+  color: var(--ink-muted);
+}
+
+.alerts-watched {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 4px 24px;
+}
+
+.alerts-watched-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+.alerts-watched-item b {
+  font-weight: 400;
+  color: var(--ink-secondary);
+}
+
+.alerts-watched-item em {
+  font-style: normal;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+/* The clock event reasons: every reason NVML names, the active ones lit. */
+.reasons-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  margin-bottom: 6px;
+}
+
+.reasons-head b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.reasons-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.reason {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--ink-muted);
+}
+
+.reason.is-on {
+  color: var(--ink);
+  border-color: var(--series);
+  background: color-mix(in srgb, var(--series) 22%, transparent);
+}
+
+.alerts-sub {
+  margin: 10px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+.alerts-summary {
+  max-width: 1400px;
+}

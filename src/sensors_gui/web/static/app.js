@@ -10,6 +10,7 @@
 
 import { setPaused, setRate, start } from "./stream.js";
 import { refreshTooltip } from "./tooltip.js";
+import { alertsView } from "./views/alerts.js";
 import { gpuView } from "./views/gpu.js";
 import { summaryView } from "./views/summary.js";
 
@@ -37,6 +38,7 @@ const VIEWS = [
   { id: "network", name: "Network", checkpoint: 6, note: "Ethernet PHY temperature, Wi-Fi signal, counters" },
   { id: "peripherals", name: "Peripherals", checkpoint: 6, note: "Logitech G305 battery" },
   { id: "system", name: "System", checkpoint: 6, note: "what psutil and /proc give and nothing above fits" },
+  { id: "alerts", name: "Alerts", build: alertsView },
   { id: "about", name: "About", checkpoint: 7, note: "every channel, its source, and what it cannot read" },
 ];
 
@@ -72,6 +74,9 @@ async function main() {
     if (view.checkpoint) link.classList.add("nav-later");
     nav.appendChild(link);
   }
+  const alertBadge = document.createElement("span");
+  alertBadge.className = "nav-badge";
+  nav.querySelector('a[data-view="alerts"]').appendChild(alertBadge);
 
   /** Show one view, building it the first time it is asked for. */
   function show(id) {
@@ -120,6 +125,17 @@ async function main() {
       : `helper is not answering (${helper.total} channels)`;
     $("link").dataset.state = helper.present ? "normal" : "unavailable";
     $("pause").textContent = frame.paused ? "Resume" : "Pause";
+
+    // The alert count, in the status bar and on the navigation link, so an
+    // alert is seen from every view. Gova, 2026-09-23.
+    const alerts = frame.alerts ?? { open: 0, total: 0 };
+    const alertText =
+      alerts.open > 0 ? `${alerts.open} above or below scale now` : alerts.total > 0 ? `${alerts.total} logged` : "none";
+    $("alerts").textContent = alertText;
+    $("alerts-link").dataset.state = alerts.open > 0 ? "over" : "normal";
+    const badge = alertBadge;
+    badge.textContent = alerts.open > 0 ? `${alerts.open}` : alerts.total > 0 ? `${alerts.total}` : "";
+    badge.dataset.state = alerts.open > 0 ? "over" : "closed";
   });
 
   // --- the controls -------------------------------------------------------

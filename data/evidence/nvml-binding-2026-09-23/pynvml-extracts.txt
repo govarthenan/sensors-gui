@@ -1,0 +1,146 @@
+# Extracts from the NVML Python binding installed in this project
+#
+# Source:  .venv/lib/python3.12/site-packages/pynvml.py
+# Package: nvidia-ml-py 13.610.43
+# SHA-256: d3233c78cd3f17bda97850346eba30fa88f1d6b295cee90fa7ec1c6cbf291e5b
+# Date:    2026-09-23T11:28:39+05:30
+# Command: sed -n 2080,2120p; sed -n 3511,3525p; sed -n 4407,4480p (the file above)
+# Why:     the bit values of the clock event reasons, and the calls that read
+#          the PCIe link and the maximum clocks. The copy is kept because the
+#          venv is rebuilt at will. Read only: every function here is a Get.
+#
+## lines 2080-2120
+nvmlClocksEventReasonGpuIdle              = 0x0000000000000001
+nvmlClocksEventReasonApplicationsClocksSetting = 0x0000000000000002
+nvmlClocksEventReasonUserDefinedClocks         = nvmlClocksEventReasonApplicationsClocksSetting # deprecated, use nvmlClocksEventReasonApplicationsClocksSetting
+nvmlClocksEventReasonSwPowerCap           = 0x0000000000000004
+nvmlClocksEventReasonHwSlowdown           = 0x0000000000000008
+nvmlClocksEventReasonSyncBoost            = 0x0000000000000010
+nvmlClocksEventReasonSwThermalSlowdown    = 0x0000000000000020
+nvmlClocksEventReasonHwThermalSlowdown    = 0x0000000000000040
+nvmlClocksEventReasonHwPowerBrakeSlowdown = 0x0000000000000080
+nvmlClocksEventReasonDisplayClockSetting  = 0x0000000000000100
+nvmlClocksEventReasonNone                 = 0x0000000000000000
+nvmlClocksEventReasonAll                  = (
+                                                  nvmlClocksEventReasonNone |
+                                                  nvmlClocksEventReasonGpuIdle |
+                                                  nvmlClocksEventReasonApplicationsClocksSetting |
+                                                  nvmlClocksEventReasonSwPowerCap |
+                                                  nvmlClocksEventReasonHwSlowdown |
+                                                  nvmlClocksEventReasonSyncBoost |
+                                                  nvmlClocksEventReasonSwThermalSlowdown |
+                                                  nvmlClocksEventReasonHwThermalSlowdown |
+                                                  nvmlClocksEventReasonHwPowerBrakeSlowdown |
+                                                  nvmlClocksEventReasonDisplayClockSetting
+                                               )
+
+## Following have been deprecated
+nvmlClocksThrottleReasonGpuIdle              = 0x0000000000000001
+nvmlClocksThrottleReasonApplicationsClocksSetting = 0x0000000000000002
+nvmlClocksThrottleReasonUserDefinedClocks         = nvmlClocksThrottleReasonApplicationsClocksSetting # deprecated, use nvmlClocksThrottleReasonApplicationsClocksSetting
+nvmlClocksThrottleReasonSwPowerCap           = 0x0000000000000004
+nvmlClocksThrottleReasonHwSlowdown           = 0x0000000000000008
+nvmlClocksThrottleReasonSyncBoost            = 0x0000000000000010
+nvmlClocksThrottleReasonSwThermalSlowdown    = 0x0000000000000020
+nvmlClocksThrottleReasonHwThermalSlowdown    = 0x0000000000000040
+nvmlClocksThrottleReasonHwPowerBrakeSlowdown = 0x0000000000000080
+nvmlClocksThrottleReasonDisplayClockSetting  = 0x0000000000000100
+nvmlClocksThrottleReasonNone                 = 0x0000000000000000
+nvmlClocksThrottleReasonAll                  = (
+                                                  nvmlClocksThrottleReasonNone |
+                                                  nvmlClocksThrottleReasonGpuIdle |
+                                                  nvmlClocksThrottleReasonApplicationsClocksSetting |
+                                                  nvmlClocksThrottleReasonSwPowerCap |
+
+## lines 3511-3525
+def nvmlDeviceGetMaxClockInfo(handle, type):
+    c_clock = c_uint()
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetMaxClockInfo")
+    ret = fn(handle, _nvmlClockType_t(type), byref(c_clock))
+    _nvmlCheckReturn(ret)
+    return c_clock.value
+
+# Added in 4.304
+# DEPRECATED Do not use; will be removed in CUDA 14.0
+def nvmlDeviceGetApplicationsClock(handle, type):
+    c_clock = c_uint()
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetApplicationsClock")
+    ret = fn(handle, _nvmlClockType_t(type), byref(c_clock))
+    _nvmlCheckReturn(ret)
+    return c_clock.value
+
+## lines 4407-4480
+def nvmlDeviceGetCurrPcieLinkGeneration(handle):
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetCurrPcieLinkGeneration")
+    gen = c_uint()
+    ret = fn(handle, byref(gen))
+    _nvmlCheckReturn(ret)
+    return gen.value
+
+# Added in 3.295
+def nvmlDeviceGetMaxPcieLinkGeneration(handle):
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetMaxPcieLinkGeneration")
+    gen = c_uint()
+    ret = fn(handle, byref(gen))
+    _nvmlCheckReturn(ret)
+    return gen.value
+
+# Added in 3.295
+def nvmlDeviceGetCurrPcieLinkWidth(handle):
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetCurrPcieLinkWidth")
+    width = c_uint()
+    ret = fn(handle, byref(width))
+    _nvmlCheckReturn(ret)
+    return width.value
+
+# Added in 3.295
+def nvmlDeviceGetMaxPcieLinkWidth(handle):
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetMaxPcieLinkWidth")
+    width = c_uint()
+    ret = fn(handle, byref(width))
+    _nvmlCheckReturn(ret)
+    return width.value
+
+def nvmlDeviceGetGpuMaxPcieLinkGeneration(handle):
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetGpuMaxPcieLinkGeneration")
+    gen = c_uint()
+    ret = fn(handle, byref(gen))
+    _nvmlCheckReturn(ret)
+    return gen.value
+
+# Added in 4.304
+# DEPRECATED: Use nvmlDeviceGetSupportedClocksEventReasons instead; will be removed in CUDA 14.0
+def nvmlDeviceGetSupportedClocksThrottleReasons(handle):
+    c_reasons= c_ulonglong()
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetSupportedClocksThrottleReasons")
+    ret = fn(handle, byref(c_reasons))
+    _nvmlCheckReturn(ret)
+    return c_reasons.value
+
+def nvmlDeviceGetSupportedClocksEventReasons(handle):
+    c_reasons= c_ulonglong()
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetSupportedClocksEventReasons")
+    ret = fn(handle, byref(c_reasons))
+    _nvmlCheckReturn(ret)
+    return c_reasons.value
+
+# Added in 4.304
+# DEPRECATED: Use nvmlDeviceGetCurrentClocksEventReasons instead; will be removed in CUDA 14.0
+def nvmlDeviceGetCurrentClocksThrottleReasons(handle):
+    c_reasons= c_ulonglong()
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetCurrentClocksThrottleReasons")
+    ret = fn(handle, byref(c_reasons))
+    _nvmlCheckReturn(ret)
+    return c_reasons.value
+
+def nvmlDeviceGetCurrentClocksEventReasons(handle):
+    c_reasons= c_ulonglong()
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetCurrentClocksEventReasons")
+    ret = fn(handle, byref(c_reasons))
+    _nvmlCheckReturn(ret)
+    return c_reasons.value
+
+# Added in 5.319
+def nvmlDeviceGetIndex(handle):
+    fn = _nvmlGetFunctionPointer("nvmlDeviceGetIndex")
+    c_index = c_uint()

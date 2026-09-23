@@ -135,5 +135,14 @@ def test_no_route_offers_a_way_to_write_to_hardware(client: TestClient) -> None:
 
 def test_static_files_tell_the_browser_to_check_them_again(client: TestClient) -> None:
     """A stale widgets.js was served after a change; the page must not lag the code."""
-    response = client.get("/static/widgets.js")
-    assert response.headers["cache-control"] == "no-cache"
+    for route in ("/", "/gallery", "/static/widgets.js"):
+        assert client.get(route).headers["cache-control"] == "no-cache", route
+
+
+def test_the_alert_log_is_served_newest_first(client: TestClient) -> None:
+    response = client.get("/api/alerts")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["alerts"] == []
+    assert body["open"] == 0
+    assert body["total"] == 0

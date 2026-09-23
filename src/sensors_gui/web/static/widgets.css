@@ -363,3 +363,55 @@
 .tip-sources:empty {
   display: none;
 }
+
+/* --- Meter, past its ceiling ------------------------------------------------ */
+
+/* The track clips, so the overflow part is inside it; the track is stretched
+   so the ceiling sits inward and the fill crosses it. */
+.meter-over {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--warning) 0 3px,
+    color-mix(in srgb, var(--warning) 45%, transparent) 3px 6px
+  );
+  border-radius: 0 4px 4px 0;
+}
+
+.meter-track {
+  overflow: visible;
+}
+
+.meter-ceiling {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+}
+
+.meter-flag {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--warning);
+}
+
+.meter-scale {
+  position: relative;
+}
+
+.meter-top {
+  position: absolute;
+  right: 0;
+}
+
+.meter-top.is-over {
+  transform: translateX(50%);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}

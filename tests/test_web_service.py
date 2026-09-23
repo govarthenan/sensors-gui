@@ -303,4 +303,18 @@ def test_catalogue_lists_the_values_that_cannot_be_read_and_why(service: SensorS
     labels = {entry["label"] for entry in catalogue["unreachable"]}
     assert "GPU hotspot" in labels
     assert all(entry["reason"] for entry in catalogue["unreachable"])
-    assert {entry["label"] for entry in catalogue["not_collected"]} >= {"PCIe link"}
+    assert isinstance(catalogue["not_collected"], list)
+
+
+def test_a_reading_above_its_ceiling_is_logged_and_counted_in_the_frame(
+    service: SensorService, collector: RecordingCollector
+) -> None:
+    """Gova, 2026-09-23: a reading past the ceiling is logged, on the service, every pass."""
+    service.sample_once()
+    collector.values[collector.temperature.id] = 101.5
+    frame = service.sample_once()
+    assert frame["alerts"] == {"open": 1, "total": 1}
+    [alert] = service.alerts.entries()
+    assert alert["label"] == "Tctl"
+    assert alert["limit"] == 100.0
+    assert alert["peak"] == 101.5

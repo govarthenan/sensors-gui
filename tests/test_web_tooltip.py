@@ -175,3 +175,11 @@ def test_explain_a_value_that_cannot_be_read_gives_the_reason_and_the_sources(tm
     assert parts["state"] == "unavailable"
     assert parts["measures"] == hotspot.reason
     assert "docs/decisions/0011-no-i2c-route-to-the-graphics-card.md" in parts["sources"]
+
+
+@NEEDS_NODE
+def test_explain_a_reading_past_the_ceiling_says_how_far_and_where_it_is_logged(tmp_path: Path) -> None:
+    parts = explain(POWER, 512.0, {}, 2.0, tmp_path)
+    assert "32.00 W above the ceiling" in parts["range"]
+    assert "alert log" in parts["range"]
+    assert parts["state"] == "over"

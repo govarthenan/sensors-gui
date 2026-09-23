@@ -34,7 +34,36 @@ const IDENTITY = [
   ["Slowdown / shutdown", "99 °C / 104 °C", "lab/exp-0002-nvidia-access/README.md"],
   ["Target temperature", "84 °C", "data/probes/2026-09-23-nvidia-smi-q.txt"],
   ["Monitors", "both, on HDMI-A-1 and DP-1", "docs/hardware-inventory.md"],
+  ["Outputs", "DP-1, DP-2, DP-3, HDMI-A-1", "docs/hardware-inventory.md"],
+  ["Integrated graphics", "drives no monitor", "docs/hardware-inventory.md"],
+  ["Memory type", "GDDR6X", "lab/exp-0002-nvidia-access/README.md"],
+  ["Power cable", "12VHPWR, rated 600 W", "docs/physical-build.md"],
 ];
+
+/**
+ * The bits of the clock event reasons, as the collector names them
+ * (`CLOCK_EVENT_REASONS` in `collectors/nvidia.py`, from
+ * `data/evidence/nvml-binding-2026-09-23/pynvml-extracts.txt`). A test holds
+ * the two copies together.
+ */
+export const CLOCK_EVENT_REASONS = [
+  [0x001, "GPU idle"],
+  [0x002, "Applications clocks setting"],
+  [0x004, "Software power cap"],
+  [0x008, "Hardware slowdown"],
+  [0x010, "Sync boost"],
+  [0x020, "Software thermal slowdown"],
+  [0x040, "Hardware thermal slowdown"],
+  [0x080, "Hardware power brake slowdown"],
+  [0x100, "Display clock setting"],
+];
+
+/** Return the names of the bits set in a clock event reasons value. */
+export function activeReasons(value) {
+  if (value === null || value === undefined) return [];
+  const bits = BigInt(Math.trunc(value));
+  return CLOCK_EVENT_REASONS.filter(([bit]) => (bits & BigInt(bit)) !== 0n).map(([, name]) => name);
+}
 
 /** The P-states NVIDIA defines: P0, the maximum performance, to P12, the minimum. */
 const PSTATES = 13;
@@ -215,12 +244,47 @@ export function gpuView(catalogue, stream) {
   show(clocks.body, "clock_sm");
   chart(clocks.body, "clock_sm", "SM clock");
   show(clocks.body, "clock_memory");
+  const reasons = find("clock_event_reasons");
+  if (reasons !== null) {
+    const box = document.createElement("div");
+    box.className = "reasons";
+    box.innerHTML = `<div class="reasons-head"><span>Why the clocks are where they are</span><b>—</b></div>
+      <div class="reasons-list"></div>`;
+    const summary = box.querySelector("b");
+    const items = new Map();
+    for (const [, name] of CLOCK_EVENT_REASONS) {
+      const item = document.createElement("span");
+      item.className = "reason";
+      item.textContent = name;
+      box.querySelector(".reasons-list").appendChild(item);
+      items.set(name, item);
+    }
+    clocks.body.appendChild(box);
+    attachTooltip(box, reasons, stream);
+    painters.push(() => {
+      const value = stream.value(reasons);
+      const active = activeReasons(value);
+      setText(summary, value === null ? "—" : active.length ? `${active.length} active` : "none: clocks as high as they can");
+      for (const [name, item] of items) item.classList.toggle("is-on", active.includes(name));
+    });
+  }
 
   // --- PCIe and processes ---------------------------------------------------
-  const link = card("PCIe link", "read every 2 s: each read measures the link for about 20 ms");
+  const link = card("PCIe link", "the link now, against the most it can run at");
+  const generation = find("pcie_link_gen");
+  const width = find("pcie_link_width");
+  fact(link.body, "pcie_link_gen", "Generation", (value) =>
+    generation.high ? `PCIe ${value}.0 of ${generation.high}.0` : `PCIe ${value}.0`,
+  );
+  fact(link.body, "pcie_link_width", "Width", (value) => (width.high ? `x${value} of x${width.high}` : `x${value}`));
   show(link.body, "pcie_tx");
   show(link.body, "pcie_rx");
-  absentLine(link.body, "PCIe link");
+  const linkNote = document.createElement("p");
+  linkNote.className = "absent";
+  linkNote.textContent =
+    "Transmit and receive are read every 2 s, because each read measures the link for about 20 ms (exp-0006). " +
+    "The card lowers the generation when it is not in use.";
+  link.body.appendChild(linkNote);
 
   const processes = card("Processes", "what holds a context on the card");
   fact(processes.body, "graphics_processes", "Graphics");
@@ -242,7 +306,6 @@ export function gpuView(catalogue, stream) {
     target.textContent = value;
     identity.appendChild(row);
   }
-  absentLine(identity, "Clock event reasons");
   drawing.body.appendChild(identity);
 
   for (const built of [drawing, heat, power, fans, load, memory, clocks, link, processes]) {
