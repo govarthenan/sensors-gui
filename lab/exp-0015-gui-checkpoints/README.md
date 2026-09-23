@@ -122,3 +122,49 @@ It was **0.2147 cores** at 10 Hz before one change: the widgets now write text
 only when the text is different. At 10 Hz with 175 channels that call happens
 about 1750 times a second, and most values do not change between two passes.
 Three lines, and a fifth of the cost went away.
+
+### Checkpoint 3 — the graphics card, 2026-09-23
+
+| File | What it shows |
+|---|---|
+| `2026-09-23-checkpoint-3-gpu-2560.png` | the whole graphics card view, maximised at 2560 x 1440, full page |
+| `2026-09-23-checkpoint-3-gpu-tooltip-fan.png` | the tooltip panel open on `GPU fan 2`, with its five parts and its sources |
+| `2026-09-23-checkpoint-3-gpu-1280.png` | the same view at half the width |
+| `2026-09-23-checkpoint-3-overhead.json` | what the view costs, at 1 Hz and at 10 Hz |
+
+What is in it: the card diagram (`docs/diagram-positions.md`), all 21 card
+channels in eight cards, the three temperatures that cannot be read, the two
+values NVML gives and the collector does not read, and a tooltip on every
+value with the five parts of `docs/gui-goal.md` section 4.2.
+
+The card was idle for every screenshot, so both fans read 0 RPM. The machine
+was not loaded for a picture; `HANDOFF-gui-stream.md` section 4.
+
+**Six defects were found by opening it, and none by a test.**
+
+1. The fan chart's axis ran from −1 to 1 RPM while both fans stood still: a
+   speed below zero. An axis now stops at the low end of the spec's scale
+   (`floorAt` in `widgets.js`, with a test).
+2. The VRAM chart had two ticks both labelled `1.3 GiB`: a scaled tick kept
+   one decimal whatever the step. A tick now takes the decimals its step needs.
+3. The SM clock's end label was cut to `570.0 MH`; the right margin was sized
+   for `34.0 °C`.
+4. A line of text ran out of the dashed box of the diagram.
+5. The meter printed the ends of its scale raw. No meter on the summary had a
+   large unit, so nobody saw it; `VRAM used` would have read `25757220864`.
+   Found by reading the code before it was drawn.
+6. After a change, Chrome kept serving the old `widgets.js` from its cache,
+   and a reload showed the old page. The static files are now sent with
+   `Cache-Control: no-cache`, so the browser revalidates them (with a test).
+
+### What the graphics card view costs
+
+| Rate | Python | Chrome | Total | Of the machine |
+|---|---|---|---|---|
+| 1 Hz | 0.0127 | 0.0323 | **0.0450** | 0.19 % |
+| 10 Hz | 0.0423 | 0.1017 | **0.1440** | 0.60 % |
+
+Lower than the summary at 10 Hz (0.1720), although this view draws more:
+seven line charts against two. One 30-second window each, on an idle desktop;
+the difference is inside what ordinary desktop use moves, so it is not a
+finding.

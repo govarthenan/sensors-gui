@@ -94,7 +94,7 @@ Two GPUs are present.
 |---|---|
 | PCI | `01:00.0`, AD102, `10de:2684` |
 | Audio function | `01:00.1`, `10de:22ba` |
-| Driver | NVIDIA 595.84 |
+| Driver | NVIDIA **595.91.07** on 2026-09-23 (`data/probes/2026-09-23-nvidia-smi-q.txt`). It was 595.84 on 2026-09-16 (`exp-0002`); the driver was updated between the two. |
 | VRAM | 24564 MiB |
 | Power limit | 480.00 W |
 | DRM card | **`card1`** (outputs DP-1, DP-2, DP-3, HDMI-A-1) |

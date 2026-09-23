@@ -29,6 +29,9 @@
   --series: #3987e5;
   --series-deep: #184f95;
   --series-wash: rgba(57, 135, 229, 0.1);
+  /* categorical slot 2, for a second series on one axis (the two card fans).
+     Validated with the first against this surface: worst CVD ΔE 26.8. */
+  --series-2: #d95926;
 
   /* status, fixed, never themed */
   --good: #0ca30c;

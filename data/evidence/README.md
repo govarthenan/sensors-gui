@@ -45,6 +45,20 @@ Photographs: `docs/photos/bios/`.
 Supports: `lab/exp-0009-bios-ground-truth/`, and the corrections in
 `docs/hardware-inventory.md` and `docs/physical-build.md`.
 
+### `nvidia-field-descriptions-2026-09-23/`
+
+NVIDIA's own sentence for each field `nvidia-smi` can query, from the driver
+installed on this machine (595.91.07). `nvidia-smi` reads through NVML, the
+same library the collector calls, so the meanings are the same.
+
+| File | Contents |
+|---|---|
+| `nvidia-smi-help-query-gpu.txt` | `nvidia-smi --help-query-gpu`, whole, with the command, the date and the version in its first lines. |
+
+Supports: the card tooltips in `src/sensors_gui/descriptions.py`, and
+`docs/diagram-positions.md`. The full query report of the same day is a probe:
+`data/probes/2026-09-23-nvidia-smi-q.txt`.
+
 ### `nct6687-driver-source/`
 
 Extracts from the out-of-tree driver, pinned to the commit that is installed, so

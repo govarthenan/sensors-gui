@@ -1314,3 +1314,94 @@ which sensor it is. Do not draw twelve.
 mean the solid version, which is how it is built (24 columns, one for each
 thread, paired by core), or it may mean one column for each core rather than
 for each thread. The display is unchanged until Gova says which.
+
+---
+
+## 2026-09-23 — Session 9, checkpoint 3: the graphics card
+
+**What was built**
+
+The graphics card view, which `docs/gui-goal.md` calls the reference for
+every other group.
+
+- **All 21 card channels on screen**, in eight cards — temperature, power,
+  fans, load, memory, clocks, PCIe link, processes — and on a schematic of
+  the card. A meter only where the spec carries a scale; a number and a line
+  elsewhere.
+- **A description for every channel**, in `src/sensors_gui/descriptions.py`,
+  next to the spec, so the terminal screen and the GUI share it. **Every
+  sentence names its source**, and `tests/test_descriptions.py` fails if a
+  source is not a file in this repository. A channel of another group has no
+  description yet and says so; none is guessed.
+- **The tooltip panel**, on every value and on every row of the diagram, by
+  hover and by keyboard focus. It gives the five parts of section 4.2: what
+  it measures, where it is read from, how it differs from its neighbours, the
+  safe range with where the value sits, and the read interval with the age of
+  the value. It stays live while it is open.
+- **What the card cannot give is on screen.** The hotspot, memory and VRM
+  temperatures read "not readable", and the tooltip gives the reason and
+  ADR 0011. The clock event reasons and the PCIe link, which NVML gives and
+  the collector does not read, read "not collected" (Q13).
+- **The diagram is a schematic by function**, and says so in its own second
+  line: no picture of the bare board is in this repository. Each reading is
+  on the part NVIDIA names for it. Both fans and the hotspot are in a dashed
+  "position not established" area. Every claim is in
+  `docs/diagram-positions.md`.
+- **The two fans on one axis**, in two validated colours (worst CVD ΔE 26.8),
+  with a legend and a label at the end of each line, so the gap between them
+  that `exp-0013` found is seen, not read.
+
+**Findings**
+
+1. **NVIDIA's own words were on the machine the whole time.**
+   `nvidia-smi --help-query-gpu` prints a sentence for every field. It is
+   copied whole into `data/evidence/nvidia-field-descriptions-2026-09-23/`,
+   and most tooltip sentences rest on it. One of them changes how a channel
+   must be read: the fan percent is "the intended fan speed", which "may
+   exceed 100 %", and "if the fan is physically blocked … will not match the
+   actual fan speed". So the percent is what the card asks, and the RPM is
+   what the fan does, and the view puts them side by side.
+2. **The inventory was out of date.** The driver is **595.91.07**, not
+   595.84; it was updated after `exp-0002`. Corrected, with both versions
+   kept.
+3. **Six defects were found by opening the view, none by a test.** An axis
+   ran from −1 to 1 RPM for two fans at rest — a speed below zero. Two ticks
+   on the VRAM chart both read `1.3 GiB`. The SM clock's end label was cut
+   off. A line of text ran out of a box on the diagram. The meter printed the
+   ends of its scale raw, which would have read `25757220864` for VRAM. And
+   after a change Chrome served the old `widgets.js` from its cache, so a
+   reload showed the old page; the server now tells the browser to revalidate.
+   Two of the six now have tests.
+4. **"Normal" is a judgement.** The first tooltip said "normal" for the card's
+   power, which publishes no threshold. It now says "not judged" there, which
+   is the rule the summary already kept for `Tctl`.
+
+**What it costs**
+
+| Rate | Python | Chrome | Total | Of the machine |
+|---|---|---|---|---|
+| 1 Hz | 0.0127 | 0.0323 | **0.0450 cores** | 0.19 % |
+| 10 Hz | 0.0423 | 0.1017 | **0.1440 cores** | 0.60 % |
+
+**Tests.** 472 pass, no mocks. New: the descriptions against the real card
+and against the files they cite; the tooltip's five parts, running the real
+`tooltip.js` in node on the real Python descriptions; the axis floor; the
+cache header.
+
+**For Gova to look at**
+
+`uv run python -m sensors_gui.web`, then "Graphics card". Hover anything.
+
+1. The diagram is a schematic by function, not a picture of the board. Is
+   that the right call, or do you want to send a photograph of the card (or
+   point at MSI's drawing) so the regions can move to where the parts sit?
+   That photograph would also answer how many physical fans the card has
+   (Q14).
+2. Q13: add the clock event reasons and the PCIe link to the collector? Same
+   source, read only.
+3. Q16: give the VRAM clock its maximum, so it gets a meter like the SM clock?
+
+**Next**
+
+Wait for Gova. Then apply the feedback to this view, to the summary, and to
+every later group before checkpoint 4 starts.

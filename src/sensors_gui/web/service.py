@@ -23,6 +23,7 @@ from collections.abc import Callable, Iterable
 
 from sensors_gui import naming
 from sensors_gui.collectors import Collector
+from sensors_gui.descriptions import NOT_COLLECTED, UNREACHABLE, describe
 from sensors_gui.model import Group, Reading, Sample, SensorId, SensorSpec
 from sensors_gui.registry import Registry
 from sensors_gui.sampler import Sampler
@@ -124,6 +125,7 @@ class Channel:
             "origin": spec.origin,
             "source": spec.id.source,
             "hidden": self.hidden,
+            "description": None if (found := describe(spec)) is None else found.as_dict(),
         }
 
 
@@ -207,6 +209,10 @@ class SensorService:
             "shown": sum(1 for channel in channels if not channel.hidden),
             "hidden": sum(1 for channel in channels if channel.hidden),
             "channels": [channel.as_dict() for channel in channels],
+            # What a person would expect and the application does not show,
+            # each with its reason. `docs/gui-goal.md` 4.2: never a silent gap.
+            "unreachable": [entry.as_dict() for entry in UNREACHABLE],
+            "not_collected": [entry.as_dict() for entry in NOT_COLLECTED],
         }
 
     # --- frames -------------------------------------------------------------

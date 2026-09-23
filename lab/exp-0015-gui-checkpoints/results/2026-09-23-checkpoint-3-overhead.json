@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-23",
+  "checkpoint": "3",
+  "command": "uv run python -m sensors_gui.web",
+  "cpu_threads": 24,
+  "note": "cores = CPU seconds used per second of wall time. 1.0 = one thread saturated.",
+  "rows": [
+    {
+      "hz": 1.0,
+      "page": "/#gpu",
+      "window_seconds": 30.0,
+      "groups": [
+        {
+          "label": "python (sampler+server)",
+          "cores": 0.0127,
+          "rss_mib": 110.2,
+          "processes": 2
+        },
+        {
+          "label": "chrome (window)",
+          "cores": 0.0323,
+          "rss_mib": 1137.4,
+          "processes": 9
+        }
+      ],
+      "total_cores": 0.045
+    },
+    {
+      "hz": 10.0,
+      "page": "/#gpu",
+      "window_seconds": 30.0,
+      "groups": [
+        {
+          "label": "python (sampler+server)",
+          "cores": 0.0423,
+          "rss_mib": 110.5,
+          "processes": 2
+        },
+        {
+          "label": "chrome (window)",
+          "cores": 0.1017,
+          "rss_mib": 1108.7,
+          "processes": 9
+        }
+      ],
+      "total_cores": 0.144
+    }
+  ]
+}

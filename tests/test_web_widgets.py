@@ -269,3 +269,16 @@ def test_every_core_is_on_the_die_the_machine_put_it_on(tmp_path: Path) -> None:
         # because the temperature channels are Tccd1 and Tccd2.
         from_probe[int(core_id)] = int(die) + 1
     assert from_front_end == from_probe
+
+
+@NEEDS_NODE
+def test_an_axis_never_goes_below_the_bottom_of_the_published_scale(tmp_path: Path) -> None:
+    """A fan at rest read 0 RPM and the axis ran from -1 to 1: a speed below zero."""
+    script = tmp_path / "run.mjs"
+    script.write_text(
+        f"import {{ niceAxis, floorAt }} from {json.dumps(str(WIDGETS))};\n"
+        "const axis = floorAt(niceAxis([0, 0, 0], null, 1), 0);\n"
+        "console.log(JSON.stringify([axis.low, axis.high > 0, axis.ticks.every((t) => t >= 0)]));\n"
+    )
+    finished = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=60, check=True)
+    assert json.loads(finished.stdout) == [0, True, True]

@@ -235,3 +235,131 @@
 }
 
 
+
+/* --- Trace legend, for two series on one axis ------------------------------ */
+
+.trace-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--ink-secondary);
+  margin: -2px 0 6px;
+}
+
+.trace-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* A line key, not a box: the dataviz skill, for a line chart's legend. */
+.trace-key i {
+  display: inline-block;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+/* --- the tooltip panel ------------------------------------------------------ */
+
+.has-tip {
+  cursor: help;
+  border-radius: 6px;
+}
+
+.has-tip:focus-visible {
+  outline: 2px solid var(--series);
+  outline-offset: 3px;
+}
+
+.tip {
+  position: fixed;
+  z-index: 50;
+  width: 440px;
+  max-width: calc(100vw - 24px);
+  background: var(--surface-raised);
+  border: 1px solid var(--axis);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+  pointer-events: none;
+}
+
+.tip-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tip-label {
+  color: var(--ink-secondary);
+  font-size: 13px;
+}
+
+/* The value leads: in a tooltip the reader already has the name. */
+.tip-value {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tip-state {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.tip-state i {
+  font-style: normal;
+  font-size: 10px;
+}
+
+.tip-body {
+  margin: 0;
+}
+
+.tip-body dt {
+  color: var(--ink-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 8px;
+}
+
+.tip-body dt:first-child {
+  margin-top: 0;
+}
+
+.tip-body dd {
+  margin: 1px 0 0;
+  color: var(--ink-secondary);
+}
+
+.tip-body .tip-where {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  word-break: break-word;
+}
+
+.tip-sources {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--ink-muted);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  word-break: break-word;
+}
+
+.tip-sources:empty {
+  display: none;
+}

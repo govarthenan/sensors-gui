@@ -272,6 +272,26 @@ export function niceAxis(values, previous = null, floor = 1) {
   return { low, high, step, ticks };
 }
 
+/**
+ * Return the axis with no part below the bottom of the spec's scale.
+ *
+ * A fan at rest reads 0 RPM, and an axis centred on it ran from -1 to 1: a
+ * speed below zero, drawn as if it could happen. Where the spec publishes a
+ * low end, the axis does not go under it; the ticks keep their step.
+ *
+ * @param {{low: number, high: number, step: number, ticks: number[]}} axis
+ * @param {number|null|undefined} bottom the spec's `low`
+ * @returns {{low: number, high: number, step: number, ticks: number[]}}
+ */
+export function floorAt(axis, bottom) {
+  if (bottom === null || bottom === undefined || axis.low >= bottom) return axis;
+  const span = axis.high - axis.low;
+  const low = bottom;
+  const high = Math.max(axis.high, bottom + span / 2);
+  const ticks = axis.ticks.filter((tick) => tick >= low && tick <= high);
+  return { ...axis, low, high, ticks };
+}
+
 /** Return a round step near `rough`: 1, 2, 5 or 10 times a power of ten. */
 export function niceStep(rough) {
   if (!(rough > 0)) return 1;
@@ -344,9 +364,13 @@ export class Meter {
         <span class="meter-value"></span>
       </div>
       <div class="meter-track"><div class="meter-fill"></div><div class="meter-marks"></div></div>
-      <div class="meter-scale"><span>${spec.low ?? 0}</span><span class="meter-top">${top ?? ""}</span></div>
+      <div class="meter-scale"><span></span><span class="meter-top"></span></div>
     `;
     this.element.querySelector(".meter-label").textContent = spec.label;
+    // The ends are scaled like the value, so 24 GiB never reads 25757220864.
+    const ends = this.element.querySelectorAll(".meter-scale span");
+    ends[0].textContent = scaleLabel(spec.low ?? 0, spec);
+    ends[1].textContent = top === null ? "" : scaleLabel(top, spec);
     this.fill = this.element.querySelector(".meter-fill");
     this.valueText = this.element.querySelector(".meter-value");
     this.drawMarks();
@@ -412,6 +436,12 @@ export class Trace {
     this.axis = null;
     this.values = [];
     this.hoverAt = null;
+    // More series on the same axis: [{label, token}]. The dataviz skill:
+    // one axis only, so a second series is only for the same measure, and
+    // with two series a legend is present and each line is labelled.
+    this.others = options.others ?? [];
+    this.otherValues = this.others.map(() => []);
+    this.firstLabel = options.firstLabel ?? spec.label;
 
     this.element = document.createElement("figure");
     this.element.className = "trace";
@@ -427,6 +457,7 @@ export class Trace {
       </div>
     `;
     this.element.querySelector(".trace-title").textContent = options.title ?? spec.label;
+    if (this.others.length) this.addLegend();
     this.canvas = this.element.querySelector(".trace-canvas");
     this.tip = this.element.querySelector(".trace-tip");
     this.plot = this.element.querySelector(".trace-plot");
@@ -448,9 +479,26 @@ export class Trace {
     });
   }
 
+  /** A legend with a line key for each series, under the title. */
+  addLegend() {
+    const legend = document.createElement("div");
+    legend.className = "trace-legend";
+    for (const [label, name] of [[this.firstLabel, "--series"], ...this.others.map((o) => [o.label, o.token])]) {
+      const item = document.createElement("span");
+      item.className = "trace-key";
+      const key = document.createElement("i");
+      key.style.background = `var(${name})`;
+      item.append(key, document.createTextNode(label));
+      legend.appendChild(item);
+    }
+    this.element.querySelector("figcaption").after(legend);
+  }
+
   /** The inset that leaves room for the tick labels and the end label. */
   get padding() {
-    return { left: 46, right: 58, top: 10, bottom: 18 };
+    // The end label needs room: "570.0 MHz" is wider than "34.0 °C".
+    const scaled = UNIT_SCALING[this.spec.unit] !== undefined;
+    return { left: 52, right: this.others.length ? 110 : scaled ? 78 : 62, top: 10, bottom: 18 };
   }
 
   /**
@@ -459,8 +507,9 @@ export class Trace {
    * @param {Array<number|null>} values oldest first
    * @param {number} seconds how much time the series covers
    */
-  update(values, seconds) {
+  update(values, seconds, others = []) {
     this.values = values;
+    this.otherValues = others;
     this.seconds = seconds;
     const last = [...values].reverse().find((value) => value !== null && value !== undefined);
     this.element.dataset.state = stateOf(last ?? null, this.spec);
@@ -481,10 +530,12 @@ export class Trace {
 
     // A floor of one unit, or a tenth of the value, whichever is larger. A
     // percentage keeps a floor of five, so an idle core does not look busy.
+    const every = [values, ...this.otherValues].flat();
     const seen = values.filter((value) => value !== null && value !== undefined);
-    const magnitude = seen.length ? Math.max(...seen.map(Math.abs)) : 1;
+    const seenAll = every.filter((value) => value !== null && value !== undefined);
+    const magnitude = seenAll.length ? Math.max(...seenAll.map(Math.abs)) : 1;
     const floor = this.spec.unit === "percent" ? 5 : Math.max(1, magnitude * 0.1);
-    this.axis = niceAxis(values, this.axis, floor);
+    this.axis = floorAt(niceAxis(every, this.axis, floor), this.spec.low);
     const { low, high, ticks } = this.axis;
 
     const xOf = (index) => pad.left + (index / Math.max(values.length - 1, 1)) * plotWidth;
@@ -531,10 +582,17 @@ export class Trace {
       context.textAlign = "right";
     }
 
-    const points = values
-      .map((value, index) => (value === null || value === undefined ? null : [xOf(index), yOf(value)]))
-      .filter(Boolean);
+    const pointsOf = (series) =>
+      series
+        .map((value, index) => (value === null || value === undefined ? null : [xOf(index), yOf(value)]))
+        .filter(Boolean);
+    const points = pointsOf(values);
     if (points.length < 2) return;
+    if (this.others.length) {
+      this.drawSeries(context, pointsOf, colour);
+      this.drawCrosshair(context, pad, plotWidth, plotHeight, xOf, yOf);
+      return;
+    }
 
     context.beginPath();
     context.moveTo(points[0][0], pad.top + plotHeight);
@@ -573,6 +631,56 @@ export class Trace {
     this.drawCrosshair(context, pad, plotWidth, plotHeight, xOf, yOf);
   }
 
+  /**
+   * Draw every series as a 2 px line with an end marker and a direct label.
+   *
+   * No wash under the lines: two washes over each other hide both. The end
+   * labels are moved apart when they would collide, so each value stays
+   * readable and its name travels with it.
+   */
+  drawSeries(context, pointsOf, colour) {
+    const all = [
+      { label: this.firstLabel, values: this.values, colour },
+      ...this.others.map((other, index) => ({
+        label: other.label,
+        values: this.otherValues[index] ?? [],
+        colour: token(other.token),
+      })),
+    ];
+    const ends = [];
+    for (const series of all) {
+      const points = pointsOf(series.values);
+      if (points.length < 2) continue;
+      context.beginPath();
+      context.moveTo(...points[0]);
+      for (const [x, y] of points) context.lineTo(x, y);
+      context.strokeStyle = series.colour;
+      context.lineWidth = 2;
+      context.lineJoin = "round";
+      context.lineCap = "round";
+      context.stroke();
+      const [endX, endY] = points[points.length - 1];
+      context.beginPath();
+      context.arc(endX, endY, 4, 0, Math.PI * 2);
+      context.fillStyle = series.colour;
+      context.fill();
+      context.lineWidth = 2;
+      context.strokeStyle = token("--surface");
+      context.stroke();
+      const last = [...series.values].reverse().find((value) => value !== null && value !== undefined);
+      ends.push({ x: endX, y: endY, text: `${series.label} ${formatValue(last ?? null, this.spec)}` });
+    }
+    ends.sort((a, b) => a.y - b.y);
+    for (let index = 1; index < ends.length; index += 1) {
+      ends[index].y = Math.max(ends[index].y, ends[index - 1].y + 15);
+    }
+    context.fillStyle = token("--ink");
+    context.textAlign = "left";
+    context.textBaseline = "middle";
+    context.font = `600 12px ${token("--sans")}`;
+    for (const end of ends) context.fillText(end.text, end.x + 9, end.y);
+  }
+
   /** Draw the crosshair and place the tooltip, when the pointer is over the plot. */
   drawCrosshair(context, pad, plotWidth, plotHeight, xOf, yOf) {
     if (this.hoverAt === null) return;
@@ -607,15 +715,43 @@ export class Trace {
 
     const ago = ((this.values.length - 1 - index) / Math.max(this.values.length - 1, 1)) * (this.seconds ?? 0);
     this.tip.hidden = false;
-    this.tip.textContent = `${formatValue(value, this.spec)} · ${ago < 1 ? "now" : `${ago.toFixed(0)} s ago`}`;
+    const when = ago < 1 ? "now" : `${ago.toFixed(0)} s ago`;
+    // One tooltip, every series: the reader never has to land on a line.
+    const readout = [
+      this.others.length ? `${this.firstLabel} ${formatValue(value, this.spec)}` : formatValue(value, this.spec),
+      ...this.others.map((other, at) => `${other.label} ${formatValue(this.otherValues[at]?.[index] ?? null, this.spec)}`),
+    ];
+    this.tip.textContent = `${readout.join(" · ")} · ${when}`;
     this.tip.style.left = `${Math.min(x + 10, this.width - 120)}px`;
     this.tip.style.top = `${Math.max(y - 30, 0)}px`;
+  }
+
+  /**
+   * Return a tick of a prefixed unit with as many decimals as its step needs.
+   *
+   * With one fixed decimal, ticks 0.05 GiB apart read "1.3 GiB, 1.3 GiB,
+   * 1.2 GiB": two ticks with one label. The prefix comes from the top of the
+   * axis, so every tick on it shares one prefix.
+   */
+  scaledTick(tick, scaling) {
+    const step = scaling === "si" ? 1000 : 1024;
+    const prefixes = scaling === "si" ? SI_PREFIXES : BINARY_PREFIXES;
+    let divisor = 1;
+    let index = 0;
+    const top = Math.max(Math.abs(this.axis?.high ?? tick), Math.abs(this.axis?.low ?? tick));
+    while (top / divisor >= step && index < prefixes.length - 1) {
+      divisor *= step;
+      index += 1;
+    }
+    const scaledStep = (this.axis?.step ?? 1) / divisor;
+    const decimals = scaledStep >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(scaledStep) - 1e-9));
+    return `${fixed(tick / divisor, decimals)} ${prefixes[index]}${this.spec.symbol}`.trimEnd();
   }
 
   /** Return a short tick label. A large number keeps its prefix, not its zeros. */
   tickText(tick) {
     const scaling = UNIT_SCALING[this.spec.unit];
-    if (scaling) return formatValue(tick, this.spec).replace(` ${this.spec.symbol}`, "");
+    if (scaling) return this.scaledTick(tick, scaling);
     const step = this.axis?.step ?? 1;
     const decimals = step >= 1 ? 0 : Math.min(2, Math.ceil(-Math.log10(step)));
     return tick.toFixed(decimals);
@@ -646,7 +782,7 @@ export class Sparkline {
     if (seen.length < 2) return;
     const magnitude = Math.max(...seen.map(Math.abs));
     const floor = this.spec.unit === "percent" ? 5 : Math.max(1, magnitude * 0.1);
-    this.axis = niceAxis(values, this.axis, floor);
+    this.axis = floorAt(niceAxis(values, this.axis, floor), this.spec.low);
     const { low, high } = this.axis;
     const points = values
       .map((value, index) =>

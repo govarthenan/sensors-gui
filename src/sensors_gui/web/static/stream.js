@@ -21,6 +21,10 @@ export class Catalogue {
     this.shown = payload.shown;
     this.hidden = payload.hidden;
     this.channels = payload.channels;
+    // What a person would expect and the application does not show, each with
+    // its reason and its sources. Written in Python; see descriptions.py.
+    this.unreachable = payload.unreachable ?? [];
+    this.notCollected = payload.not_collected ?? [];
     this._byLabel = new Map(this.channels.map((channel) => [channel.label, channel]));
   }
 

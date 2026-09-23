@@ -349,3 +349,184 @@ footer .read-only {
     grid-column: span 1;
   }
 }
+
+/* --- the graphics card view -------------------------------------------------- */
+
+.view-gpu {
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  /* Fill the holes a tall card leaves; the cards are independent. */
+  grid-auto-flow: row dense;
+}
+
+.card-diagram {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.diagram {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.dg-caption {
+  fill: var(--ink);
+  font: 600 14px var(--sans);
+}
+
+.dg-note {
+  fill: var(--ink-muted);
+  font: 11px var(--sans);
+}
+
+.dg-board {
+  fill: none;
+  stroke: var(--axis);
+  stroke-width: 1.5;
+}
+
+.dg-region {
+  fill: var(--surface-raised);
+  stroke: var(--border);
+}
+
+.dg-unplaced {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-dasharray: 6 5;
+}
+
+.dg-title {
+  fill: var(--ink-secondary);
+  font: 600 12px var(--sans);
+}
+
+.dg-heading {
+  fill: var(--ink-muted);
+  font: 10px var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dg-name,
+.dg-fixed {
+  fill: var(--ink-secondary);
+  font: 12px var(--sans);
+}
+
+.dg-fixed {
+  fill: var(--ink-muted);
+}
+
+.dg-value {
+  fill: var(--ink);
+  font: 600 12px var(--sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.dg-hit {
+  fill: transparent;
+}
+
+.dg-row:hover .dg-hit,
+.dg-row:focus-visible .dg-hit {
+  fill: color-mix(in srgb, var(--series) 16%, transparent);
+}
+
+.dg-row:focus {
+  outline: none;
+}
+
+.dg-missing .dg-value,
+.dg-missing .dg-name {
+  fill: var(--ink-muted);
+}
+
+.identity {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 32px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.identity h4 {
+  grid-column: 1 / -1;
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+/* Two fans side by side, so the difference between them is seen at once. */
+.fan-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+
+.fan-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fact-absent .fact-value {
+  color: var(--ink-muted);
+}
+
+/* The performance state as a place on NVIDIA's own ladder, P0 to P12. */
+.pstate-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  margin-bottom: 6px;
+}
+
+.pstate-head b {
+  color: var(--ink);
+}
+
+.pstate-steps {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 2px;
+}
+
+.pstate-steps i {
+  height: 8px;
+  background: color-mix(in srgb, var(--series) 18%, transparent);
+}
+
+.pstate-steps i:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.pstate-steps i:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.pstate-steps i.is-on {
+  background: var(--series);
+}
+
+.pstate-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+
+@media (max-width: 1200px) {
+  .card-diagram {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .view-gpu .card-wide {
+    grid-column: 1 / -1;
+  }
+}

@@ -22,6 +22,7 @@ import {
   setText,
   stateOf,
 } from "../widgets.js";
+import { card, factLine, missing } from "./parts.js";
 
 /**
  * The parts of the machine a temperature can belong to, for "the hottest part".
@@ -46,35 +47,6 @@ const WHERE = {
   System: "Motherboard, board sensor",
   "Ethernet PHY": "Motherboard, Ethernet",
 };
-
-/** Build one card with a title. */
-function card(title, extra = "") {
-  const element = document.createElement("section");
-  element.className = "card view-card";
-  element.innerHTML = `<h3 class="card-title"><span></span><span class="card-note"></span></h3>
-    <div class="card-body"></div>`;
-  element.querySelector(".card-title > span:first-child").textContent = title;
-  element.querySelector(".card-note").textContent = extra;
-  return { element, body: element.querySelector(".card-body") };
-}
-
-/** Build one line of "label ... value", for a fact with no meter. */
-function factLine(label, note = "") {
-  const row = document.createElement("div");
-  row.className = "fact";
-  row.innerHTML = `<span class="fact-label"></span><span class="fact-value">—</span>`;
-  row.querySelector(".fact-label").textContent = label;
-  if (note) row.title = note;
-  return { row, value: row.querySelector(".fact-value") };
-}
-
-/** A card that says a channel this view expected is not on this machine. */
-function missing(body, label) {
-  const line = document.createElement("p");
-  line.className = "absent";
-  line.textContent = `${label}: not found on this machine`;
-  body.appendChild(line);
-}
 
 /**
  * Build the summary view.

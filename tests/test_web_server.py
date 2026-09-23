@@ -131,3 +131,9 @@ def test_no_route_offers_a_way_to_write_to_hardware(client: TestClient) -> None:
     schema = client.get("/openapi.json").json()
     writing = {path for path, methods in schema["paths"].items() if {"post", "put", "patch", "delete"} & set(methods)}
     assert writing == {"/api/rate", "/api/pause", "/api/rescan"}
+
+
+def test_static_files_tell_the_browser_to_check_them_again(client: TestClient) -> None:
+    """A stale widgets.js was served after a change; the page must not lag the code."""
+    response = client.get("/static/widgets.js")
+    assert response.headers["cache-control"] == "no-cache"

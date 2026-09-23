@@ -15,7 +15,7 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -25,6 +25,21 @@ logger = logging.getLogger(__name__)
 
 STATIC = Path(__file__).parent / "static"
 HOST = "127.0.0.1"
+
+
+class RevalidatedFiles(StaticFiles):
+    """Static files the browser must check again before it uses a cached copy.
+
+    Without this, Chrome kept serving an old `widgets.js` after a change, by
+    its own heuristic, and a reload showed the old page. `no-cache` still lets
+    it keep the file: it asks with the ETag and gets a 304 when nothing moved.
+    """
+
+    def file_response(self, *args: object, **kwargs: object) -> Response:
+        """Return the file with a header that says to revalidate it."""
+        response = super().file_response(*args, **kwargs)  # type: ignore[arg-type]
+        response.headers["Cache-Control"] = "no-cache"
+        return response
 
 
 class RateRequest(BaseModel):
@@ -172,5 +187,5 @@ def build_app(service: SensorService) -> FastAPI:
         """Answer an unknown route with JSON, as the project's conventions ask."""
         return JSONResponse(status_code=404, content={"error": "no such route"})
 
-    app.mount("/static", StaticFiles(directory=STATIC), name="static")
+    app.mount("/static", RevalidatedFiles(directory=STATIC), name="static")
     return app

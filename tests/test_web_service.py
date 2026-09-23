@@ -261,3 +261,46 @@ def test_pass_times_keeps_the_median_and_the_maximum() -> None:
 
 def test_pass_times_before_the_first_pass_is_zero_not_an_error() -> None:
     assert PassTimes().median_ms == 0.0
+
+
+def test_catalogue_gives_a_channel_with_no_description_a_null_not_a_guess(service: SensorService) -> None:
+    """Only the graphics card is described at checkpoint 3; the others must say nothing."""
+    catalogue = service.catalogue()
+    assert all(row["description"] is None for row in catalogue["channels"])
+
+
+def test_catalogue_carries_the_description_of_a_card_channel() -> None:
+    spec = SensorSpec(
+        id=SensorId(source="nvidia", device="NVIDIA GeForce RTX 4090@00000000:01:00.0", channel="power"),
+        label="GPU power",
+        group=Group.GPU,
+        unit=Unit.WATT,
+    )
+
+    class OneChannel:
+        """A real collector with the one card channel. Not a mock."""
+
+        name = "nvidia"
+
+        def discover(self) -> list[SensorSpec]:
+            return [spec]
+
+        def read(self) -> list[Reading]:
+            return [Reading.ok(spec.id, 40.0, read_at=time.monotonic())]
+
+        def close(self) -> None:
+            """Nothing to close."""
+
+    built = SensorService([OneChannel()], hz=10.0)
+    built.discover()
+    row = built.catalogue()["channels"][0]
+    assert row["description"]["call"].startswith("nvmlDeviceGetPowerUsage")
+    assert row["description"]["sources"]
+
+
+def test_catalogue_lists_the_values_that_cannot_be_read_and_why(service: SensorService) -> None:
+    catalogue = service.catalogue()
+    labels = {entry["label"] for entry in catalogue["unreachable"]}
+    assert "GPU hotspot" in labels
+    assert all(entry["reason"] for entry in catalogue["unreachable"])
+    assert {entry["label"] for entry in catalogue["not_collected"]} >= {"PCIe link"}

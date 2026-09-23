@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-22 (end of session 8; checkpoint 2 built, checkpoint 3 next)
+Last update: 2026-09-23 (session 9; checkpoint 3 built, waiting for Gova)
 
 ## Phase
 
@@ -21,7 +21,14 @@ processor leads the summary instead of whichever sensor is hottest, and the
 empty space is left for the later views to fill.
 
 **The core display is accepted**, in its solid form; blocks of 5 % were
-removed. Next is checkpoint 3, the graphics card in full.
+removed.
+
+**Checkpoint 3 is built and waits for Gova's review** (session 9,
+2026-09-23): the graphics card view, with all 21 card channels, the card
+diagram, the three temperatures that cannot be read, and a tooltip on every
+value. Open it with `uv run python -m sensors_gui.web --page "/#gpu"`, or pick
+"Graphics card" in the navigation. Checkpoint 4 does not start before Gova
+answers.
 
 **The command.** This is the one `docs/gui-goal.md` section 5 rule 2 asks for:
 
@@ -297,7 +304,30 @@ rules before any code is written. Reading comes first.
   `SUDO_USER` and the `run-as-root` skill sets `PKEXEC_UID`. Fixed in
   `patch-nct6687.sh`, `install-nct6687d.sh` and `root-probe.sh`.
 
+- **Session 9. Checkpoint 3: the graphics card, in full.** Every one of the 21
+  card channels is on screen, in eight cards and on a schematic of the card.
+  `src/sensors_gui/descriptions.py` holds a description for each channel,
+  shared by the terminal screen and the GUI, and **every sentence names a
+  source file**; a test checks each file exists. Hovering any value opens a
+  panel with the five parts of `docs/gui-goal.md` 4.2. The hotspot, memory
+  and VRM temperatures are on screen as "not readable", with the reason and
+  ADR 0011.
+- NVIDIA's own field descriptions (`nvidia-smi --help-query-gpu`) and the full
+  query report are copied into `data/evidence/` and `data/probes/`. They
+  showed the driver is now **595.91.07**, not 595.84; the inventory is
+  corrected.
+- **Six defects found by opening the view, none by a test** — among them an
+  axis that ran to −1 RPM, two ticks with one label, and a stale `widgets.js`
+  served from the browser cache. `lab/exp-0015-gui-checkpoints/README.md`.
+- The view costs **0.0450 cores at 1 Hz and 0.1440 cores at 10 Hz**.
+  **472 tests pass.**
+
 ## Waiting for Gova
+
+**Checkpoint 3 review.** What to look at, and three questions, are in the
+`JOURNAL.md` entry of 2026-09-23. Checkpoint 4 waits for the answer.
+
+
 
 Nothing. Gova approved three more root commands on 2026-09-22 through the
 `run-as-root` skill: the read-only core-energy probe and two helper installs.
@@ -336,13 +366,11 @@ Verified on the machine at the end of session 6, not assumed:
    It is the picture of the GUI stream: what runs, what is decided, what Gova
    has said, and the traps.
 
-0b. **Then checkpoint 3: the graphics card, in full.** Every RTX 4090 channel,
-   grouped, visualised, with a tooltip on each one and the card diagram.
-   `docs/gui-goal.md` calls it the reference for every other group, so Gova's
-   feedback on it is applied everywhere before the later groups are built.
-   The tooltip needs a long description for each channel, which the model does
-   not carry yet; that is the one addition to the collection layer the brief
-   allows.
+0b. **Checkpoint 3 is built; apply Gova's feedback on it.** `docs/gui-goal.md`
+   calls it the reference for every other group, so the feedback is applied
+   to the summary view and to every later group before they are built. The
+   tooltip is only on the graphics card view so far; the summary gets it with
+   the feedback.
 
 0c. **Gova's idea, for the processor view at checkpoint 4**: one `CoreBars`
    display for each measure — load, power, and so on — because the spread
@@ -396,6 +424,10 @@ Verified on the machine at the end of session 6, not assumed:
 | ~~Q9~~ | ~~Monitors on the integrated graphics?~~ **ANSWERED: no, they are on the RTX 4090.** Claude guessed the DRM card order instead of reading it. `card1` is the 4090. | — | closed 2026-09-21 |
 | ~~Q11~~ | **ANSWERED 2026-09-22.** Gova: *"choose the option that gives the best experience"*. Decided: sample on a worker thread, leave the two PCIe channels at their present interval, and correct `docs/architecture.md` to state the measured distribution. Raising the budget hides the fact; lengthening the interval slows two live channels to buy what the thread gives free. Measured after: 10.00 Hz with no dropped frame. The original question follows. **The 50 ms pass budget of `docs/architecture.md` was not being kept.** `exp-0014` timed 600 passes at 10 Hz: p50 2.157 ms, p95 26.448 ms, **max 56.839 ms**. The NVIDIA collector owns all of the tail (max 68.523 ms), because the two PCIe calls of `exp-0006` cost about 20 ms each and run when their interval expires. The GUI works around it by sampling on a worker thread. Should the budget be raised to match the machine, or should those two channels get a longer interval so the tail goes away? | the GUI's smoothness, and the honesty of `docs/architecture.md` | Claude proposes, Gova decides |
 | Q12 | The status bar has reported "about 2 ms per pass" since session 3. That is the **last** pass, which is close to the median, and it hid the tail above. Every later count of this number in `JOURNAL.md`, `HANDOFF.md` and this file is a median, not a mean. Nothing is wrong on the screen; the number was simply never the whole picture. | nothing | recorded, no action |
+| Q13 | NVML gives two things about the card that the collector does not read: the **clock event reasons** (why the clocks are low — idle, power limit, thermal slowdown) and the **PCIe link** generation and width. `docs/gui-goal.md` 4.1 names both for the card, and 2 says the catalogue is closed for this stream. Both are on screen as "not collected". Add them to the collector? It is the same source, read only, no new route. | the card view's completeness | Gova |
+| Q14 | How many physical fans does the RTX 4090 SUPRIM have, and which is NVML fan 0 and which fan 1? NVML reports 2; nothing in this repository says more. A photograph of the card, or MSI's drawing, answers the count; which is which is harder. Until then both fans sit in the diagram's "position not established" area. | the card diagram | Gova |
+| Q15 | Which temperature does the card's own fan curve follow? The view shows the edge temperature beside the fans "for reference" and says the link is not established. | the fan card's wording | not established; no read-only route known |
+| Q16 | The VRAM clock has no meter because the spec carries no maximum. The card reports one (10501 MHz, `data/probes/2026-09-23-nvidia-smi-q.txt`) and NVML gives it with `nvmlDeviceGetMaxClockInfo`, which the collector already calls for the SM clock. Give the memory clock the same `high`? | one meter | Gova |
 | Q10 | **The screen now shows this live**: on 2026-09-22 it read 31 unsafe shutdowns in 150 power cycles, about one in five. One of them was the thermal shutdown of 2026-09-22. Does Gova know what causes the rest? (This row no longer holds a copy of the number. `HANDOFF.md` said 29 and this file said 28; both were true when written, at 145 and 144 power cycles.) | health | Gova |
 
 ## Expected fan count (Gova, 2026-09-21)

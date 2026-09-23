@@ -9,6 +9,8 @@
  */
 
 import { setPaused, setRate, start } from "./stream.js";
+import { refreshTooltip } from "./tooltip.js";
+import { gpuView } from "./views/gpu.js";
 import { summaryView } from "./views/summary.js";
 
 /**
@@ -20,11 +22,17 @@ import { summaryView } from "./views/summary.js";
  */
 const VIEWS = [
   { id: "summary", name: "Summary", build: summaryView },
-  { id: "gpu", name: "Graphics card", checkpoint: 3, note: "MSI RTX 4090 SUPRIM — 21 channels" },
+  { id: "gpu", name: "Graphics card", build: gpuView },
   { id: "cpu", name: "Processor", checkpoint: 4, note: "AMD Ryzen 9 9900X — temperatures, 12 core powers, clocks" },
   { id: "memory", name: "Memory", checkpoint: 4, note: "2 x 32 GB DDR5, slots A2 and B2" },
   { id: "board", name: "Motherboard", checkpoint: 5, note: "MSI PRO X870-P WIFI — 9 fans, 10 voltages, 7 temperatures" },
   { id: "cooling", name: "Cooling", checkpoint: 5, note: "every fan and the pump, beside the temperature it acts on" },
+  {
+    id: "igpu",
+    name: "Integrated graphics",
+    checkpoint: 6,
+    note: "the AMD iGPU in the 9900X — both monitors run from the RTX 4090, not from this part",
+  },
   { id: "storage", name: "Storage", checkpoint: 6, note: "WD_BLACK SN770 — 3 temperatures and 15 health channels" },
   { id: "network", name: "Network", checkpoint: 6, note: "Ethernet PHY temperature, Wi-Fi signal, counters" },
   { id: "peripherals", name: "Peripherals", checkpoint: 6, note: "Logitech G305 battery" },
@@ -98,6 +106,7 @@ async function main() {
     }
     const began = performance.now();
     if (current) current.update();
+    refreshTooltip();
     paintTotal += performance.now() - began;
     frames += 1;
 
