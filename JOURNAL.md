@@ -1581,3 +1581,79 @@ card channels against the real card.
 
 **Tests.** 504 pass, and the fan tooltips now cite the schematic and the
 label photograph.
+
+---
+
+## 2026-09-23 — Session 9: Gova's third answer — the floor, the airflow, and the photographs
+
+**Gova's words, verbatim**
+
+> 1. yes change the cpu floor to the hw min. What about other channels, did we
+> see any abnormal readings above/below ceiling/floor from other channels other
+> than cpu freq?
+> 2. is it possible to establish that by visually inspecting the card, without
+> disassembling it?
+> 3. the 3 fans on the front of the case are intake. The one on the rear is
+> exahust. These 2 are for airflow, from what i gather. 3 fans originate from
+> the cylindrical thingy mounted on top of the processor, and push air out
+> through the top. This must be cpu cooler's radiator. Two fans originating
+> from the gpu, are mounted at the bottom; they push the air out down through
+> the hdd bay. Then there's the fan that's ON the gpu which also seems to push
+> the air down, directly above the gpu fans and in the direction they are
+> pushing the air out. That's all. I verified all these with a piece of fabric
+> string.
+>
+> Can we read the on-gpu fan's rpms? Try your best. If it is readable, that
+> value must be shown in the app as well. Maybe launch a dedicated agent for
+> this?
+>
+> Blur any serial numbers, or other PIIs in the photos using a non-reversible
+> blur method, and purge any instances of the non-blurred pics in git history
+> and commit these blurred instances only.
+
+**What was done**
+
+1. **The CPU frequency floor is the hardware minimum**, `cpuinfo_min_freq`,
+   614 MHz, read per CPU from sysfs; psutil's `min` was the policy minimum,
+   3.0 GHz. **The alert log waits for 10 % past the limit** on the CPU
+   frequency channels only, as Gova proposed. The display still marks every
+   reading past the ceiling; only the log waits, and the tooltip says so.
+2. **The airflow is recorded** in `docs/physical-build.md`, as Gova observed
+   it: 3 front in, 1 rear out, 3 top out on the CPU radiator, 2 bottom out on
+   the card's radiator, 1 on the card blowing down. **10 fans and a pump**,
+   not 9: the old count missed the fan on the card. Q20's first half is
+   answered: the CPU radiator is at the top.
+3. **The photographs.** Every image in the repository and in its history was
+   looked at. Four held identifying marks: the barcode sticker on the card's
+   radiator in photographs 02, 04 and 05, and the barcode and serial number on
+   the card's label in 06 (and the gridded crop made from 06). Each area was
+   averaged into blocks larger than a character and then blurred, so the
+   detail is discarded, not hidden. The label keeps its model line and
+   "PN:602-V5". The BIOS photographs, photograph 01, 03, 07, the manual pages
+   and the screenshots hold none.
+4. **The history was rewritten** with `git filter-repo`, which replaced each
+   of the five images in every commit, and every commit was then signed
+   again: 49 of 49 read `G`. Against a backup, only those five files differ;
+   every message and author date is the same. **Not pushed**: the remote
+   still holds photographs 02, 04 and 05 from session 5, and a force push is
+   Gova's decision.
+5. **A dedicated agent** is searching published sources and reading the card
+   (read-only) for which NVML fan channel is the fan on the card.
+   `lab/exp-0017-gpu-fan-channels/`.
+
+**Findings**
+
+1. **A filter run from session 5 left a question behind.** `git filter-repo`
+   waited on the terminal for "Treat this run as a continuation of filtering
+   in the previous run (Y/N)?", because `.git/filter-repo/already_ran` was
+   still there. It was stopped with nothing changed, and run again with "N".
+2. **A margin of 10 % of a zero floor is zero.** The first test of the margin
+   expected it to excuse a power reading of −40 W against a floor of 0 W. It
+   cannot, and Gova's rule is relative to the limit, so the test was wrong
+   and was rewritten against a 614 MHz floor.
+3. **Only the CPU frequencies leave their scale** (`exp-0018`): in 575 passes
+   over 120 channels with a scale, 13 CPU thread frequencies went above the
+   ceiling, by 1.23 % at most, and nothing went below the new floor. No other
+   channel left its scale. With the margin, the log recorded **no alert**. The
+   run was on an idle desktop, so a limit only reached under load, such as the
+   card's 480 W, was not tested.

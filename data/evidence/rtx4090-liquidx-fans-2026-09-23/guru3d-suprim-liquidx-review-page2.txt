@@ -1,0 +1,38 @@
+Source:  Guru3D — "MSI GeForce RTX 4090 Suprim Liquid X review", page 2
+URL:     https://www.guru3d.com/review/msi-geforce-rtx-4090-suprim-liquid-x-review/page-2/
+Author:  Hilbert Hagedoorn (Guru3D), Oct 12, 2022
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape (live page, no block encountered)
+Why saved: An independent review's teardown description of the radiator/fan assembly. Named
+           a different fan brand ("Gentle Typhoon") and a different AIO manufacturer
+           ("Cooler Master") than other sources, so it is kept to record the disagreement
+           rather than to settle the question.
+
+---
+
+"Lift it up to reveal the card, with coolant tubing running into a layer below. This layer
+houses the 240 mm radiator and two Gentle Typhoon 120 mm fans."
+
+"The MSI SUPRIM Liquid X RTX 4090 employs an AIO liquid cooler for the GPU and memory, while
+a single fan cools the remainder of the card. Coolant tubing connects the pump block to a
+240 mm radiator, which is outfitted with a pair of high-quality Gentle Typhoon 120 mm fans."
+
+"This appears to be a radiator made of aluminium. Rubberized frame mounts absorb vibrations
+on the fans."
+
+WHAT THIS ESTABLISHES:
+1. Confirms, independently of KitGuru and WCCFTech, the basic layout: ONE fan on the card
+   itself ("a single fan cools the remainder of the card") and TWO fans on the 240 mm
+   radiator.
+2. Names the radiator fans "Gentle Typhoon" 120 mm fans. THIS DISAGREES with WCCFTech's
+   naming of "MSI's latest MEG Silent GALE P12 fans" for the same radiator
+   (data/evidence/rtx4090-suprim-layout-2026-09-23/wccftech-suprim-liquidx-teardown.txt) and
+   with KitGuru calling them "MSI's included Silent Gale fans" (see
+   kitguru-suprim-liquidx-review.txt). "Gentle Typhoon" is normally a Scythe-branded
+   enthusiast fan line; no other source corroborates that name for this card. Kept as stated,
+   flagged as the lowest-confidence of the three naming claims, not resolved.
+3. Does not name the AIO manufacturer in this excerpt; a separate KitGuru statement names
+   Cooler Master (see kitguru-suprim-liquidx-review.txt) — this Guru3D page neither confirms
+   nor contradicts that.
+4. Gives no RPM numbers and no statement on which fan is "Fan 1"/"Fan 2" in any monitoring
+   tool.

@@ -1,0 +1,54 @@
+Source:  Tom's Hardware — "MSI RTX 4090 Suprim Liquid X Review: Super Soaker", page 6
+URL:     https://www.tomshardware.com/reviews/msi-rtx-4090-suprim-liquid-x-review/6
+Author:  Jarred Walton, Oct 24, 2022
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape (live page; the review text was reachable past the site's
+         membership/paywall promotion boilerplate, no separate archive needed)
+Why saved: This is the one source found that states IN SO MANY WORDS that a professional
+           reviewer could not tell which physical fan a GPU-Z fan-speed reading belongs to
+           on this exact card — directly on point for the owner's question. It also gives a
+           fan-diameter figure that disagrees with KitGuru's.
+
+---
+
+"Fan speeds and temperatures are a bit interesting with the MSI card. There are three fans,
+two 120mm fans on the radiator and the 95mm fan on the card. It's not clear which fan speeds
+are reported by GPU-Z, but its fans averaged just under 1300 RPM in the Metro test, and
+increased to 1440 RPM in FurMark. Overclocking with our custom fan curve rocketed RPMs into
+the 2000-2200 range."
+
+"For noise levels, we use an SPL (sound pressure level) meter, and we position the radiator
+fans so that they're about 10cm away from the microphone, which is also 10cm from the fan on
+the card. This is done to capture the full noise profile and also avoid the influence of
+other potential noise sources. Idle noise measured less than 32 dB(A), which is more or less
+the limit of our noise floor."
+
+"Running a game for 15 minutes or more resulted in fan speeds of 44% on the MSI card and a
+noise level of 42.6 dB(A). That's about 1 dB(A) louder than the Asus card and 3.5 dB(A)
+quieter than the Founders Edition model. With our overclocked settings, the fan speed ramped
+up to 81% and 55.0 dB(A), which was better than the Asus card by 5.5 dB(A)."
+
+"We also set a static fan speed of 75%, which resulted in 53.3 dB(A) on the MSI card, 57.2
+dB(A) for the Founders Edition, and 58.1 dB(A) on the Asus card. Besides the fan noise,
+there's also slight noise from the pump on the card - not enough to really affect the noise
+readings, but in a quiet room at idle, you can just make out the sound of the pump
+circulating the liquid in the card."
+
+WHAT THIS ESTABLISHES:
+1. EXPLICIT STATEMENT, from a major outlet's own review of this exact card: "It's not clear
+   which fan speeds are reported by GPU-Z" — i.e. even a professional reviewer testing the
+   physical card could not determine which of GPU-Z's reported fan channels corresponds to
+   the on-card fan versus the radiator fans. This is the closest published source found to a
+   direct answer on "which is Fan 1 / Fan 2", and the direct answer is that IT IS NOT
+   PUBLISHED ANYWHERE, including by reviewers with the card in hand.
+2. States the card's own fan as 95 mm in diameter. This DISAGREES with KitGuru's stated
+   100 mm (see kitguru-suprim-liquidx-review.txt) for the same fan on the same card. Kept as
+   stated in each source, not resolved, per this project's practice of keeping disagreeing
+   sources rather than picking one.
+3. Gives one single reported RPM figure per test (no per-fan breakdown): "just under 1300
+   RPM" in Metro, "1440 RPM" in FurMark, "2000-2200" range when manually overclocked with a
+   custom fan curve. Whichever GPU-Z channel Tom's Hardware is reading, its magnitude
+   (1300-1440 RPM under game/stress load) sits between this machine's own two measured
+   values from exp-0013 (fan0 = 1205 RPM, fan1 = 1520 RPM under load) — consistent with either
+   channel, or an average/blend of both, and not on its own enough to name which physical fan
+   is which NVML index.

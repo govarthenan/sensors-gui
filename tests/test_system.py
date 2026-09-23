@@ -330,3 +330,21 @@ def test_the_real_drive_still_gets_its_channels() -> None:
     devices = {spec.id.device for spec in collector.discover()}
     collector.close()
     assert any(device.startswith("disk:nvme") or device.startswith("disk:sd") for device in devices)
+
+
+def test_cpu_frequency_floor_is_the_hardware_minimum_not_the_policy_minimum() -> None:
+    """Gova, 2026-09-23. psutil's `min` is `scaling_min_freq`, 3.0 GHz here, and readings go below it.
+
+    The floor is `cpuinfo_min_freq`, the lowest the part can run at: 614 MHz on this machine,
+    `data/probes/2026-09-23-cpu-frequency-margin.txt`.
+    """
+    from pathlib import Path
+
+    node = Path("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")
+    if not node.exists():
+        pytest.skip("no cpufreq on this machine")
+    expected = int(node.read_text()) * 1000.0
+    collector = SystemCollector()
+    specs = {spec.id.channel: spec for spec in collector.discover()}
+    collector.close()
+    assert specs["core0_frequency"].low == expected

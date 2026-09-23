@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import threading
 from collections import deque
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
 from sensors_gui.model import Reading, SensorId, SensorSpec
@@ -46,6 +46,7 @@ class _Alert:
     last: float
     passes: int = 1
     ended: float | None = None
+    margin: float = 0.0
 
     def take(self, value: float) -> None:
         """Record one more reading outside the limit."""
@@ -71,14 +72,29 @@ class _Alert:
             "passes": self.passes,
             "started": self.started,
             "ended": self.ended,
+            "margin": self.margin,
         }
 
 
-def _outside(spec: SensorSpec, value: float) -> tuple[str, float] | None:
-    """Return which limit a value is past, and the limit, or None when it is inside."""
-    if spec.high is not None and value > spec.high:
+def _no_margin(spec: SensorSpec) -> float:
+    """Log every reading past its limit. The default."""
+    _ = spec
+    return 0.0
+
+
+def _outside(spec: SensorSpec, value: float, margin: float = 0.0) -> tuple[str, float] | None:
+    """Return which limit a value is past, and the limit, or None when it is inside.
+
+    Args:
+        spec: The channel, with its scale.
+        value: The reading.
+        margin: A fraction of the limit itself that a reading may pass it by
+            before it is logged: 0.10 logs only past 110 % of the ceiling or
+            below 90 % of the floor. The limit returned is the spec's own.
+    """
+    if spec.high is not None and value > spec.high * (1 + margin):
         return ABOVE, spec.high
-    if spec.low is not None and value < spec.low:
+    if spec.low is not None and value < spec.low * (1 - margin):
         return BELOW, spec.low
     return None
 
@@ -86,14 +102,22 @@ def _outside(spec: SensorSpec, value: float) -> tuple[str, float] | None:
 class AlertLog:
     """Watches every channel with a published scale, and records each excursion."""
 
-    def __init__(self, capacity: int = DEFAULT_CAPACITY, merge_seconds: float = DEFAULT_MERGE_SECONDS) -> None:
+    def __init__(
+        self,
+        capacity: int = DEFAULT_CAPACITY,
+        merge_seconds: float = DEFAULT_MERGE_SECONDS,
+        margin: Callable[[SensorSpec], float] = _no_margin,
+    ) -> None:
         """Create an empty log.
 
         Args:
             capacity: How many alerts to keep. The oldest go first.
             merge_seconds: A return outside the limit within this many seconds
                 of the last alert's end reopens that alert.
+            margin: Gives each channel the fraction of its limit a reading may
+                pass it by before it is logged. See `_outside`.
         """
+        self._margin = margin
         self._entries: deque[_Alert] = deque(maxlen=capacity)
         self._open: dict[SensorId, _Alert] = {}
         self._closed_last: dict[SensorId, _Alert] = {}
@@ -127,7 +151,8 @@ class AlertLog:
 
     def _take(self, spec: SensorSpec, value: float, now: float) -> None:
         """Update the log with one reading of one watched channel."""
-        outside = _outside(spec, value)
+        margin = self._margin(spec)
+        outside = _outside(spec, value, margin)
         current = self._open.get(spec.id)
         if outside is None:
             if current is not None:
@@ -151,7 +176,14 @@ class AlertLog:
             return
         self._total += 1
         alert = _Alert(
-            number=self._total, spec=spec, kind=outside[0], limit=outside[1], started=now, peak=value, last=value
+            number=self._total,
+            spec=spec,
+            kind=outside[0],
+            limit=outside[1],
+            started=now,
+            peak=value,
+            last=value,
+            margin=margin,
         )
         self._entries.append(alert)
         self._open[spec.id] = alert

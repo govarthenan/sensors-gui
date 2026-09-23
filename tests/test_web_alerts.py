@@ -159,3 +159,32 @@ def test_observe_a_hidden_channel_is_not_watched() -> None:
     log = AlertLog()
     log.observe([POWER], [Reading.ok(POWER.id, 999.0, read_at=1.0)], 1.0, hidden={POWER.id})
     assert log.entries() == []
+
+
+def test_observe_a_margin_lets_a_reading_just_past_the_ceiling_go_unlogged() -> None:
+    """Gova, 2026-09-23: CPU frequencies are logged only past 110 % of the ceiling or 90 % of the floor."""
+    log = AlertLog(margin=lambda spec: 0.10 if spec.id == POWER.id else 0.0)
+    observe(log, 100.0, power=520.0)
+    assert log.entries() == []
+    observe(log, 101.0, power=530.0)
+    [alert] = log.entries()
+    assert alert["limit"] == 480.0
+    assert alert["margin"] == 0.10
+
+
+def test_observe_a_margin_applies_below_the_floor_too() -> None:
+    """The margin is relative to the limit itself: 90 % of a 614 MHz floor is 552.6 MHz."""
+    frequency = SensorSpec(
+        id=SensorId(source="system", device="cpu", channel="core9_frequency"),
+        label="CPU9 frequency",
+        group=Group.CPU,
+        unit=Unit.HERTZ,
+        low=613_954_000.0,
+        high=5_662_016_000.0,
+    )
+    log = AlertLog(margin=lambda spec: 0.10)
+    log.observe([frequency], [Reading.ok(frequency.id, 560e6, read_at=1.0)], 1.0)
+    assert log.entries() == []
+    log.observe([frequency], [Reading.ok(frequency.id, 500e6, read_at=2.0)], 2.0)
+    [alert] = log.entries()
+    assert alert["kind"] == BELOW

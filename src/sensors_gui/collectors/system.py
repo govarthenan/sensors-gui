@@ -39,6 +39,7 @@ import os
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import psutil
@@ -55,6 +56,9 @@ SKIP_DISK_PREFIXES = ("loop", "ram", "zram", "dm-", "sr")
 
 SOURCE = "system"
 MHZ = 1_000_000.0
+KHZ = 1_000.0
+# Where the kernel publishes each CPU's frequency limits.
+CPUFREQ_ROOT = Path("/sys/devices/system/cpu")
 
 # Interfaces that are not a physical or a real network connection on this
 # machine. Docker and libvirt make several of these, and their traffic is not
@@ -101,6 +105,32 @@ class _Channel:
 
     spec: SensorSpec
     read_value: Callable[[], float | None]
+
+
+def _hardware_minimum(core: int, policy_minimum: float | None) -> float | None:
+    """Return the lowest frequency one CPU can run at, in hertz, as the floor of its scale.
+
+    `psutil` reports `scaling_min_freq` as the minimum, which is the lowest the
+    kernel's frequency policy asks for: 3.0 GHz on this machine, and readings
+    go below it. `cpuinfo_min_freq` is the lowest the part itself can run at:
+    614 MHz. Gova chose the second on 2026-09-23, after
+    `data/probes/2026-09-23-cpu-frequency-margin.txt` counted readings under
+    the first and none under the second.
+
+    Args:
+        core: The logical CPU.
+        policy_minimum: psutil's minimum in MHz, used only when sysfs has no
+            hardware minimum.
+
+    Returns:
+        The floor in hertz, or None when neither is known.
+    """
+    node = CPUFREQ_ROOT / f"cpu{core}" / "cpufreq" / "cpuinfo_min_freq"
+    try:
+        return int(node.read_text()) * KHZ
+    except (OSError, ValueError) as error:
+        logger.info("system: no hardware minimum for cpu%d, %s", core, error)
+    return policy_minimum * MHZ if policy_minimum is not None else None
 
 
 class SystemCollector:
@@ -254,7 +284,7 @@ class SystemCollector:
                         label=f"CPU{core} frequency",
                         group=Group.CPU,
                         unit=Unit.HERTZ,
-                        low=freq.min * MHZ if freq.min is not None else None,
+                        low=_hardware_minimum(core, freq.min),
                         high=freq.max * MHZ if freq.max is not None else None,
                         min_interval=0.0,
                         origin="psutil.cpu_freq(percpu=True)",

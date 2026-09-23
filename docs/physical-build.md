@@ -10,6 +10,14 @@ says whether it was **seen** in a photograph or **inferred**.
 | `03-pump-and-top-fans.jpg` | the pump block, the VRM heatsink, the top fans and the rear fan |
 | `04-full-interior.jpg` | the whole interior |
 | `05-front-fans.jpg` | the front fans and the radiator |
+| `06-gpu-backplate-label.jpg` | the graphics card's backplate and its label, 2026-09-23 |
+| `07-gpu-underside-fan.jpg` | the fan on the graphics card's underside, 2026-09-23 |
+
+**Blurred on 2026-09-23, on Gova's instruction**: the barcode stickers on the
+card's radiator in 02, 04 and 05, and the barcode and serial number on the
+label in 06. The blur averages each area into blocks and discards the detail,
+so it cannot be undone, and the unblurred versions were removed from the whole
+git history. Every photograph here is stored at 1600 px with no EXIF data.
 
 ## CORRECTION, 2026-09-23 — the card is the SUPRIM LIQUID X, and the bottom radiator is its own
 
@@ -21,12 +29,38 @@ then *"There's actually a fan on the underside of the gpu."*
 
 | Fact | Source |
 |---|---|
-| The card is the **MSI GeForce RTX 4090 SUPRIM LIQUID X 24G**, board **V510** | Gova; the label on the backplate reads "GeForce RTX 4090 SUPRIM LIQUID X 24G" and "PN: 602-V510-…", seen in `docs/photos/06-gpu-backplate-label.jpg` |
+| The card is the **MSI GeForce RTX 4090 SUPRIM LIQUID X 24G**, board **V510** | Gova; the label on the backplate reads "GeForce RTX 4090 SUPRIM LIQUID X 24G" and "PN: 602-V510-…", seen in `docs/photos/06-gpu-backplate-label.jpg`. "V510" was read on the original photograph; the committed copy blurs the barcode and the serial after "602-V5", on Gova's instruction of 2026-09-23. |
 | Card 280 x 140 x 43 mm; radiator with fans 274 x 121 x 55 mm; tubes 470 mm | MSI's specification, `data/evidence/rtx4090-suprim-layout-2026-09-23/msi-suprim-liquidx-specification.txt` |
 | The **radiator at the bottom of the case, with its 2 fans, belongs to the graphics card**, not to the CPU cooler | seen: the braided tube pair leaves the card's edge, loops over it and enters the bottom radiator, photographs 04, 05, 06 and 07 |
 | The card has **one fan of its own, on its underside** | seen, `docs/photos/07-gpu-underside-fan.jpg`; WCCFTech's teardown: "a singular Torx 5.0 fan" |
 | The board has **two fan headers, FAN A (left) and FAN B (right)**, one on each GPU fan channel | MS-V510 schematic, page 68, `data/evidence/rtx4090-suprim-layout-2026-09-23/scribd-ms-v510-schematic-extract.txt`. This is why NVML reports 2 fans. Which fans each header drives is **not established**. |
-| The CPU cooler's tubes run from the pump up toward the top of the case | seen, photograph 05. **The CPU radiator itself is not seen**; that it sits under the 3 top fans is likely and **not established** (Q20). |
+| The CPU cooler's tubes run from the pump up toward the top of the case | seen, photograph 05. |
+| **The CPU cooler's radiator is at the top, with the 3 top fans** | Gova, 2026-09-23: the 3 fans "originate from the cylindrical thingy mounted on top of the processor, and push air out through the top". Q20 answered for the radiator. |
+
+### The airflow, observed by Gova on 2026-09-23 with a piece of string
+
+> the 3 fans on the front of the case are intake. The one on the rear is
+> exahust. These 2 are for airflow, from what i gather. 3 fans originate from
+> the cylindrical thingy mounted on top of the processor, and push air out
+> through the top. This must be cpu cooler's radiator. Two fans originating
+> from the gpu, are mounted at the bottom; they push the air out down through
+> the hdd bay. Then there's the fan that's ON the gpu which also seems to push
+> the air down, directly above the gpu fans and in the direction they are
+> pushing the air out. That's all. I verified all these with a piece of fabric
+> string.
+
+| Fans | Where | Air | Serves |
+|---|---|---|---|
+| 3 | front | **in** | the case |
+| 1 | rear | **out** | the case |
+| 3 | top, on the CPU cooler's radiator | **out**, through the top | the CPU |
+| 2 | bottom, on the graphics card's radiator | **out**, down through the drive bay | the graphics card |
+| 1 | on the graphics card, underside | **down**, toward the card's radiator fans | the graphics card |
+| — | the CPU cooler's pump | — | the CPU |
+
+**10 fans and 1 pump in all.** The count of "9 fans" below missed the fan on
+the card. Which of these fans each board header and each NVML channel reads
+is a separate question; see `state/STATUS.md` Q20 and Q14.
 
 What this changes:
 

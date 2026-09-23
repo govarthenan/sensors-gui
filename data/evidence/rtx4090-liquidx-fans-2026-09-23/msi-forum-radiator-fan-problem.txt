@@ -1,0 +1,68 @@
+Source:  MSI Forum — "MSI GeForce RTX 4090 SUPRIM Liquid X Radiator Fan Problem"
+URL:     https://forum-en.msi.com/index.php?threads/msi-geforce-rtx-4090-suprim-liquid-x-radiator-fan-problem.406747/
+Author:  raevy153d02dc (thread starter), reply from forum admin "Svet"
+Thread dates: Dec 4, 2024 (posts 1-4); Mar 7, 2026 (post 5, the owner's follow-up)
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape "https://forum-en.msi.com/index.php?threads/msi-geforce-rtx-4090-suprim-liquid-x-radiator-fan-problem.406747/"
+         (fetched directly from the live site, no block encountered)
+Why saved: This is a first-hand owner account of removing the SUPRIM Liquid X's radiator
+           fans, which shows where they plug in. It answers PART A fact 1 (where the
+           radiator fans are plugged in) more directly than any review found: an owner who
+           tried the motherboard as an alternative, and who tried the card's own supplied
+           radiator connector separately, so the post distinguishes the two routes.
+
+---
+
+[Post 1, raevy153d02dc, Dec 4, 2024]
+"The radiator and fans were too big to fit inside my case the way they arrived stock, so I
+took the fans off and mounted them on top of my computer case with the radiator screwed in
+under it. It all seems to be nice and secure. I plugged the fans back in to the 4 pin
+connectors on the radiator and proceeded to install the new power supply.
+
+When I turned on the system, I smelled and saw smoke, so I turned it off and looked inside
+the case. One of the 4 pin connectors coming off the radiator where one of the fans was
+plugged in had burned, and I am not sure why. The cables from the fans themselves seem fine.
+
+I unplugged the cables from the radiator and instead plugged them in to the 4 pin fan
+connections on my motherboard, but only one of the fans is running and the other is
+stationary.
+
+I have not changed anything regarding the card such as overclocking or messing with MSI
+Afterburner. Everything is stock, fresh out of the box."
+
+[Post 3, raevy153d02dc, Dec 4, 2024]
+"Here is a picture inside. I plugged the two fans into the motherboard's 4 pin case fan
+slots. Only one fan is spinning. You can sort of see the damaged 4 pin connector coming from
+the radiator on the right.
+
+And here is the cable. It doesn't show the exposed copper as clearly but as you can see, the
+sleeve burned off. The other cable appears to be fine."
+
+[Post 5, raevy153d02dc, Mar 7, 2026 — over a year later, follow-up]
+"Coming back to this a bit after a year since I have updated the computer. I am still using
+the Suprim Liquid X 4090 I bought that had the cable that burned out. What I ended up doing
+was using new Corsair fans and plugging them into the motherboard, which seemed to work
+fine. I don't benefit from the Zero Frozr feature, but the card is stable under load so it
+doesn't seem to matter.
+
+I may still see if I can get the board replaced, however, because I decided to plug the fans
+into the connector that came with the radiator on the 4090 just to see if it would supply
+power. I tried a game and the fans did not turn on even as the temps approached 80C, so I
+think the cable on the radiator is just completely broken.
+
+For now, I am going to plug the fans back into the motherboard."
+
+WHAT THIS ESTABLISHES:
+1. The two 120 mm radiator fans plug into 4-pin connectors ON THE RADIATOR itself (a small
+   hub/pigtail on the radiator assembly, not directly into the card's PCB and not, in the
+   stock configuration, into the motherboard).
+2. That radiator hub is, in turn, wired back to the card by its own cable — the owner calls
+   it "the connector that came with the radiator on the 4090" — which is the stock power/PWM
+   supply for those fans, separate from any motherboard header.
+3. The motherboard's own 4-pin case-fan headers are a working FALLBACK the owner used only
+   after the stock radiator-to-card cable failed — this is explicitly NOT how the card ships,
+   it is a repair workaround.
+4. The card's own "Zero Frozr" (fan-stop-at-idle) behavior is lost when the radiator fans run
+   from the motherboard instead of the card, because the motherboard has no Zero Frozr logic —
+   supporting that the card's own fan-control firmware, not the motherboard BIOS, normally
+   drives the radiator fans.

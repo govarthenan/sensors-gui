@@ -318,3 +318,18 @@ def test_a_reading_above_its_ceiling_is_logged_and_counted_in_the_frame(
     assert alert["label"] == "Tctl"
     assert alert["limit"] == 100.0
     assert alert["peak"] == 101.5
+
+
+def test_only_the_cpu_frequency_channels_get_the_alert_margin() -> None:
+    """Gova, 2026-09-23: "only log cpu readings that go above 110% above or below their limits"."""
+    from sensors_gui.web.service import alert_margin
+
+    def spec(source: str, channel: str) -> SensorSpec:
+        return SensorSpec(
+            id=SensorId(source=source, device="cpu", channel=channel), label=channel, group=Group.CPU, unit=Unit.HERTZ
+        )
+
+    assert alert_margin(spec("system", "core3_frequency")) == 0.10
+    assert alert_margin(spec("system", "frequency")) == 0.10
+    assert alert_margin(spec("nvidia", "clock_sm")) == 0.0
+    assert alert_margin(spec("system", "core3_percent")) == 0.0

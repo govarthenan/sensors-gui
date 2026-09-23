@@ -1,0 +1,43 @@
+Source:  MSI — "LIQUID COOLING SERIES INSTALLATION GUIDE" (covers the SUPRIM LIQUID /
+         SUPRIM LIQUID X closed-loop cards as a product family; not Liquid-X-specific)
+URL:     https://download.msi.com/archive/mnu_exe/vga/LIQUID_COOLING_SERIES_INSTALLATION_GUIDE_SUPRIM_LIQUID.pdf
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape (direct PDF fetch, parsed to markdown by Firecrawl; no block
+         encountered)
+Why saved: This is the closest thing found to an official MSI "user guide" for the card
+           (Part A's third ask). It is a generic installation leaflet for the whole liquid
+           cooling series, not a Liquid-X-specific manual, and it is notable for what it does
+           NOT mention.
+
+---
+
+"SUPRIM LIQUID (Closed Loop) Installation
+
+1. Turn off the power, and disconnect the power cable. Open the case of your computer.
+2. Remove the expansion brackets required to place your graphics card.
+3. Place the card directly over the PCI EXPRESS slot
+4. Carefully insert the card into the PCI EXPRESS slot until the card is fully seated. You
+   will likely hear a click when it is locked in place. Note: Inserting the graphics card
+   into a wrong slot or using incorrect orientation may damage the card. Refer to your
+   motherboard manual for further information if necessary.
+5. Secure the card with a bracket screw.
+6. Align the graphics card's radiator to the available ventilation holes of the computer
+   case. (the radiator placement may vary per computer case)
+7. Secure the radiator to the computer case with the supplied screws. Note: Rotate the tubes
+   to a proper position for the following installation in the case.
+8. Connect the required 16-pin power connector to the graphics card.
+9. Close the case, re-connect the power cable and turn on the PC."
+
+WHAT THIS ESTABLISHES:
+1. The complete 9-step official installation procedure never instructs the installer to
+   plug in, unplug, or route any fan cable, or to connect anything to a motherboard fan
+   header. The only cable step in the whole guide is step 8, the 16-pin GPU power connector.
+   This is consistent with the radiator-to-card fan cable being made and connected at the
+   factory, not something a normal installation touches — which is why the MSI forum owner
+   (msi-forum-radiator-fan-problem.txt) had to physically unplug an already-made connection
+   at the radiator, rather than "plug in" a fan cable as part of setup.
+2. This document is a generic multi-product leaflet (it is not captioned or numbered for the
+   Liquid X specifically, and a photo caption inside even reads "MICROSOFT RTX 3060 Ti" —
+   almost certainly a template artifact from a different product's version of this same
+   leaflet). It is kept as the best "official manual" found, but is not Liquid-X-exclusive
+   and gives no fan-specific information at all, unlike the reviews saved alongside it.

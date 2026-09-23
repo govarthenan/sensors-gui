@@ -1,0 +1,40 @@
+Source:  MSI — MEG SILENT GALE P12 (case fan), Specification page
+URL:     https://www.msi.com/PC-Component/MEG-SILENT-GALE-P12/Specification
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape (live page, no block encountered)
+Why saved: This is MSI's own rated speed for the fan model that another saved source
+           (data/evidence/rtx4090-suprim-layout-2026-09-23/wccftech-suprim-liquidx-teardown.txt,
+           WCCFTech) says is fitted to the SUPRIM Liquid X's 240 mm radiator: "The 240mm
+           radiator comes with MSI's latest MEG Silent GALE P12 fans". It answers PART A fact
+           3 (rated maximum RPM) for the radiator fans, if that identification is correct.
+
+---
+
+"MEG SILENT GALE P12"
+
+- Fan Speed: 0~2000 RPM
+- Fan Noise Level: 22.7 dBA
+- Fan Connector: 4 PIN (PWM)
+- Air Flow: 56.2 CFM
+- Air Pressure: 2.21 mm-H2O
+- Rated Voltage: 12V
+- Bearing Type: Hydro-Dynamic Bearing (HDB)
+- Accessories: Extension Cable x1, Screw x8
+
+WHAT THIS ESTABLISHES:
+1. IF the SUPRIM Liquid X's radiator fans are indeed the MEG Silent Gale P12 (WCCFTech's
+   claim, not independently confirmed by MSI's own card specification page or by KitGuru/
+   Guru3D, who describe the fans without naming this model — see
+   kitguru-suprim-liquidx-review.txt and guru3d-suprim-liquidx-review-page2.txt, the latter
+   naming "Gentle Typhoon" instead), THEN the rated maximum speed of each radiator fan is
+   2000 RPM, per MSI's own published spec for that fan model, with a 4-pin PWM connector,
+   matching the "4 pin connectors" reported at the radiator by the MSI forum owner (see
+   msi-forum-radiator-fan-problem.txt) and by KitGuru.
+2. NO numeric rated-maximum-RPM figure was found anywhere for the card's own Torx 5.0 shroud
+   fan specifically (see README.md, "Facts NOT found", item 3b). MSI markets "TORX FAN 5.0"
+   only as a blade/ring design, with no RPM number, on every MSI page found that mentions it
+   (see search results kept only as raw search snippets, not saved as separate evidence files
+   since none contained a number to quote).
+3. This machine's own exp-0013 measurement under load (1205 and 1520 RPM) is below the P12's
+   rated 2000 RPM ceiling in both channels, consistent with neither channel being pinned at
+   its maximum under the load exp-0013 used.

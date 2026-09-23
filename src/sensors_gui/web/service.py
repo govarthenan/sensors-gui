@@ -16,6 +16,7 @@ Nothing here writes to hardware. ADR 0007.
 from __future__ import annotations
 
 import logging
+import re
 import statistics
 import threading
 import time
@@ -37,6 +38,22 @@ DEFAULT_HZ = 2.0
 MIN_HZ = 0.25
 MAX_HZ = 10.0
 PASS_WINDOW = 200
+
+
+# Gova, 2026-09-23: "only log cpu readings that go above 110% above or below
+# their limits". The CPU thread frequencies pass the kernel's maximum in about
+# 1 % of readings, by 2.23 % at most, and log nothing of value; a margin of 10 %
+# of the limit removes all of them in data/probes/2026-09-23-cpu-frequency-margin.txt.
+# The display still shows every reading past the ceiling; only the log waits.
+CPU_FREQUENCY_MARGIN = 0.10
+_CPU_FREQUENCY = re.compile(r"^(core\d+_)?frequency$")
+
+
+def alert_margin(spec: SensorSpec) -> float:
+    """Return the fraction of its limit a channel may pass before the alert log records it."""
+    if spec.id.source == "system" and _CPU_FREQUENCY.match(spec.id.channel):
+        return CPU_FREQUENCY_MARGIN
+    return 0.0
 
 
 def _identity(spec: SensorSpec) -> SensorSpec:
@@ -127,6 +144,7 @@ class Channel:
             "source": spec.id.source,
             "hidden": self.hidden,
             "description": None if (found := describe(spec)) is None else found.as_dict(),
+            "alert_margin": alert_margin(spec),
         }
 
 
@@ -171,7 +189,7 @@ class SensorService:
         self.passes = PassTimes()
         # Gova, 2026-09-23: every reading past its ceiling is logged. In memory
         # only; see alerts.py.
-        self.alerts = AlertLog()
+        self.alerts = AlertLog(margin=alert_margin)
         self.started_at = time.time()
         self.last_sample_at: float | None = None
 

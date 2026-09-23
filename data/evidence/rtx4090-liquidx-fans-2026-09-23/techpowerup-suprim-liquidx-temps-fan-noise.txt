@@ -1,0 +1,52 @@
+Source:  TechPowerUp — "MSI GeForce RTX 4090 Suprim Liquid X Review", page 37,
+         "Temperatures & Fan Noise"
+URL:     https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-liquid-x/37.html
+Author:  W1zzard (TechPowerUp), Oct 12, 2022
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape via the Internet Archive Wayback Machine snapshot
+         https://web.archive.org/web/20250325152720/https://www.techpowerup.com/review/msi-geforce-rtx-4090-suprim-liquid-x/37.html
+         — TechPowerUp's own bot-protection (a drag-slider challenge) returned a challenge
+         page on direct fetch and on an unpinned Wayback URL; the pinned 2025-03-25 snapshot
+         above returned the article text cleanly.
+Why saved: Gives a single reviewer-measured RPM figure for this exact card under gaming load,
+           and states the methodology (GPU-Z-based) and its idle behaviour ("not fully
+           stopped" — a partial confirmation/contradiction of "Zero Frozr" full-stop claims
+           made elsewhere).
+
+---
+
+Comparison table, "Temperature & Noise Comparison" (rows for other cards omitted; only the
+two Suprim Liquid X rows and the table's own column headers are quoted):
+
+| | Idle | | Gaming | | | | |
+| | GPU | Noise | GPU | Hotspot | Memory | Noise | RPM |
+| MSI RTX 4090 Suprim Liquid X | 37°C | Fan Stop* | 58°C | 67°C | 68°C | 32.2 dBA | 1197 RPM |
+| MSI RTX 4090 Suprim Liquid X (Quiet BIOS) | 38°C | Fan Stop* | 60°C | 69°C | 72°C | 29.0 dBA | 1105 RPM |
+
+"* = On MSI RTX 4090 Suprim Liquid X the pump is running at minimal RPMs when idle, but not
+fully stopped."
+
+Testing notes: "GPU temperatures listed here are based on GPU-Z measurements of the on-chip
+temperature sensor." [The RPM column is not separately captioned as to which fan channel it
+reads; the review gives one RPM number per row, not one per fan.]
+
+"For this test, we first let the card sit idle to reach thermal equilibrium. Next, we start
+a constant 100% gaming load, recording several important parameters while the test is
+running. This shows you the thermal behavior of the card and how the fans ramp up as
+temperatures increase."
+
+WHAT THIS ESTABLISHES:
+1. TechPowerUp reports exactly ONE "RPM" number per test condition for this card (1197 RPM
+   gaming / 1105 RPM Quiet-BIOS gaming), not a per-fan breakdown, and does not state which
+   NVML/GPU-Z fan index that number comes from. This is consistent with Tom's Hardware's
+   explicit statement that this is not knowable from GPU-Z output alone (see
+   tomshardware-suprim-liquidx-review-page6.txt).
+2. This machine's own exp-0013 measurement under load gave fan0 = 1205 RPM and fan1 = 1520
+   RPM. TechPowerUp's single reported figure, 1197 RPM (default Gaming BIOS), is close to
+   this machine's fan0 (1205 RPM) and noticeably below fan1 (1520 RPM). This is numerically
+   suggestive that GPU-Z's default/first-reported fan reading tracks the SLOWER of the two
+   channels on this machine, i.e. fan0 — but it is an inference from proximity of numbers
+   across two different physical cards under different load conditions, not a stated mapping,
+   and is not treated as established fact.
+3. The idle-row footnote ("the pump is running at minimal RPMs when idle, but not fully
+   stopped") describes the PUMP, not the fans, and does not bear on the two-fan question.

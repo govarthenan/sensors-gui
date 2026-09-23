@@ -88,7 +88,11 @@ function range(channel, value) {
       const share = Math.round(((value - channel.low) / (top - channel.low)) * 100);
       text += ` Now at ${share} % of the scale.`;
     }
-    return `${text} The hardware publishes no threshold, so no state is judged.`;
+    text += " The hardware publishes no threshold, so no state is judged.";
+    if (channel.alert_margin) {
+      text += ` The alert log records a reading only past ${Math.round((1 + channel.alert_margin) * 100)} % of the ceiling or below ${Math.round((1 - channel.alert_margin) * 100)} % of the floor (Gova, 2026-09-23).`;
+    }
+    return text;
   }
   return "The hardware publishes no scale and no threshold, so the value is shown and not judged.";
 }

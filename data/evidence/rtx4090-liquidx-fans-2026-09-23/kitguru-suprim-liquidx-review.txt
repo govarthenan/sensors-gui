@@ -1,0 +1,68 @@
+Source:  KitGuru — "MSI RTX 4090 Suprim Liquid X Review"
+URL:     https://www.kitguru.net/components/graphic-cards/dominic-moass/msi-rtx-4090-suprim-liquid-x-review/all/1/
+Author:  Dominic Moass, Oct 21, 2022
+Date fetched: 2026-09-23
+Tool:    firecrawl scrape (live page, single-page "all" view, no block encountered)
+Why saved: A direct hands-on teardown of this exact card that states the fan diameter, what
+           the shroud fan cools, that the radiator fans use "standard 4-pin PWM headers" and
+           that they are individually swappable, and the AIO's manufacturer.
+
+---
+
+"As for the graphics card itself, the first thing to note is MSI's hybrid cooling approach.
+The AIO cools the GPU and memory, but there is still a 100mm Torx 5.0 active fan built into
+the shroud to cool the VRM and the rest of the PCB."
+
+"Just next to the power connector is the dual-BIOS switch, with a choice between Gaming or
+Silent modes. The Gaming BIOS is the default and this offers a power limit of 480W, higher
+clocks and a more aggressive fan curve compared to the Silent mode, but we test both modes
+later in this review."
+
+"Looking at the radiator and AIO unit, this is manufactured by Cooler Master. The radiator
+measures 27mm thick, but as the fans are 27.5mm thick, you'll need about 56cmm clearance in
+your case. The sleeved tubing measures 47cm in length..."
+
+"As for the two fans, these connect via standard 4-pin PWM headers to the small exposed
+wires. This is good news as the fans can be easily swapped out for third-party models with
+no proprietary headers to contend with. Just note that as MSI's included Silent Gale fans
+are slightly thicker at 27.5mm, using standard 25mm fans will require shorter screws to
+avoid puncturing the radiator fins. MSI says standard Asetek AIO screws will be fine, but
+these are not supplied in the box."
+
+[Photo captions present in the page, images not reproduced here: "fan-cables1.jpg",
+"fan-cables2.jpg", "fan1.jpg", "fan2.jpg" — the reviewer photographed the radiator fan
+wiring and each of the two radiator fans individually. The filenames "fan1"/"fan2" are
+KitGuru's own photo-numbering and are NOT a statement about which is NVML fan index 0 or 1.]
+
+"As for the cooler, MSI is using a copper baseplate which contacts both the GPU and the
+VRAM, with the heat drawn away by the AIO cooler. The VRMs, however, make contact with the
+black secondary heatsink, which is cooled by the fan on the shroud itself."
+
+"Noise levels is an area where the Suprim Liquid X does well. Using the Gaming BIOS, we saw
+noise levels hit 37dBa, and this dropped 2dBa using the Silent BIOS as that has a more
+relaxed fan curve, for both the radiator fans and the fan on the card itself, so this is
+definitely a key benefit to the AIO approach."
+
+Pros/Cons summary: "Fans run nice and quiet." / "4-pin PWM fans are used and can be swapped
+for third-party models." listed as pros; "Not enough radiator screws included." and
+"Included fan screws don't allow for certain mounting configurations." listed as cons.
+
+WHAT THIS ESTABLISHES:
+1. The card's own shroud fan is stated as 100 mm in diameter, and its job is stated
+   explicitly: it cools the VRM and "the rest of the PCB" — NOT the GPU die or memory, which
+   are liquid-cooled. (Compare: Tom's Hardware states 95 mm for the same fan — see
+   tomshardware-suprim-liquidx-review-page6.txt — the two reviews disagree on the exact
+   diameter; kept as stated, not resolved.)
+2. The two radiator fans use standard, swappable 4-pin PWM connectors — this corroborates
+   the MSI forum owner's report of "4 pin connectors on the radiator" (see
+   msi-forum-radiator-fan-problem.txt) from an independent source.
+3. The AIO/radiator is stated to be manufactured by Cooler Master. This conflicts with
+   Guru3D's page 2, which does not name a manufacturer but calls the fans "Gentle Typhoon"
+   (see guru3d-suprim-liquidx-review-page2.txt) rather than MSI's own "MEG Silent GALE P12"
+   naming (see the existing evidence file
+   data/evidence/rtx4090-suprim-layout-2026-09-23/wccftech-suprim-liquidx-teardown.txt).
+   Kept as a three-way disagreement, not resolved here.
+4. Both the radiator fans and the card's own fan are confirmed, independently of the
+   schematic, to run their own separate fan curves ("for both the radiator fans and the fan
+   on the card itself") — i.e. they are not simply slaved together, which is consistent with
+   NVML reporting two genuinely independent channels.
