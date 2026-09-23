@@ -767,10 +767,16 @@ footer #alerts-link[data-state="over"] b {
 }
 
 .wire-pulse {
-  fill: var(--dot);
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: wire-pulse 2s ease-out infinite;
+  --dot: var(--series);
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: var(--dot);
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: wire-pulse 3s steps(12, end) infinite;
 }
 
 .wire-hit {
@@ -787,7 +793,7 @@ footer #alerts-link[data-state="over"] b {
 }
 
 /* A part that cannot be read does not pulse: nothing is being measured. */
-.wire-dot[data-state="unavailable"] .wire-pulse {
+.wire-pulse[data-state="unavailable"] {
   animation: none;
   opacity: 0;
 }
@@ -803,7 +809,7 @@ footer #alerts-link[data-state="over"] b {
     opacity: 0.55;
   }
   to {
-    transform: scale(3.2);
+    transform: scale(3.4);
     opacity: 0;
   }
 }
@@ -851,4 +857,17 @@ footer #alerts-link[data-state="over"] b {
   margin: 8px 0 0;
   color: var(--ink-muted);
   font-size: 11px;
+}
+
+.wire-tube {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-width: 1.5;
+}
+
+.wire-fan {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 4;
 }

@@ -1,0 +1,110 @@
+Source:  MSI — GeForce RTX 4090 SUPRIM LIQUID X 24G, Specification page
+URL:     https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-LIQUID-X-24G/Specification
+Date fetched: 2026-09-23T12:23:52+05:30
+Tool:    firecrawl scrape (live page)
+Why saved: Gova stated on 2026-09-23 that this is the exact card in the machine ("This is
+           the exact GPU inside btw"). The whole specification block follows, unaltered.
+
+---
+
+
+- Interface
+
+PCI Express® Gen 4
+
+- Core Clocks
+
+Extreme Performance: 2640 MHz (MSI Center)
+
+Boost: 2625 MHz (GAMING & SILENT Mode)
+
+- CUDA® CORES
+
+16384 Units
+
+- Memory Speed
+
+21 Gbps
+
+- Memory
+
+24GB GDDR6X
+
+- Memory Bus
+
+384-bIt
+
+- Output
+
+DisplayPort x 3 (v1.4a)
+
+HDMI™ x 1 (Supports 4K@120Hz HDR, 8K@60Hz HDR, and Variable Refresh Rate as specified in HDMI™ 2.1a)
+
+- HDCP Support
+
+Y
+
+- Power consumption
+
+Silent mode: 450W
+
+Gaming mode: 480W
+
+- Power connectors
+
+16-pin x 1
+
+- Recommended PSU
+
+1000W (Min. 850W)
+
+- Card Dimension (mm)
+
+Card: 280 x 140 x 43 mm
+
+radiator + fan: 274 x 121 x 55 mm
+
+Tube length: L470 ± 10 x D11.2 mm
+
+- Weight (Card / Package)
+
+2353 g / 3837 g
+
+- DirectX Version Support
+
+12 Ultimate
+
+- OpenGL Version Support
+
+4.6
+
+- Maximum Displays
+
+4
+
+- G-SYNC® technology
+
+Y
+
+- Digital Maximum Resolution
+
+7680x4320
+
+![nvidia-gf-rtx-logo](https://storage-asset.msi.com/global/picture/image/icons/nvidia-gf-rtx-logo.png)![HDMI logo](https://storage-asset.msi.com/global/picture/image/icons/HDMILogo_note.png)
+
+© 2026 NVIDIA Corporation. NVIDIA, the NVIDIA logo, GeForce, GeForce RTX, and G-SYNC are registered trademarks and/or trademarks of NVIDIA Corporation in the United States and other countries. All other trademarks and copyrights are the property of their respective owners.
+
+The terms HDMI™, HDMI™ High-Definition Multimedia Interface, HDMI™ Trade dress and the HDMI™ Logos are trademarks or registered trademarks of HDMI™ Licensing Administrator, Inc.
+
+All images and descriptions are for illustrative purposes only. Visual representation of the products may not be perfectly accurate. Product specification, functions and appearance may vary by models and differ from country to country. All specifications are subject to change without notice. Although we endeavor to present the most precise and comprehensive information at the time of publication, a small number of items may contain typography or photography errors. Some products and configuration may not be available in all markets or launch time differs. Supplies are limited. We recommend you to check with your local supplier for exact offers and detail specifications.
+
+[facebook](https://www.facebook.com/MSIGaming)
+
+[instagram](https://www.instagram.com/msigaming/)
+
+[twitter](https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-LIQUID-X-24G/x.com/msigaming)
+
+[tiktok](https://www.tiktok.com/@msi)
+
+[youtube](https://www.youtube.com/@MSIGamingOfficial)
+

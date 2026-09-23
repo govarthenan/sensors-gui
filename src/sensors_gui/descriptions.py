@@ -36,6 +36,8 @@ ADR_0003 = "docs/decisions/0003-use-nvml-for-the-nvidia-gpu.md"
 ADR_0011 = "docs/decisions/0011-no-i2c-route-to-the-graphics-card.md"
 INVENTORY = "docs/hardware-inventory.md"
 PHYSICAL_BUILD = "docs/physical-build.md"
+SCHEMATIC = "data/evidence/rtx4090-suprim-layout-2026-09-23/scribd-ms-v510-schematic-extract.txt"
+LABEL_PHOTO = "docs/photos/06-gpu-backplate-label.jpg"
 COLLECTOR = "src/sensors_gui/collectors/nvidia.py"
 
 
@@ -306,7 +308,10 @@ def _fan(index: int, kind: str) -> Description | None:
     if index >= _CARD_FANS:
         return None
     number, other = index + 1, 2 - index
-    where = f"Where fan {number} sits on the card is {NOT_ESTABLISHED}."
+    where = (
+        "The card has one fan and its radiator two; the card's board, MS-V510, has two fan headers, A and B, one "
+        f"on each GPU fan channel. Which fans channel {number} drives is {NOT_ESTABLISHED}."
+    )
     if kind == "rpm":
         return Description(
             measures=f"The measured speed of fan {number} of the graphics card, in revolutions per minute.",
@@ -316,7 +321,7 @@ def _fan(index: int, kind: str) -> Description | None:
                 f"1205 and 1520 RPM under one load. GPU fan {other} is the other one. Both stop at idle. "
                 f"GPU fan {number} duty is what the card asks of this fan; this is what the fan does. {where}"
             ),
-            sources=(EXP_0013, COLLECTOR),
+            sources=(EXP_0013, COLLECTOR, SCHEMATIC, LABEL_PHOTO, PHYSICAL_BUILD),
         )
     return Description(
         measures=(
@@ -328,7 +333,7 @@ def _fan(index: int, kind: str) -> Description | None:
             f"GPU fan {number} gives the measured speed. NVIDIA says that when a fan is blocked, the intended "
             f"speed and the measured one do not agree, so the two are shown together. {where}"
         ),
-        sources=(NVIDIA_HELP, EXP_0013, COLLECTOR),
+        sources=(NVIDIA_HELP, EXP_0013, COLLECTOR, SCHEMATIC, LABEL_PHOTO, PHYSICAL_BUILD),
     )
 
 

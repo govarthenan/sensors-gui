@@ -33,3 +33,4 @@ data/photos-original/
 
 # Browser automation scratch output from checkpoint inspections.
 .playwright-mcp/
+.firecrawl/

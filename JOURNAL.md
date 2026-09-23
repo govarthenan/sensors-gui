@@ -1508,3 +1508,76 @@ written to disk.
 ceiling in the widgets, the meter's geometry, the axis that must not hide a
 reading below the floor, the clock event bits in both languages, and the new
 card channels against the real card.
+
+---
+
+## 2026-09-23 — Session 9: Gova's second answer, and the card is a SUPRIM LIQUID X
+
+**Gova's words, verbatim**
+
+> 1. Why don't we set a hard cap to only log cpu readings that are go above
+> 110% above or below their limits? Do you think that will substantially
+> shave off the 'false' alerts?
+> 2. There seems to be some good schematics here:
+> https://www.scribd.com/document/725604942/MSI-RTX-4090-Suprim-V510-2-2 I'm
+> attaching more pics on in my next message as well
+> 3. Is the cost significant? Reduce if it is.
+
+> This is the exact GPU inside btw:
+> https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-LIQUID-X-24G
+
+> There's actually a fan on the underside of the gpu. Did we know about this?
+> [two photographs, now `docs/photos/06-gpu-backplate-label.jpg` and
+> `07-gpu-underside-fan.jpg`]
+
+**What was done**
+
+1. **The 10 % margin, measured before it is built.** 28 800 readings over
+   about a minute, `data/probes/2026-09-23-cpu-frequency-margin.txt`:
+   - above the ceiling: 399 readings, **all within 2.23 %** — a 10 % margin
+     removes every one;
+   - below the floor: 20 readings, **7 of them more than 10 %** below it
+     (down to 10.58 %) — the margin leaves about a third of these;
+   - below the **hardware** minimum, 614 MHz: none.
+   Not built yet: the answer to Gova's question is "yes above, only partly
+   below", and a better floor exists. Q17 now carries the numbers.
+2. **The schematic** is the text layer of MS-V510's board schematic. Page 68:
+   "FAN A (LEFT) / FAN B (RIGHT) — DUAL FAN 6-PIN FFC HEADERS", each on its
+   own GPU fan channel (`GPIO16_FAN_PWM_A` with `GPIO13_FAN_TACH_A`,
+   `GPIO3_FAN_PWM_B` with `GPIO7_FAN_TACH_B`). That is why NVML reports two
+   fans. The PCI subsystem ID, `1462:5104`, did not prove the board; **the
+   label on the backplate in Gova's photograph did: "PN: 602-V510-…".**
+3. **The card is the SUPRIM LIQUID X**, and that corrected four records. See
+   the findings.
+4. **The pulse cost about 0.045 cores, so it was reduced**, by about 90 %, to
+   12 steps over 3 s on compositor-only elements. Table in
+   `lab/exp-0015-gui-checkpoints/README.md`.
+5. Gova's two photographs are in `docs/photos/`. **Both carried EXIF data
+   with GPS coordinates.** They were rewritten at 1600 px with no metadata
+   before any commit, like the five photographs before them.
+
+**Findings**
+
+1. **The project had the wrong graphics card for two days.** It was recorded
+   as "MSI RTX 4090 SUPRIM" from photographs of its side, and the air-cooled
+   model was assumed. It is the SUPRIM LIQUID X: 280 x 140 x 43 mm, one fan of
+   its own on its underside, and a 240 mm radiator with two fans.
+2. **The radiator at the bottom of the case is the card's, not the CPU
+   cooler's.** Photographs 04 to 07 show its tube pair leaving the card and
+   entering that radiator. `docs/physical-build.md` said the opposite, and
+   guessed from it that `CPU_FAN1` drives the bottom radiator fans. That
+   guess is now open again (Q20). The thermal shutdown record does not
+   change: it describes what the board chip did, and that is true whichever
+   fans were on the header.
+3. **The research agent excluded the right card.** Its own saved text said
+   the Liquid X has a 530 W maximum, which is what this card reports; it
+   dismissed the Liquid X because it reasoned that two NVML fan channels
+   could not fit it. I accepted that without checking the reasoning. A
+   published fact matched the machine, and an argument overrode it.
+4. **Did we know about the fan underneath?** No. The records said "its own
+   fans in its shroud, not visible". NVML showed two fan channels. The
+   teardown saved this afternoon said "a singular Torx 5.0 fan". Gova's
+   photograph is the first sight of it.
+
+**Tests.** 504 pass, and the fan tooltips now cite the schematic and the
+label photograph.

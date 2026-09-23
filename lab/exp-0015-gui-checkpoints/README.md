@@ -201,3 +201,24 @@ the animation runs whether or not a frame arrives. It runs only while the
 wireframe tab of the graphics card view is on screen. A first 1 Hz run counted
 five Python processes because a test server of mine was still stopping; it
 was run again with nothing else up, and the second run is the one recorded.
+
+### Checkpoint 3c — the SUPRIM LIQUID X, and a cheaper pulse, 2026-09-23
+
+| File | What it shows |
+|---|---|
+| `2026-09-23-checkpoint-3c-wireframe-liquid-x.png` | the wireframe redrawn for the SUPRIM LIQUID X: 280 x 140 mm, the tubes, the fan on the far face |
+| `2026-09-23-checkpoint-3c-overhead.json` | the pulse moved to compositor-only HTML, 2 s, smooth |
+| `2026-09-23-checkpoint-3c-steps-overhead.json` | the same pulse in 12 steps over 3 s: **the version kept** |
+
+| Pulse | 1 Hz Chrome | 1 Hz total | 10 Hz Chrome | 10 Hz total |
+|---|---|---|---|---|
+| none (checkpoint 3) | 0.0323 | 0.0450 | 0.1017 | 0.1440 |
+| SVG, smooth, 2 s (3b) | 0.0773 | 0.0876 | 0.1503 | 0.1870 |
+| HTML, smooth, 2 s (3c) | 0.0703 | 0.0840 | 0.1180 | 0.1620 |
+| **HTML, 12 steps, 3 s (3c-steps)** | **0.0373** | **0.0503** | **0.1100** | **0.1517** |
+
+**Finding.** Moving the animation to the compositor saved little. The cost was
+the frame rate: any smooth animation makes Chrome produce about 60 frames a
+second. Twelve steps over three seconds is 4 changes a second, and the pulse
+now costs about 0.005 cores at 1 Hz and 0.008 at 10 Hz. One 30-second window
+each, so these are rough; the order of the saving is not.

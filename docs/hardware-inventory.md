@@ -207,10 +207,10 @@ Source: `nvme smart-log /dev/nvme0`.
 | Item | Model |
 |---|---|
 | Power supply | NZXT C1200 — **no telemetry link**, so total system power cannot be measured |
-| CPU cooler | MSI liquid cooler (AIO), radiator at the bottom of the case with 2 fans |
-| Case fans | 3 front intake, 3 top, 1 rear, plus the 2 radiator fans = **9** |
+| CPU cooler | MSI liquid cooler (AIO). ~~Radiator at the bottom of the case with 2 fans~~ — **wrong, corrected 2026-09-23**: the bottom radiator is the graphics card's. The CPU radiator's place is not established; its tubes run toward the top (Q20). |
+| Case fans | 3 front intake, 3 top, 1 rear, plus the 2 radiator fans = **9**. **Corrected 2026-09-23:** the 2 radiator fans belong to the graphics card's radiator, and the card has 1 more fan of its own. |
 | Pump | reports 1470 RPM on the `PUMP_FAN` header |
-| Graphics card | MSI GeForce RTX 4090 **SUPRIM**, on a 600 W rated 12VHPWR cable |
+| Graphics card | MSI GeForce RTX 4090 **SUPRIM LIQUID X 24G**, board V510, on a 600 W rated 12VHPWR cable. Its own 240 mm radiator, with 2 fans, is the one at the bottom of the case. **Corrected 2026-09-23**; it read "SUPRIM", and the radiator was taken for the CPU cooler's. `docs/physical-build.md`. |
 
 Only 3 of the 8 board headers carry a tachometer signal. See
 `docs/physical-build.md`.

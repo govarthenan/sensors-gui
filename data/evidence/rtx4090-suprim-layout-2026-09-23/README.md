@@ -1,3 +1,15 @@
+> **CORRECTION, 2026-09-23, added after this research.** The card in this machine
+> is the **SUPRIM LIQUID X** (Gova; the backplate label, `docs/photos/06-gpu-backplate-label.jpg`,
+> reads "GeForce RTX 4090 SUPRIM LIQUID X 24G", "PN: 602-V510-…"). The research
+> below excluded the Liquid X on a wrong argument about NVML's two fan channels,
+> and its facts about the air-cooled SUPRIM and SUPRIM X (336 x 142 x 78 mm,
+> three fans) are **not this card**. They are kept, as the project keeps what
+> disproves a claim. Added after the correction, for this card:
+> `msi-suprim-liquidx-specification.txt` (MSI's specification of the Liquid X),
+> `scribd-ms-v510-schematic-extract.txt` (the V510 board schematic: two fan
+> headers, A and B), and the gridded crops `photo-02-…`, `photo-06-…` and
+> `photo-07-card-with-grid.png` used to read positions.
+
 # RTX 4090 Suprim / Suprim X layout — published sources
 
 Web research only, done 2026-09-23, for drawing a wireframe of this machine's MSI GeForce

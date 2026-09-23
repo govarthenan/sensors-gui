@@ -11,6 +11,38 @@ says whether it was **seen** in a photograph or **inferred**.
 | `04-full-interior.jpg` | the whole interior |
 | `05-front-fans.jpg` | the front fans and the radiator |
 
+## CORRECTION, 2026-09-23 — the card is the SUPRIM LIQUID X, and the bottom radiator is its own
+
+**Read this before the sections below; they are kept as they were written.**
+
+Gova, 2026-09-23: *"This is the exact GPU inside btw:
+https://www.msi.com/Graphics-Card/GeForce-RTX-4090-SUPRIM-LIQUID-X-24G"*, and
+then *"There's actually a fan on the underside of the gpu."*
+
+| Fact | Source |
+|---|---|
+| The card is the **MSI GeForce RTX 4090 SUPRIM LIQUID X 24G**, board **V510** | Gova; the label on the backplate reads "GeForce RTX 4090 SUPRIM LIQUID X 24G" and "PN: 602-V510-…", seen in `docs/photos/06-gpu-backplate-label.jpg` |
+| Card 280 x 140 x 43 mm; radiator with fans 274 x 121 x 55 mm; tubes 470 mm | MSI's specification, `data/evidence/rtx4090-suprim-layout-2026-09-23/msi-suprim-liquidx-specification.txt` |
+| The **radiator at the bottom of the case, with its 2 fans, belongs to the graphics card**, not to the CPU cooler | seen: the braided tube pair leaves the card's edge, loops over it and enters the bottom radiator, photographs 04, 05, 06 and 07 |
+| The card has **one fan of its own, on its underside** | seen, `docs/photos/07-gpu-underside-fan.jpg`; WCCFTech's teardown: "a singular Torx 5.0 fan" |
+| The board has **two fan headers, FAN A (left) and FAN B (right)**, one on each GPU fan channel | MS-V510 schematic, page 68, `data/evidence/rtx4090-suprim-layout-2026-09-23/scribd-ms-v510-schematic-extract.txt`. This is why NVML reports 2 fans. Which fans each header drives is **not established**. |
+| The CPU cooler's tubes run from the pump up toward the top of the case | seen, photograph 05. **The CPU radiator itself is not seen**; that it sits under the 3 top fans is likely and **not established** (Q20). |
+
+What this changes:
+
+1. The table "Components seen" below called the bottom radiator the CPU
+   cooler's, and "Fan layout" counted its 2 fans as the AIO radiator fans.
+   **Both are wrong.** Those 2 fans are the card's radiator fans.
+2. "The fan wiring question" guessed that `CPU Fan` (`fan1`) drives "the
+   radiator fans". If the CPU radiator is at the top, the fans on `CPU Fan`
+   are not the bottom ones. Which fans are on `CPU Fan` is **open again**
+   (Q20). The thermal shutdown record is not changed:
+   `data/evidence/2026-09-22-thermal-shutdown/` describes what the chip did,
+   and that stays true whichever fans were on the header.
+3. The air-cooled SUPRIM's size and three fans, in the first research files of
+   `data/evidence/rtx4090-suprim-layout-2026-09-23/`, are **not this card**.
+   They stay, marked, because they show how the wrong model entered.
+
 ## Components seen
 
 | Item | Model | Source |

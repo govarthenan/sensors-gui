@@ -222,15 +222,17 @@ export function summaryView(catalogue, stream) {
 
   // --- every fan ------------------------------------------------------------
   const fans = catalogue.byUnit("rpm");
-  const cooling = card("Every fan", "3 front, 3 top, 1 rear, 2 on the radiator, the pump, and 2 on the card");
+  const cooling = card("Every fan", "3 front, 3 top, 1 rear, the pump; the card: 1 fan and 2 on its radiator");
   const fanNote = document.createElement("p");
   fanNote.className = "absent";
   fanNote.textContent =
     "The board sees three of the nine case fans and the pump. The case fans are on the EZ Conn header, " +
     "which reports as one channel. Five SYS_FAN headers are empty, and the BIOS agrees (exp-0009). " +
     "A header that reads 0 RPM is shown, never hidden: a fan that has stopped must not disappear. " +
-    "The card's own two fans stop while it is idle; exp-0013 measured them at 1205 and 1520 RPM under load, " +
-    "and they do not turn at the same speed.";
+    "The graphics card is the SUPRIM LIQUID X: one fan on its underside, and the radiator at the bottom of the " +
+    "case with its two fans is the card's own (docs/physical-build.md, corrected 2026-09-23). NVML reads two fan " +
+    "channels, one for each fan header on the card's board; which fans each drives is not established. Both stop " +
+    "while the card is idle; exp-0013 measured 1205 and 1520 RPM under load.";
   for (const channel of fans) {
     const { row, value } = factLine(channel.label, channel.origin);
     cooling.body.appendChild(row);

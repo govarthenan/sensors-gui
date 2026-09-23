@@ -99,3 +99,23 @@ A photograph of the card's other face (the fans) or of the bare board. Either
 would place the memory and the VRM, and a photograph of the fan side would
 show the three fans. Which fans each NVML channel drives would still need a
 source of its own. Q18 in `state/STATUS.md`.
+
+### CORRECTION, 2026-09-23 — the card is the SUPRIM LIQUID X
+
+The first version of the wireframe drew the **air-cooled** SUPRIM: 336 x 142 mm
+and three fans. Gova said the same day that the card is the SUPRIM LIQUID X,
+and the label on the backplate (`docs/photos/06-gpu-backplate-label.jpg`)
+agrees. The table above is kept as written; this one replaces it.
+
+| Claim | Source |
+|---|---|
+| Outline 280 x 140 mm, to scale | MSI's specification of the Liquid X, `data/evidence/rtx4090-suprim-layout-2026-09-23/msi-suprim-liquidx-specification.txt` |
+| Cross-shaped plate, and the chip under it: about 0.45 of the length (0.44 in photograph 06, 0.46 in 02) | photographs 02 and 06, gridded crops in the evidence folder. The chip is **inferred**. |
+| 12VHPWR connector on the near edge: about 0.88 (0.84 in photograph 02, 0.91 in 06) | seen, photographs 02 and 06 |
+| Two coolant tubes leave the near edge at about 0.35 and 0.44, and go to the radiator at the bottom of the case | seen, photographs 05, 06 and 07 |
+| **One fan, on the far face**, centre at about 0.73 of the length, about 90 mm across | seen, photograph 07 (`photo-07-card-with-grid.png`), placed by the "SUPRIM" letters on the edge, which photograph 06 also shows. Drawn dashed, with no dot: no reading belongs to it alone. |
+| The two fan channels stay in the unplaced row | the V510 schematic names two headers, FAN A (left) and FAN B (right), one on each GPU fan channel; which fans each drives is not established |
+
+The fractions from photographs are approximate, to a few per cent: all three
+photographs are taken at an angle, and the bracket end of the card is out of
+frame in 06 and 07.

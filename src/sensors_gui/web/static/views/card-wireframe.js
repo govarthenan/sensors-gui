@@ -10,11 +10,14 @@
  * The drawing is the card as photograph 02 shows it through the side glass:
  * the backplate face, the output bracket at the left, the edge that goes into
  * the motherboard at the top and the edge that faces the glass at the bottom.
- * Its outline is to scale, 336 x 142 mm, from MSI's own specification.
+ * Its outline is to scale, 280 x 140 mm: the card is the SUPRIM LIQUID X (Gova,
+ * 2026-09-23), and the size is from MSI's own specification of it.
  *
  * **A dot sits on the card only where a source places the part.** Two do:
- * the power connector, seen in photograph 02, and the graphics chip, inferred
- * from the cross-shaped plate and its four screws on the backplate. The rest
+ * the power connector, seen in photographs 02 and 06, and the graphics chip,
+ * inferred from the cross-shaped plate and its four screws on the backplate.
+ * The coolant tubes and the card's one fan are drawn where photographs 05 to
+ * 07 show them; they carry no dot, because no reading belongs to them alone. The rest
  * — the memory, the VRM, the PCIe fingers, the fans and the hotspot — are in
  * a row under the card that says their position is not established.
  * `docs/diagram-positions.md` holds every claim and its source.
@@ -24,8 +27,8 @@ import { STATES, colourOf, formatValue, stateOf } from "../widgets.js";
 
 const SVG = "http://www.w3.org/2000/svg";
 const MM = 2.6; // drawing units per millimetre
-const LENGTH = 336; // mm, MSI specification
-const HEIGHT = 142; // mm, MSI specification
+const LENGTH = 280; // mm, MSI specification of the SUPRIM LIQUID X
+const HEIGHT = 140; // mm, the same
 const LEFT = 70; // room for the bracket and the edge words
 const TOP = 90;
 
@@ -43,9 +46,11 @@ const PLACED = [
   {
     id: "chip",
     name: "Graphics chip",
-    along: 0.46,
+    along: 0.45,
     across: 0.47,
-    basis: "Inferred: under the cross-shaped plate and its four screws on the backplate, photograph 02.",
+    basis:
+      "Inferred: under the cross-shaped plate and its four screws on the backplate, photographs 02 and 06 " +
+      "(0.44 to 0.46 of the length).",
     rows: [
       ["Temperature (edge)", "temperature"],
       ["Use", "utilization"],
@@ -58,9 +63,9 @@ const PLACED = [
   {
     id: "power",
     name: "Power connector, 12VHPWR",
-    along: 0.84,
+    along: 0.88,
     across: 1.0,
-    basis: "Seen: the cable enters the card's edge here, photograph 02.",
+    basis: "Seen: the cable enters the card's edge here, photographs 02 and 06 (0.84 to 0.91 of the length).",
     rows: [
       ["Whole card", "power"],
       ["Energy since load", "energy"],
@@ -72,7 +77,7 @@ const PLACED = [
 const UNPLACED = [
   {
     id: "memory",
-    name: "Memory, 24 GiB GDDR6X",
+    name: "Memory",
     basis: "Where the memory chips sit is not established.",
     rows: [
       ["Used", "memory_used"],
@@ -83,7 +88,7 @@ const UNPLACED = [
   },
   {
     id: "vrm",
-    name: "Voltage regulators",
+    name: "VRM",
     basis: "Where the VRM sits is not established.",
     rows: [["Temperature", null, null, "GPU VRM"]],
   },
@@ -101,7 +106,9 @@ const UNPLACED = [
   {
     id: "fan1",
     name: "Fan channel 1",
-    basis: "The card has three fans on its far face; which NVML channel drives which is not established.",
+    basis:
+      "The card has one fan and its radiator two. Its board, MS-V510 (label, photograph 06), has two fan " +
+      "headers, A and B, one on each GPU fan channel; which fans each drives is not established.",
     rows: [
       ["Speed", "fan0_rpm"],
       ["Duty", "fan0_percent"],
@@ -110,7 +117,9 @@ const UNPLACED = [
   {
     id: "fan2",
     name: "Fan channel 2",
-    basis: "The card has three fans on its far face; which NVML channel drives which is not established.",
+    basis:
+      "The card has one fan and its radiator two. Its board, MS-V510 (label, photograph 06), has two fan " +
+      "headers, A and B, one on each GPU fan channel; which fans each drives is not established.",
     rows: [
       ["Speed", "fan1_rpm"],
       ["Duty", "fan1_percent"],
@@ -183,8 +192,15 @@ export function cardWireframe(find, stream) {
   /** Build one dot: a pulsing ring, a solid centre and a hit area. */
   function makeDot(parent, part, x, y) {
     const group = make("g", { class: "wire-dot", tabindex: 0 });
-    group.appendChild(make("circle", { cx: x, cy: y, r: 7, class: "wire-pulse" }));
     group.appendChild(make("circle", { cx: x, cy: y, r: 6, class: "wire-core" }));
+    // The pulse is an HTML element over the drawing, not an SVG circle: it
+    // animates only `transform` and `opacity`, which the browser runs on the
+    // compositor. The SVG pulse cost about 0.045 cores (exp-0015, 3b).
+    const pulse = document.createElement("i");
+    pulse.className = "wire-pulse";
+    pulse.style.left = `${(x / width) * 100}%`;
+    pulse.style.top = `${(y / height) * 100}%`;
+    element.appendChild(pulse);
     group.appendChild(make("circle", { cx: x, cy: y, r: 18, class: "wire-hit" }));
     parent.appendChild(group);
     const readings = part.rows.map(([label, key, format, missing]) => ({
@@ -193,7 +209,7 @@ export function cardWireframe(find, stream) {
       format,
       missing,
     }));
-    const dot = { part, group, readings, x, y };
+    const dot = { part, group, pulse, readings, x, y };
     const open = () => showTip(dot);
     const close = () => {
       tip.hidden = true;
@@ -263,7 +279,9 @@ export function cardWireframe(find, stream) {
         const { state } = read(dot);
         if (dot.group.dataset.state !== state) {
           dot.group.dataset.state = state;
+          dot.pulse.dataset.state = state;
           dot.group.style.setProperty("--dot", colourOf(state));
+          dot.pulse.style.setProperty("--dot", colourOf(state));
         }
         if (tip.dataset.for === dot.part.id) fillTip(dot);
       }
@@ -276,13 +294,13 @@ function drawCard(svg) {
   const [x0, y0] = at(0, 0);
   const [x1, y1] = at(1, 1);
   svg.appendChild(
-    make("text", { x: LEFT, y: 24, class: "wire-caption" }, "MSI GeForce RTX 4090 SUPRIM · backplate side"),
+    make("text", { x: LEFT, y: 24, class: "wire-caption" }, "MSI GeForce RTX 4090 SUPRIM LIQUID X · backplate side"),
   );
   svg.appendChild(
     make(
       "text",
       { x: LEFT, y: 44, class: "wire-note" },
-      "As photograph 02 shows it through the side glass. Outline to scale; dots only where a source places the part.",
+      "As photographs 02 and 06 show it through the side glass. Outline to scale; dots only where a source places the part.",
     ),
   );
   // The backplate.
@@ -294,10 +312,10 @@ function drawCard(svg) {
     svg.appendChild(make("rect", { x: x0 - 14, y: top, width: 8, height: 26, rx: 2, class: "wire-port" }));
   }
   svg.appendChild(
-    make("text", { x: x0 - 22, y: y1 + 36, class: "wire-edge" }, "4 outputs: 3 DisplayPort, 1 HDMI"),
+    make("text", { x: x0 - 22, y: y1 + 40, class: "wire-edge" }, "bracket: 3 DisplayPort, 1 HDMI"),
   );
   // The cross-shaped plate and its four screws, seen in photograph 02.
-  const [cx, cy] = at(0.46, 0.47);
+  const [cx, cy] = at(0.45, 0.47);
   const arm = 34 * MM;
   const plate = `M ${cx - arm} ${cy - arm * 0.7} L ${cx - arm * 0.25} ${cy - arm * 0.25} L ${cx + arm * 0.25} ${cy - arm * 0.25} ` +
     `L ${cx + arm} ${cy - arm * 0.7} M ${cx - arm} ${cy + arm * 0.7} L ${cx - arm * 0.25} ${cy + arm * 0.25} ` +
@@ -311,29 +329,40 @@ function drawCard(svg) {
   ]) {
     svg.appendChild(make("circle", { cx: cx + dx * 9 * MM, cy: cy + dy * 7 * MM, r: 3, class: "wire-screw" }));
   }
-  // The vents at the far end: the backplate runs past the circuit board
-  // (WCCFTech teardown); where the board ends is not established, so no line
-  // for it is drawn.
-  for (let vent = 0; vent < 6; vent += 1) {
-    const [vx, vy] = at(0.93, 0.16 + vent * 0.12);
-    svg.appendChild(make("rect", { x: vx, y: vy, width: 12 * MM, height: 3, rx: 1.5, class: "wire-vent" }));
-  }
   // The power connector on the near edge, seen in photograph 02.
-  const [px, py] = at(0.84, 1.0);
+  const [px, py] = at(0.88, 1.0);
   svg.appendChild(make("rect", { x: px - 22, y: py - 2, width: 44, height: 14, rx: 3, class: "wire-line" }));
+  // The two coolant tubes, which leave the near edge for the radiator at the
+  // bottom of the case: seen in photographs 05, 06 and 07.
+  for (const along of [0.35, 0.44]) {
+    const [tx, ty] = at(along, 1.0);
+    svg.appendChild(make("rect", { x: tx - 9, y: ty - 2, width: 18, height: 30, rx: 8, class: "wire-tube" }));
+  }
+  const [tubeX, tubeY] = at(0.395, 1.0);
+  svg.appendChild(
+    make("text", { x: tubeX, y: tubeY + 44, class: "wire-edge", "text-anchor": "middle" }, "tubes to the radiator"),
+  );
+  // The card's one fan is on the far face, seen in photograph 07. Drawn
+  // dashed, because it is on the other side of the card from this view.
+  const [fx, fy] = at(0.73, 0.5);
+  svg.appendChild(make("circle", { cx: fx, cy: fy, r: 45 * MM, class: "wire-fan" }));
+  svg.appendChild(
+    make("text", { x: fx, y: fy + 45 * MM + 16, class: "wire-edge", "text-anchor": "middle" },
+      "fan, on the far face"),
+  );
   // The words on the two long edges.
   svg.appendChild(
     make("text", { x: (x0 + x1) / 2, y: y0 - 10, class: "wire-edge", "text-anchor": "middle" },
       "this edge goes into the motherboard slot"),
   );
   svg.appendChild(
-    make("text", { x: (x0 + x1) / 2 - 90, y: y1 + 20, class: "wire-edge", "text-anchor": "middle" },
+    make("text", { x: x0 + 70, y: y1 + 20, class: "wire-edge", "text-anchor": "middle" },
       "this edge faces the side glass"),
   );
   // The size, from MSI's specification.
   svg.appendChild(make("line", { x1: x0, y1: y1 + 52, x2: x1, y2: y1 + 52, class: "wire-dim" }));
   svg.appendChild(
     make("text", { x: (x0 + x1) / 2, y: y1 + 68, class: "wire-edge", "text-anchor": "middle" },
-      "336 mm, and 142 mm across; the three fans are on the far face"),
+      "280 mm, and 140 mm across; one fan on the far face, two more on the radiator below the card"),
   );
 }

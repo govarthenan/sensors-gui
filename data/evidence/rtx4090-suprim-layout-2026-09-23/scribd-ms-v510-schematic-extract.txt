@@ -1,0 +1,55 @@
+Source:  "MSI RTX 4090 Suprim V510 2.2", board schematic of MS-V510, 72 pages, on Scribd
+URL:     https://www.scribd.com/document/725604942/MSI-RTX-4090-Suprim-V510-2-2
+Date fetched: 2026-09-23T12:23:52+05:30
+Tool:    firecrawl scrape (live page; the text layer only, no drawings)
+Why saved: Gova pointed at it on 2026-09-23. It names the two fan channels of the GPU and
+           the two fan headers they drive.
+CAUTION:   which board is inside this machine's card is NOT established. The card reports PCI
+           subsystem 1462:5104 (lspci, 2026-09-23); no source here maps 1462:5104 to MS-V510,
+           and the document does not say which SUPRIM product uses MS-V510.
+Extract:   the lines below are copied as the text layer gives them, with their line number in
+           the scrape. Nothing is summarised.
+
+---
+
+line 225: 
+line 226: PEX\_3V3 Finger
+line 227: 
+line 228: D   P   /   H   E   M   I\_   C
+line 229: 
+line 230: MEMMEMx1F
+line 231: 
+line 232: PCIe 4.0 x16 EDGE FINGER
+line 233: 
+line 234: MEM AF MEMMEMMEM D D FANB
+line 16344: GPIO0\_NVVDD\_PWMVIDGPIO12\_LOW\_PERF\*GPIO13\_FAN\_TACH\_A\_GPUGPIO16\_FAN\_PWM\_A\_GPUGPIO17\_IFPD\_HPDGPIO18\_IFPE\_HPDGPIO21\_SENSE0\_A\_GPUGPIO22\_ADC\_MUX\_SELGPIO24\_IFPF\_HPDGPIO26\_SPI\_WP\*GPIO27\_IFPC\_HPD
+line 16348: GPIO29\_OVRM\_GEN\_SELGPIO3\_FAN\_PWM\_B\_GPUGPIO7\_FAN\_TACH\_B\_GPUGPIO8\_FBVDD\_SELI2CC\_SCL I2CC\_SCL\_1V8I2CC\_SDA I
+line 19344: H 00111RAMCFG MICRON 16Gb G6X x16 (161-0480-900)RAMCFG MICRON 16Gb G6X x16 (161-0479-900)1:ENABLE 0:DISABLEFAN0/1=33%33%, FS\_OVERT ENABLELROM\_SCLK SMARTFAN\[2:0\],FS\_OVERTGROUP1
+line 36438: FAN&NORTHLOGOLED
+line 36440: Page 68: FAN & NORTH LOGO LED
+line 36442: FAN A (LEFT)FAN B (RIGHT)
+line 36444: DUAL FAN 6-PIN FFC HEADERS W/ 0.5MM PITCH
+line 36446: FAN\_TACH GPUGPUFAN\_TACH
+
+lines 36772-36804 (the fan nets on page 68):
+GPIO13\_FAN\_TACH\_A
+GPIO13\_FAN\_TACH\_A\_GPU
+GPIO16\_FAN\_A\_PWM\_BUF
+GENERIC\_SPACING1
+GPIO16\_FAN\_PWM\_A\_GPU
+GENERIC\_SPACING1
+GPIO3\_FAN\_B\_PWM\_BUF
+GENERIC\_SPACING1
+GPIO3\_FAN\_PWM\_B\_GPU
+GENERIC\_SPACING1
+GPIO7\_FAN\_B\_TACH\_R
+GPIO7\_FAN\_TACH\_B\_GPU
+GPIO7\_FAN\_TACH\_B\_GPU\_AA
+GPIO7\_FAN\_TACH\_B\_GPU
+GPIO7\_FAN\_R
+GPIO13\_FAN\_TACH\_A\_GPU
+GPIO7\_FAN\_TACH\_B\_GPU\_AAGPIO13\_FAN\_TACH\_A\_GPU\_AA
+
+# lspci -nn -s 01:00.0 ; subsystem, same day
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation AD102 [GeForce RTX 4090] [10de:2684] (rev a1) (prog-if 00 [VGA controller])
+	Subsystem: Micro-Star International Co., Ltd. [MSI] AD102 [GeForce RTX 4090] [1462:5104]
