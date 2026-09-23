@@ -1,0 +1,301 @@
+# Documentation/admin-guide/pm/amd-pstate.rst: the amd-pstate-epp driver
+# this machine uses, its CPPC performance capability levels, and the
+# frequency limit attributes
+#
+# Command: curl https://raw.githubusercontent.com/torvalds/linux/v7.0/Documentation/admin-guide/pm/amd-pstate.rst
+# Date:    2026-09-23T16:27:30+05:30
+# Host:    dst-gova-pc
+# Source:  torvalds/linux, tag v7.0, path Documentation/admin-guide/pm/amd-pstate.rst
+# Why:     the CPUn frequency tooltip and the CPU frequency floor/ceiling
+#          under PROCESSOR. This machine's scaling_driver is
+#          "amd-pstate-epp" (data/probes probe in this same folder), which
+#          is the "active mode" of this driver, described below.
+#
+# Five extracts below, each with the file's own line numbers.
+#
+
+=====================================================================
+Extract 1 of 5 -- lines 86-154: "AMD CPPC Performance Capability" and
+"AMD CPPC Performance Control" (Highest / Nominal / Lowest non-linear /
+Lowest performance, and the Min/Max/Desired performance registers)
+=====================================================================
+
+.. _perf_cap:
+
+AMD CPPC Performance Capability
+--------------------------------
+
+Highest Performance (RO)
+.........................
+
+This is the absolute maximum performance an individual processor may reach,
+assuming ideal conditions. This performance level may not be sustainable
+for long durations and may only be achievable if other platform components
+are in a specific state; for example, it may require other processors to be in
+an idle state. This would be equivalent to the highest frequencies
+supported by the processor.
+
+Nominal (Guaranteed) Performance (RO)
+......................................
+
+This is the maximum sustained performance level of the processor, assuming
+ideal operating conditions. In the absence of an external constraint (power,
+thermal, etc.), this is the performance level the processor is expected to
+be able to maintain continuously. All cores/processors are expected to be
+able to sustain their nominal performance state simultaneously.
+
+Lowest non-linear Performance (RO)
+...................................
+
+This is the lowest performance level at which nonlinear power savings are
+achieved, for example, due to the combined effects of voltage and frequency
+scaling. Above this threshold, lower performance levels should be generally
+more energy efficient than higher performance levels. This register
+effectively conveys the most efficient performance level to ``amd-pstate``.
+
+Lowest Performance (RO)
+........................
+
+This is the absolute lowest performance level of the processor. Selecting a
+performance level lower than the lowest nonlinear performance level may
+cause an efficiency penalty but should reduce the instantaneous power
+consumption of the processor.
+
+AMD CPPC Performance Control
+------------------------------
+
+``amd-pstate`` passes performance goals through these registers. The
+register drives the behavior of the desired performance target.
+
+Minimum requested performance (RW)
+...................................
+
+``amd-pstate`` specifies the minimum allowed performance level.
+
+Maximum requested performance (RW)
+...................................
+
+``amd-pstate`` specifies a limit the maximum performance that is expected
+to be supplied by the hardware.
+
+Desired performance target (RW)
+...................................
+
+``amd-pstate`` specifies a desired target in the CPPC performance scale as
+a relative number. This can be expressed as percentage of nominal
+performance (infrastructure max). Below the nominal sustained performance
+level, desired performance expresses the average performance level of the
+processor subject to hardware. Above the nominal performance level,
+the processor must provide at least nominal performance requested and go higher
+if current operating conditions allow.
+
+
+=====================================================================
+Extract 2 of 5 -- lines 233-330: the per-policy sysfs attributes
+(amd_pstate_highest_perf / amd_pstate_max_freq,
+amd_pstate_lowest_nonlinear_freq, energy_performance_preference, boost)
+=====================================================================
+
+User Space Interface in ``sysfs`` - Per-policy control
+======================================================
+
+``amd-pstate`` exposes several global attributes (files) in ``sysfs`` to
+control its functionality at the system level. They are located in the
+``/sys/devices/system/cpu/cpufreq/policyX/`` directory and affect all CPUs. ::
+
+ root@hr-test1:/home/ray# ls /sys/devices/system/cpu/cpufreq/policy0/*amd*
+ /sys/devices/system/cpu/cpufreq/policy0/amd_pstate_highest_perf
+ /sys/devices/system/cpu/cpufreq/policy0/amd_pstate_lowest_nonlinear_freq
+ /sys/devices/system/cpu/cpufreq/policy0/amd_pstate_max_freq
+
+
+``amd_pstate_highest_perf / amd_pstate_max_freq``
+
+Maximum CPPC performance and CPU frequency that the driver is allowed to
+set, in percent of the maximum supported CPPC performance level (the highest
+performance supported in `AMD CPPC Performance Capability <perf_cap_>`_).
+In some ASICs, the highest CPPC performance is not the one in the ``_CPC``
+table, so we need to expose it to sysfs. If boost is not active, but
+still supported, this maximum frequency will be larger than the one in
+``cpuinfo``.
+This attribute is read-only.
+
+``amd_pstate_lowest_nonlinear_freq``
+
+The lowest non-linear CPPC CPU frequency that the driver is allowed to set,
+in percent of the maximum supported CPPC performance level. (Please see the
+lowest non-linear performance in `AMD CPPC Performance Capability
+<perf_cap_>`_.)
+This attribute is read-only.
+
+``amd_pstate_hw_prefcore``
+
+Whether the platform supports the preferred core feature and it has been
+enabled. This attribute is read-only.
+
+``amd_pstate_prefcore_ranking``
+
+The performance ranking of the core. This number doesn't have any unit, but
+larger numbers are preferred at the time of reading. This can change at
+runtime based on platform conditions. This attribute is read-only.
+
+``energy_performance_available_preferences``
+
+A list of all the supported EPP preferences that could be used for
+``energy_performance_preference`` on this system.
+These profiles represent different hints that are provided
+to the low-level firmware about the user's desired energy vs efficiency
+tradeoff.  ``default`` represents the epp value is set by platform
+firmware. This attribute is read-only.
+
+``energy_performance_preference``
+
+The current energy performance preference can be read from this attribute.
+and user can change current preference according to energy or performance needs
+Please get all support profiles list from
+``energy_performance_available_preferences`` attribute, all the profiles are
+integer values defined between 0 to 255 when EPP feature is enabled by platform
+firmware, if EPP feature is disabled, driver will ignore the written value
+This attribute is read-write.
+
+``boost``
+The `boost` sysfs attribute provides control over the CPU core
+performance boost, allowing users to manage the maximum frequency limitation
+of the CPU. This attribute can be used to enable or disable the boost feature
+on individual CPUs.
+
+When the boost feature is enabled, the CPU can dynamically increase its frequency
+beyond the base frequency, providing enhanced performance for demanding workloads.
+On the other hand, disabling the boost feature restricts the CPU to operate at the
+base frequency, which may be desirable in certain scenarios to prioritize power
+efficiency or manage temperature.
+
+To manipulate the `boost` attribute, users can write a value of `0` to disable the
+boost or `1` to enable it, for the respective CPU using the sysfs path
+`/sys/devices/system/cpu/cpuX/cpufreq/boost`, where `X` represents the CPU number.
+
+Other performance and frequency values can be read back from
+``/sys/devices/system/cpu/cpuX/acpi_cppc/``, see :ref:`cppc_sysfs`.
+
+
+``amd-pstate`` vs ``acpi-cpufreq``
+======================================
+
+On the majority of AMD platforms supported by ``acpi-cpufreq``, the ACPI tables
+provided by the platform firmware are used for CPU performance scaling, but
+only provide 3 P-states on AMD processors.
+However, on modern AMD APU and CPU series, hardware provides the Collaborative
+Processor Performance Control according to the ACPI protocol and customizes this
+for AMD platforms. That is, fine-grained and continuous frequency ranges
+instead of the legacy hardware P-states. ``amd-pstate`` is the kernel
+module which supports the new AMD P-States mechanism on most of the future AMD
+platforms. The AMD P-States mechanism is the more performance and energy
+efficiency frequency management method on AMD processors.
+
+
+``amd-pstate`` Driver Operation Modes
+
+=====================================================================
+Extract 3 of 5 -- lines 346-357: "Active Mode", which is what
+amd_pstate_epp (this machine's driver) implements
+=====================================================================
+
+Active Mode
+------------
+
+``amd_pstate=active``
+
+This is the low-level firmware control mode which is implemented by ``amd_pstate_epp``
+driver with ``amd_pstate=active`` passed to the kernel in the command line.
+In this mode, ``amd_pstate_epp`` driver provides a hint to the hardware if software
+wants to bias toward performance (0x0) or energy efficiency (0xff) to the CPPC firmware.
+then CPPC power algorithm will calculate the runtime workload and adjust the realtime
+cores frequency according to the power supply and thermal, core voltage and some other
+hardware conditions.
+
+=====================================================================
+Extract 4 of 5 -- lines 425-469: the global "status" sysfs attribute
+(active / passive / guided / disable)
+=====================================================================
+
+User Space Interface in ``sysfs`` - General
+===========================================
+
+Global Attributes
+-----------------
+
+``amd-pstate`` exposes several global attributes (files) in ``sysfs`` to
+control its functionality at the system level.  They are located in the
+``/sys/devices/system/cpu/amd_pstate/`` directory and affect all CPUs.
+
+``status``
+	Operation mode of the driver: "active", "passive", "guided" or "disable".
+
+	"active"
+		The driver is functional and in the ``active mode``
+
+	"passive"
+		The driver is functional and in the ``passive mode``
+
+	"guided"
+		The driver is functional and in the ``guided mode``
+
+	"disable"
+		The driver is unregistered and not functional now.
+
+        This attribute can be written to in order to change the driver's
+        operation mode or to unregister it.  The string written to it must be
+        one of the possible values of it and, if successful, writing one of
+        these values to the sysfs file will cause the driver to switch over
+        to the operation mode represented by that string - or to be
+        unregistered in the "disable" case.
+
+``prefcore``
+	Preferred core state of the driver: "enabled" or "disabled".
+
+	"enabled"
+		Enable the ``amd-pstate`` preferred core.
+
+	"disabled"
+		Disable the ``amd-pstate`` preferred core
+
+
+        This attribute is read-only to check the state of preferred core set
+        by the kernel parameter.
+
+
+=====================================================================
+Extract 5 of 5 -- lines 470-497: the cpupower worked example, showing
+Highest/Nominal/Lowest-non-linear/Lowest performance next to their
+frequencies (a different machine's numbers, kept only to show the
+mapping; this machine's own numbers are in the probe file)
+=====================================================================
+
+``cpupower`` tool support for ``amd-pstate``
+===============================================
+
+``amd-pstate`` is supported by the ``cpupower`` tool, which can be used to dump
+frequency information. Development is in progress to support more and more
+operations for the new ``amd-pstate`` module with this tool. ::
+
+ root@hr-test1:/home/ray# cpupower frequency-info
+ analyzing CPU 0:
+   driver: amd-pstate
+   CPUs which run at the same hardware frequency: 0
+   CPUs which need to have their frequency coordinated by software: 0
+   maximum transition latency: 131 us
+   hardware limits: 400 MHz - 4.68 GHz
+   available cpufreq governors: ondemand conservative powersave userspace performance schedutil
+   current policy: frequency should be within 400 MHz and 4.68 GHz.
+                   The governor "schedutil" may decide which speed to use
+                   within this range.
+   current CPU frequency: Unable to call hardware
+   current CPU frequency: 4.02 GHz (asserted by call to kernel)
+   boost state support:
+     Supported: yes
+     Active: yes
+     AMD PSTATE Highest Performance: 166. Maximum Frequency: 4.68 GHz.
+     AMD PSTATE Nominal Performance: 117. Nominal Frequency: 3.30 GHz.
+     AMD PSTATE Lowest Non-linear Performance: 39. Lowest Non-linear Frequency: 1.10 GHz.
+     AMD PSTATE Lowest Performance: 15. Lowest Frequency: 400 MHz.
+

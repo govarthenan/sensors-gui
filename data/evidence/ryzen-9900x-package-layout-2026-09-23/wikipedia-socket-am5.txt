@@ -1,0 +1,50 @@
+# Socket AM5 (Wikipedia)
+#
+# Command: curl (Mozilla/5.0 UA) https://en.wikipedia.org/wiki/Socket_AM5
+# Date:    2026-09-23T16:27:32+05:30
+# Host:    dst-gova-pc
+# Source:  Wikipedia, "Socket AM5" article, revision fetched 2026-09-23 (oldid=1362595010 per
+#          the page footer at fetch time)
+# Why:     Answers Q1's package-outline-size sub-question (AM5 package 40 x 40 mm)
+
+## Infobox fields (verbatim)
+
+Release date       September 27, 2022 (2022-09-27)
+Designed by         AMD
+Manufactured by     Lotes, Foxconn
+Type                 LGA-ZIF
+Chip form factors    Flip-chip
+Contacts             1718
+FSB protocol         PCI Express, Infinity Fabric
+Voltage range        0.8 V (cores), 1.05 V (in-package I/O die)
+Processor dimensions 40 x 40 mm, 1,600 mm2
+Processors           Ryzen: Ryzen 7000 Series (Raphael), Ryzen 8000 Series (Phoenix),
+                      Ryzen 9000 Series (Granite Ridge); Epyc: Epyc 4004 Series, Epyc 4005 Series
+Predecessor          AM4
+Memory support       DDR5
+
+## Body text (verbatim extract, intro and heatsink section; navigation, "History" prose
+## beyond what's relevant, and references list stripped)
+
+Socket AM5 (LGA 1718) is a zero insertion force flip-chip land grid array (LGA)
+CPU socket designed by AMD that is used for AMD Ryzen microprocessors starting
+with the Zen 4 microarchitecture. AM5 was launched in September 2022 and is the
+successor to AM4.
+
+The Ryzen 7000 series processors were the first AM5 processors. The 7000 series
+added support for PCI Express 5.0 and DDR5.
+
+### Heatsink
+
+The AM5 socket specifies four holes for fastening the heatsink to the
+motherboard to be placed at the corners of a rectangle with a lateral length of
+54x90 mm, as well as UNC #6-32 screw threads for the backplate, identical to
+those of the preceding AM4 socket. Furthermore, the Z-height of the CPU package
+is kept the same as that of AM4, for backward compatibility of heatsinks.
+
+## Key figure (exact quote)
+
+"Processor dimensions | 40 x 40 mm | 1,600 mm2" — this is the package outline
+size asked for in Q1. The article does not describe the internal placement of
+the IOD or CCDs on that 40x40mm substrate; that comes from the die-shot
+articles in this folder.

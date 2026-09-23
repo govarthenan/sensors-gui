@@ -1,0 +1,56 @@
+# AMD Granite Ridge "Zen 5" CCD Gets Beautiful & High-Res Die Shots, Reveals Brand New TSV Layout For 3D V-Cache CPUs
+#
+# Command: curl (Mozilla/5.0 UA) https://wccftech.com/amd-zen-5-ccd-beautiful-high-res-die-shots-brand-new-tsv-layout-3d-v-cache-cpus/
+# Date:    2026-09-23T16:27:32+05:30
+# Host:    dst-gova-pc
+# Source:  WCCFTech, by Hassan Mujtaba, Oct 7, 2024
+# Why:     Confirms which chip the die shots are of (Ryzen 5 9600X, one CCD + one IOD), and
+#          the TSV/V-cache framing referenced by Q3. Third independent write-up of the same
+#          Nemez/Fritzchens Fritz/HighYieldYT material as the other two annotated-die-shot
+#          articles in this folder.
+
+## Article text (verbatim, navigation, byline bio and unrelated "further reading" links stripped)
+
+The AMD Zen 5 CPU powering the Ryzen 9000 "Granite Ridge" CPUs has received new
+high-res die shots from Fritzchens Fritz, revealing the mysteries of the brand-
+new Zen architecture, and what AMD is planning to offer in the future.
+
+### AMD Zen 5 Core Architecture Pictured In Detailed Die Shots, Full Granite Ridge "Ryzen 9000" CPU Dissection
+
+The die shots come from Fritzchens Fritz who is known for sharing high-
+resolution close-ups of various CPUs and GPUs. The incredibly detailed die
+shots meant that a Ryzen CPU needed to be sacrificed so that it's CCD could be
+extracted for a visual close-up.
+
+The processor used was the Ryzen 5 9600X which features a single Zen 5 CCD and
+a single IOD. The singular Zen 5 CCD was then pictured in all its glory.
+
+Starting with the details, we know from previously public information that each
+Zen 5 CCD, Eldora, has a die size of 70.6mm2 and features 8.315 Billion
+transistors while being fabricated on the TSMC N4P process node. [...]
+Nemez at X followed up by providing annotated pictures of the Granite Ridge CCD
+and IOD [...]
+
+As expected, the AMD Zen 5 CCD on the Granite Ridge CPU is the only of the two
+dies that's been changed from the previous Zen 4 lineup (Raphael) while the IO
+die remains the same and uses a TSMC 6nm process node.
+
+The most interesting details about the AMD Zen 5 CCD for Granite Ridge CPUs
+were spotted by High Yield who worked with Fritzchens Fritz to dig deeper into
+the CCD design. On closer inspection, it was revealed that Zen 5 CCDs have a
+much lower amount of TSVs or Through Silicon Vias than the previous generation
+Zen 4 & Zen 3 offerings.
+
+Plus the positioning of the TSVs within the L3 cache might stress out the CCD
+itself so it is speculated that AMD might go for a 2-Hi stacked 3D V-Cache
+design to counter the impacts.
+
+## Why this matters for the diagram
+
+This article states plainly that the annotated die shots (used by TechPowerUp
+and Guru3D too, see the other two files in this folder) are of a Ryzen 5
+9600X, a single-CCD, single-IOD chip — not the two-CCD 9900X that dst-gova-pc
+has. The two-CCD package layout claim (Q1) rests on the *package substrate*
+photo, which the TechPowerUp article's own text says shows "the pad of the
+absent CCD ... close to the present CCD" — i.e. the empty second-CCD seat on
+that same substrate design, not a photo of a populated two-CCD chip.

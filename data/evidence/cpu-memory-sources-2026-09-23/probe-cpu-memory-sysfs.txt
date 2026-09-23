@@ -1,0 +1,145 @@
+# Read-only probe of this machine: CPU/memory sysfs and procfs state, and
+# the k10temp / spd5118 hwmon device readings
+#
+# Command: cat /proc/meminfo; cat /proc/loadavg;
+#          grep . /sys/devices/system/cpu/cpu0/cpufreq/*;
+#          cat /sys/devices/system/cpu/amd_pstate/status;
+#          grep . /sys/class/hwmon/hwmon*/name;
+#          grep . /sys/class/hwmon/hwmon2/temp*_{input,label,max,crit,crit_hyst};
+#          grep . /sys/class/hwmon/hwmon{3,4}/temp*_{input,label,max,crit,min,lcrit};
+#          grep -m1 -E '^model name|^cpu family|^model[[:space:]]|^stepping' /proc/cpuinfo
+# Date:    2026-09-23T16:28:28+05:30 (probes run in immediate succession,
+#          each within a minute of this timestamp)
+# Host:    dst-gova-pc
+# Source:  this machine, live sysfs/procfs. All plain reads of
+#          user-readable files; nothing was written.
+# Why:     ties the kernel-doc and psutil evidence in this folder to what
+#          this specific CPU (Ryzen 9 9900X, family 26 = 0x1a, model 68 =
+#          0x44) and these two DIMMs actually report, for the FINDINGS.md
+#          conclusions.
+#
+
+$ cat /proc/cpuinfo | grep -m1 -E '^model name|^cpu family|^model[[:space:]]|^stepping'
+cpu family	: 26
+model		: 68
+
+$ cat /proc/meminfo
+MemTotal:       63310068 kB
+MemFree:         7486988 kB
+MemAvailable:   48300280 kB
+Buffers:            1392 kB
+Cached:         38330968 kB
+SwapCached:            0 kB
+Active:         10919572 kB
+Inactive:       38549156 kB
+Active(anon):    8913832 kB
+Inactive(anon):  2669012 kB
+Active(file):    2005740 kB
+Inactive(file): 35880144 kB
+Unevictable:         416 kB
+Mlocked:             416 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Zswap:                 0 kB
+Zswapped:              0 kB
+Dirty:              4100 kB
+Writeback:             0 kB
+AnonPages:      11137620 kB
+Mapped:          2399912 kB
+Shmem:            446548 kB
+KReclaimable:    3617564 kB
+Slab:            4816168 kB
+SReclaimable:    3533192 kB
+SUnreclaim:      1282976 kB
+KernelStack:       55456 kB
+PageTables:       172624 kB
+SecPageTables:      6076 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:    31655032 kB
+Committed_AS:   66875672 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:      170736 kB
+VmallocChunk:          0 kB
+Percpu:            33216 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+FileHugePages:         0 kB
+FilePmdMapped:         0 kB
+CmaTotal:              0 kB
+CmaFree:          222228 kB
+Unaccepted:            0 kB
+Balloon:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+Hugetlb:               0 kB
+DirectMap4k:     6316792 kB
+DirectMap2M:    43548672 kB
+DirectMap1G:    15728640 kB
+
+$ cat /proc/loadavg
+0.64 1.06 1.08 4/3445 1109098
+
+$ grep . /sys/devices/system/cpu/cpu0/cpufreq/*
+/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq:5662016
+/sys/devices/system/cpu/cpu0/cpufreq/amd_pstate_prefcore_ranking:206
+/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_avg_freq:5651590
+/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_available_preferences:performance
+/sys/devices/system/cpu/cpu0/cpufreq/boost:1
+/sys/devices/system/cpu/cpu0/cpufreq/amd_pstate_highest_perf:166
+/sys/devices/system/cpu/cpu0/cpufreq/amd_pstate_lowest_nonlinear_freq:3001551
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed:<unsupported>
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq:5662016
+/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_transition_latency:0
+/sys/devices/system/cpu/cpu0/cpufreq/related_cpus:0
+/sys/devices/system/cpu/cpu0/cpufreq/amd_pstate_max_freq:5662016
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq:5651590
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq:3001551
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver:amd-pstate-epp
+/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq:613954
+/sys/devices/system/cpu/cpu0/cpufreq/amd_pstate_hw_prefcore:enabled
+/sys/devices/system/cpu/cpu0/cpufreq/affected_cpus:0
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor:performance
+/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference:performance
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors:performance powersave
+
+$ cat /sys/devices/system/cpu/amd_pstate/status
+active
+
+$ grep . /sys/class/hwmon/hwmon*/name
+/sys/class/hwmon/hwmon3/name:spd5118
+/sys/class/hwmon/hwmon2/name:k10temp
+/sys/class/hwmon/hwmon7/name:hidpp_battery_1
+/sys/class/hwmon/hwmon6/name:amdgpu
+/sys/class/hwmon/hwmon5/name:nct6687
+/sys/class/hwmon/hwmon1/name:nvme
+/sys/class/hwmon/hwmon0/name:r8169_0_b00:00
+/sys/class/hwmon/hwmon4/name:spd5118
+
+$ k10temp (hwmon2) readable temp attributes
+/sys/class/hwmon/hwmon2/temp1_input: 45000
+/sys/class/hwmon/hwmon2/temp3_input: 36375
+/sys/class/hwmon/hwmon2/temp4_input: 31375
+/sys/class/hwmon/hwmon2/temp1_label: Tctl
+/sys/class/hwmon/hwmon2/temp3_label: Tccd1
+/sys/class/hwmon/hwmon2/temp4_label: Tccd2
+
+$ spd5118 DIMM #1 (hwmon3) readable temp attributes
+/sys/class/hwmon/hwmon3/temp1_input: 32000
+/sys/class/hwmon/hwmon3/temp1_max: 55000
+/sys/class/hwmon/hwmon3/temp1_crit: 85000
+/sys/class/hwmon/hwmon3/temp1_min: 0
+/sys/class/hwmon/hwmon3/temp1_lcrit: 0
+
+$ spd5118 DIMM #2 (hwmon4) readable temp attributes
+/sys/class/hwmon/hwmon4/temp1_input: 30250
+/sys/class/hwmon/hwmon4/temp1_max: 55000
+/sys/class/hwmon/hwmon4/temp1_crit: 85000
+/sys/class/hwmon/hwmon4/temp1_min: 0
+/sys/class/hwmon/hwmon4/temp1_lcrit: 0

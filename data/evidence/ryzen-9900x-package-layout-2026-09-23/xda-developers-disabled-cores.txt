@@ -1,0 +1,53 @@
+# Your CPU has disabled cores you paid for, and here's how people used to unlock them
+#
+# Command: curl (Mozilla/5.0 UA) https://www.xda-developers.com/your-cpu-has-disabled-cores-you-paid-for-and-heres-how-people-used-to-unlock-them/
+# Date:    2026-09-23T16:27:32+05:30
+# Host:    dst-gova-pc
+# Source:  XDA Developers, author byline present on page but the article is about the general
+#          industry practice of core-disabling, not specific to the 9900X
+# Why:     Answers Q4 (whether it is published which physical cores are disabled on a
+#          6-core-per-CCD part) — this is the closest source found to an explanation of the
+#          disabling mechanism (eFuses) and confirms no per-chip disclosure is part of that
+#          mechanism.
+
+## Relevant article text (verbatim extract)
+
+As tantalizing as it may seem to head into your system BIOS, change a few
+toggles, and turn your Ryzen 5 into a Ryzen 7 processor, the trick no longer
+applies to modern CPUs. Most of the reason behind it has to do with how modern
+CPUs are manufactured.
+
+In the K10 era, a disabled core was more often than not just a configuration
+setting, and a motherboard BIOS toggle could override it. Modern chips, on the
+other hand, use eFuses, which are on-die fuses blown during the binning process
+to sever a core or cache block for good. Naturally, no toggle can reverse a
+physical process.
+
+The die size has shrunk considerably, too. AMD no longer uses monolithic dies
+like Deneb to fill the range and instead relies on small, standardized Core
+Complex Dies (CCDs). A processor like my own Ryzen 5 7600X runs a single CCD
+with two cores fused off. Because these chiplets are small, yields are high,
+so, there is very little need to disable good silicon to hit budget prices as
+well.
+
+Modern CPUs now also feature a cryptographic verification and hardware root-of-
+trust (for example, platform security processors and secure boot chains) when
+they power on, so if one were to inject a rogue signal to re-enable dormant
+silicon, the security processor will reject the mismatch and refuse to boot.
+
+## Reading of this source, for the record (labelled: my own reasoning, not a quote)
+
+This article confirms the *mechanism* (eFuses blown per-chip during binning,
+permanently disabling specific cores) but at no point names, for any specific
+model or die position, which of the eight physical cores on a CCD are the ones
+fused off. Combined with a broader web search for a published core-disable
+map or a stated correspondence between the Linux/kernel core IDs (0-5, 8-13
+on the 9900X per data/probes/2026-09-22-cpu-topology.txt) and physical die
+positions, no such source was found. AMD's public product pages and reviews
+(TechPowerUp, Tom's Hardware, Chips and Cheese — see the other files in this
+folder) describe the 9900X only as "two CCDs, two cores disabled per CCD"
+(a count) without saying which two, or where they sit on the die. This
+matches the question's own expected answer: not published, and the exact
+mapping is chip-specific (silicon lottery / binning), and even if it were
+knowable for one physical sample, no source states it varies or stays fixed
+across samples of the same model.

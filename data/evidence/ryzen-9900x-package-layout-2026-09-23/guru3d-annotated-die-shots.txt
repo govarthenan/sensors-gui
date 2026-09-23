@@ -1,0 +1,68 @@
+# AMD Ryzen 9000 Die Shots gets Annotated In Detail
+#
+# Command: curl (Mozilla/5.0 UA) https://www.guru3d.com/story/amd-ryzen-9000-die-shots-gets-annotated-in-detail/
+# Date:    2026-09-23T16:27:32+05:30
+# Host:    dst-gova-pc
+# Source:  Guru3D, by Hilbert Hagedoorn, published 2024-10-07 (republishing/paraphrasing the
+#          same Nemez/Fritzchens Fritz/HighYieldYT material as the TechPowerUp article in this
+#          folder)
+# Why:     Second, independent source for Q1 (package layout) and Q3 (CCD internals). Agrees
+#          with the TechPowerUp article; kept as a second source, not because it disagrees.
+
+## Article text (verbatim, navigation and comments stripped)
+
+Zen5 aka The Granite Ridge processor maintains a structure similar to its
+predecessor, Raphael, and supports configurations with up to two 8-core CCDs,
+depending on the model. At the center of the package is the client I/O die
+(cIOD), a component carried over from Raphael. Reusing the cIOD helps AMD
+reduce product development costs, especially for the processor's uncore
+sections. The Zen 5 CCD is manufactured using TSMC's N4P 4-nanometer process.
+
+In the Granite Ridge configuration, up to two Zen 5 CCDs are positioned closer
+together compared to the Zen 4 CCDs in Raphael. The die images show the pad
+area for a potential second CCD located beneath the solder mask of the
+fiberglass substrate, near the existing CCD. Each CCD contains eight full-sized
+Zen 5 CPU cores, each with 1 MB of L2 cache, and a centrally located 32 MB L3
+cache shared by all eight cores. Additional components in the CCD include a
+System Management Unit (SMU) and Infinity Fabric over Package (IFoP) PHYs,
+which connect the CCD to the cIOD.
+
+The Zen 5 CPU cores certainly are larger than those in Zen 4, mainly due to the
+inclusion of a 512-bit floating point data path. The Vector Engine in each core
+is placed towards the edge of the die to align with thermal management
+strategies, as FPUs typically generate a lot of heat. Facing the shared L3
+cache is the 1 MB L2 cache, which has double the bandwidth and associativity
+compared to the L2 cache in Zen 4 cores.
+
+At the center of each Zen 5 core are the 32 KB L1 Instruction (L1I) cache, 48
+KB L1 Data (L1D) cache, the Integer Execution engine, and the processor's
+front-end components. The front-end includes the Instruction Fetch and Decode
+units, Branch Prediction unit, micro-operation cache, and the Scheduler, all
+essential for efficient instruction processing and execution.
+
+The on-die 32 MB L3 cache includes rows of Through-Silicon Vias (TSVs) designed
+to support stacked 3D V-cache. This design allows for the addition of a 64 MB
+L3D cache die, which connects to the CCD's ring bus via TSVs, creating a
+combined 96 MB L3 cache (32 MB on-die and 64 MB 3D V-cache).
+
+The client I/O die in the Granite Ridge package remains unchanged from Raphael
+and is built using TSMC's N6 6-nanometer process. About one-third of the cIOD's
+die area is dedicated to the integrated GPU (iGPU) and related components,
+including the media acceleration engine and display engine. The iGPU is based
+on the RDNA 2 architecture and features a single Workgroup Processor (WGP) with
+two Compute Units (CU), totaling 128 stream processors.
+
+Key features of the cIOD include a 28-lane PCIe Gen 5 interface, two IFoP ports
+for connecting the CCDs, extensive System on Chip (SoC) I/O capabilities such
+as USB 3.x and legacy connectivity, and a DDR5 memory controller. The memory
+controller supports a dual-channel configuration with four sub-channels,
+enhancing memory bandwidth and efficiency.
+
+Overall, the AMD Granite Ridge Zen 5 processor demonstrates significant
+architectural improvements over its predecessors, especially in core size,
+cache hierarchy, and the integration of advanced features like the 512-bit FPU.
+By utilizing TSMC's advanced N4P process and maintaining the cIOD design, AMD
+effectively balances performance enhancements with cost-effective production.
+
+Sources: Nemez (GNR overview), Nemez (annotations), Fitzchens Fits (die-
+shots), High Yield (YouTube) via TPU

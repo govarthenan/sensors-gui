@@ -1,0 +1,132 @@
+# AMD Granite Ridge "Zen 5" Processor Annotated
+#
+# Command: WebFetch and curl (Mozilla/5.0 UA), https://www.techpowerup.com/327388/amd-granite-ridge-zen-5-processor-annotated
+# Date:    2026-09-23T16:27:32+05:30
+# Host:    dst-gova-pc
+# Source:  TechPowerUp, by btarunr, published Oct 7th 2024 (article dateline; site clock shows
+#          "Monday, October 7th 2024" at fetch time although the fetch was done in 2026 -
+#          this is the article's own publish-date banner as rendered by the site)
+# Why:     Answers Q1 (package layout: IOD position vs CCD position), Q3 (core layout inside
+#          a CCD), and gives context for Q2 (process nodes, not die-size numbers - see the
+#          companion die-sizes file for those).
+
+## Article text (verbatim, navigation and comments stripped)
+
+High-resolution die-shots of the AMD "Zen 5" 8-core CCD were released and
+annotated by Nemez, Fitzchens Fitz, and HighYieldYT. These provide a detailed
+view of how the silicon and its various components appear, particularly the new
+"Zen 5" CPU core with its 512-bit FPU. The "Granite Ridge" package looks
+similar to "Raphael," with up to two 8-core CPU complex dies (CCDs) depending
+on the processor model, and a centrally located client I/O die (cIOD). This
+cIOD is carried over from "Raphael," which minimizes product development costs
+for AMD at least for the uncore portion of the processor. The "Zen 5" CCD is
+built on the TSMC N4P (4 nm) foundry node.
+
+The "Granite Ridge" package sees the up to two "Zen 5" CCDs snuck up closer to
+each other than the "Zen 4" CCDs on "Raphael." In the picture above, you can
+see the pad of the absent CCD behind the solder mask of the fiberglass
+substrate, close to the present CCD. The CCD contains 8 full-sized "Zen 5" CPU
+cores, each with 1 MB of L2 cache, and a centrally located 32 MB L3 cache
+that's shared among all eight cores. The only other components are an SMU
+(system management unit), and the Infinity Fabric over Package (IFoP) PHYs,
+which connect the CCD to the cIOD.
+
+Each "Zen 5" CPU core is physically larger than the "Zen 4" core (built on the
+TSMC N5 process), due to its 512-bit floating point data-path. The core's
+Vector Engine is pushed to the very edge of the core. On the CCD, these should
+be the edges of the die. FPUs tend to be the hottest components on a CPU core,
+so this makes sense. The innermost component (facing the shared L3 cache) is
+the 1 MB L2 cache. AMD has doubled the bandwidth and associativity of this 1 MB
+L2 cache compared to the one on the "Zen 4" core.
+
+The central region of the "Zen 5" core has the 32 KB L1I cache, 48 KB L1D
+cache, the Integer Execution engine, and the all important front-end of the
+processor, with its Instruction Fetch & Decode, the Branch Prediction unit,
+micro-op cache, and Scheduler.
+
+The 32 MB on-die L3 cache has rows of TSVs (through-silicon vias) that act as
+provision for stacked 3D V-cache. The 64 MB L3D (L3 cache die) connects with
+the CCD's ringbus using these TSVs, making the 64 MB 3D V-cache contiguous with
+the 32 MB on-die L3 cache.
+
+Lastly, there's the client I/O die (cIOD). There's nothing new to report here,
+the chip is carried over from "Raphael." It is built on the TSMC N6 (6 nm)
+node. Nearly 1/3rd of the die-area is taken up by the iGPU and its allied
+components, such as the media acceleration engine, and display engine. The iGPU
+is based on the RDNA 2 graphics architecture, and has just one workgroup
+processor (WGP), for two compute units (CU), or 128 stream processors. Other
+key components on the cIOD are the 28-lane PCIe Gen 5 interface, the two IFoP
+ports for the CCDs, a fairly large SoC I/O consisting of USB 3.x and legacy
+connectivity, and the all important DDR5 memory controller with its dual-
+channel (four sub-channel) memory interface.
+
+Sources: Nemez (GNR overview), Nemez (annotations), Fitzchens Fits (die-shots),
+High Yield (YouTube)
+
+## Note on the processor used
+
+A companion article (WCCFTech, see wccftech-zen5-ccd-die-shots.txt in this
+folder) states the die shots are of a Ryzen 5 9600X, "which features a single
+Zen 5 CCD and a single IOD." The 9900X (two CCDs) is not itself pictured; this
+article's package photo shows one populated CCD and one empty CCD pad on the
+same substrate the 9900X uses.
+
+## OBSERVATION — my own description of the article's images, labelled
+
+I (the research agent) viewed the full-resolution images embedded in this
+article directly (not saved to this repository; copyright). This is my own
+observation of what the images show, separate from the article's text above,
+which does not itself describe the geometric layout in these terms.
+
+Image 1 — package photo, https://tpucdn.com/img/v0uxzdttqvW1dM1M.jpg
+(labelled "Granite Ridge" package overview, annotated by Nemez):
+The package substrate is a roughly square blue (teal) fibreglass board. The
+top-left corner of the substrate, as the image is oriented, is bevelled/cut at
+a 45-degree angle — a corner-key of the kind used for pin-1 / orientation
+marking. The cIOD (larger die, labelled with "PCIe 5.0 x16 PHY", "Display
+Engine", "128bit DDR5-5600 PHY", etc.) sits in the upper-middle area of the
+substrate, below the cut corner. A single CCD (labelled "Zen 5 Core" x8 and
+"L3$ 32MB") sits below the cIOD, in the lower-middle area of the substrate,
+offset toward the left of the pair-of-CCD region. To the right of the
+populated CCD, at the same height, there is a visible unpopulated
+rectangular pad/outline on the substrate — the empty seat for a second CCD —
+with no silicon die placed on it. So, in this image: cIOD above, the two CCD
+seats below it side by side, and the cut/keyed corner is at the top-left,
+above and to the left of the cIOD. I did not find any text source (from this
+article or others fetched for this research) that names this bevelled corner
+as "the golden triangle" or otherwise identifies which socket pin it marks;
+this is an observation of the image only, not a documented claim.
+
+Image 2 — bare CCD, https://tpucdn.com/img/o8fTKzZg4LzwrEPN.jpg
+(annotated by Nemez): The CCD is drawn as a rectangle, taller than it is wide
+in this crop. A vertical central strip is labelled "L3$ 32MB" (with a
+narrower "V-Cache TSV Rows" callout running through it). To the left of that
+strip are four rectangles stacked vertically, each labelled "Zen 5 Core". To
+the right of the L3$ strip are another four rectangles stacked vertically,
+each labelled "Zen 5 Core". So the eight cores are arranged as two vertical
+columns of four, one column on each side of the shared L3 cache, not as two
+horizontal rows. Along the bottom edge of the CCD rectangle, below both
+columns and the L3$, is a horizontal band labelled "SMU/Power Management and
+I/O Interconnect", and below that, two "IFOP PHY" blocks side by side, with a
+"Test/Debug" block in the bottom-left corner. This picture does not indicate
+which of the eight core positions map to which core ID the kernel/OS assigns,
+or which four are the two that are fused off on a 6-core-per-CCD part like
+the 9900X.
+
+Image 3 — single-core zoom, https://tpucdn.com/img/AFnVIoGFWSCE6YXO.jpg:
+zoom of one core's internal floorplan (Vector Regfile / FADD+FMAC lanes at the
+left edge, Load/Store and Integer Execution in the middle, L2 Cache halves and
+L2$ Tags at the right edge, facing where the L3 would be). This matches the
+article's text describing the Vector Engine at the die edge and the L2 cache
+facing the shared L3.
+
+Image 4 — cIOD internals, https://tpucdn.com/img/xnHJeLERLtpzpqPm.jpg: internal
+floorplan of the cIOD (PCIe PHYs, Display Engine, Media Engine, Memory
+Controller, two IFOP PHY blocks along the bottom edge). Not used for a
+position claim in the diagram; included for completeness.
+
+Image 5 — photo of a delidded/diced die stack at an angle,
+https://tpucdn.com/img/60z1u75rZfemT1Rr.jpg: a photographic close-up of
+silicon at an oblique angle; the framing does not show the whole package
+outline, so it does not by itself establish a layout claim beyond what image 1
+already shows.

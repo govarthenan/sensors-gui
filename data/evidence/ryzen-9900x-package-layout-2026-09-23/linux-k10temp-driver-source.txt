@@ -1,0 +1,168 @@
+# linux/drivers/hwmon/k10temp.c (extracts)
+#
+# Command: curl https://raw.githubusercontent.com/torvalds/linux/master/drivers/hwmon/k10temp.c
+# Date:    2026-09-23T16:27:32+05:30
+# Host:    dst-gova-pc
+# Source:  torvalds/linux git repository, drivers/hwmon/k10temp.c, master branch as of the
+#          fetch date; original authors Clemens Ladisch <clemens@ladisch.de> and
+#          Guenter Roeck <linux@roeck-us.net>
+# Why:     Answers Q5 (how Tccd{N} indices are assigned — no physical-position mapping in the
+#          code) and Q6 (Tctl is read from a register, i.e. a value the SMU/register interface
+#          reports, not a distinct physical sensor location). This is a READ of published
+#          kernel source text only; nothing on dst-gova-pc was probed to produce this file.
+
+## File header comment (verbatim)
+
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * k10temp.c - AMD Family 10h/11h/12h/14h/15h/16h/17h
+ *		processor hardware monitoring
+ *
+ * Copyright (c) 2009 Clemens Ladisch <clemens@ladisch.de>
+ * Copyright (c) 2020 Guenter Roeck <linux@roeck-us.net>
+ *
+ * Implementation notes:
+ * - CCD register address information as well as the calculation to
+ *   convert raw register values is from https://github.com/ocerman/zenpower.
+ *   The information is not confirmed from chip datasheets, but experiments
+ *   suggest that it provides reasonable temperature values.
+ */
+
+## Tctl / Tdie read path (verbatim extract)
+
+static u16 amd_pci_dev_to_node_id(struct pci_dev *pdev)
+{
+	return PCI_SLOT(pdev->devfn) - AMD_NODE0_PCI_SLOT;
+}
+
+static void read_tempreg_nb_zen(struct pci_dev *pdev, u32 *regval)
+{
+	if (amd_smn_read(amd_pci_dev_to_node_id(pdev),
+			 ZEN_REPORTED_TEMP_CTRL_BASE, regval))
+		*regval = 0;
+}
+
+static int read_ccd_temp_reg(struct k10temp_data *data, int ccd, u32 *regval)
+{
+	u16 node_id = amd_pci_dev_to_node_id(data->pdev);
+
+	return amd_smn_read(node_id, ZEN_CCD_TEMP(data->ccd_offset, ccd), regval);
+}
+
+static long get_raw_temp(struct k10temp_data *data)
+{
+	u32 regval;
+	long temp;
+
+	data->read_tempreg(data->pdev, &regval);
+	temp = (regval >> ZEN_CUR_TEMP_SHIFT) * 125;
+	if ((regval & data->temp_adjust_mask) ||
+	    (regval & ZEN_CUR_TEMP_TJ_SEL_MASK) == ZEN_CUR_TEMP_TJ_SEL_MASK)
+		temp -= 49000;
+	return temp;
+}
+
+static const char *k10temp_temp_label[] = {
+	"Tctl",
+	"Tdie",
+	"Tccd1",
+	"Tccd2",
+	"Tccd3",
+	"Tccd4",
+	"Tccd5",
+	"Tccd6",
+	"Tccd7",
+	"Tccd8",
+	"Tccd9",
+	"Tccd10",
+	"Tccd11",
+	"Tccd12",
+	"Tccd13",
+	"Tccd14",
+	"Tccd15",
+	"Tccd16",
+};
+
+static int k10temp_read_temp(struct device *dev, u32 attr, int channel,
+			     long *val)
+{
+	struct k10temp_data *data = dev_get_drvdata(dev);
+	int ret = -EOPNOTSUPP;
+	u32 regval;
+
+	switch (attr) {
+	case hwmon_temp_input:
+		switch (channel) {
+		case 0:		/* Tctl */
+			*val = get_raw_temp(data);
+			if (*val < 0 && !data->disp_negative)
+				*val = 0;
+			break;
+		case 1:		/* Tdie */
+			*val = get_raw_temp(data) - data->temp_offset;
+			if (*val < 0 && !data->disp_negative)
+				*val = 0;
+			break;
+		case 2 ... 17:		/* Tccd{1-16} */
+			ret = read_ccd_temp_reg(data, channel - 2, &regval);
+
+			if (ret)
+				return ret;
+
+			*val = (regval & ZEN_CCD_TEMP_MASK) * 125 - 49000;
+			break;
+		default:
+			return ret;
+		}
+
+## Tccd enumeration loop (verbatim extract)
+
+static void k10temp_get_ccd_support(struct k10temp_data *data, int limit)
+{
+	u32 regval;
+	int i;
+
+	for (i = 0; i < limit; i++) {
+		/*
+		 * Ignore inaccessible CCDs.
+		 *
+		 * Some systems will return a register value of 0, and the TEMP_VALID
+		 * bit check below will naturally fail.
+		 *
+		 * Other systems will return a PCI_ERROR_RESPONSE (0xFFFFFFFF) for
+		 * the register value. And this will incorrectly pass the TEMP_VALID
+		 * bit check.
+		 */
+		if (read_ccd_temp_reg(data, i, &regval))
+			continue;
+
+		if (regval & ZEN_CCD_TEMP_VALID)
+			data->show_temp |= BIT(TCCD_BIT(i));
+	}
+}
+
+## Reading of this source, for the record (labelled: my own reasoning, not a quote)
+
+- Tctl is produced by `get_raw_temp()`, which reads one register
+  (`ZEN_REPORTED_TEMP_CTRL_BASE`) through `amd_smn_read()` — an SMN (System
+  Management Network) register READ, addressed by node ID, not by CCD. It is
+  not tied to any single physical sensor location on a die; it is "the
+  processor temperature control value" per the AMD manual quote in the
+  documentation file (see linux-k10temp-hwmon-doc.txt). This is a read, not a
+  write to an SMU mailbox; it matches ADR 0010's "a register read is allowed"
+  rule, worth noting only because this project's own rule distinguishes reads
+  from writes — this repository is not touching the register itself, only
+  reading the driver's published source text.
+- The Tccd{1..16} labels are assigned by array position in
+  `k10temp_temp_label[]`, and the loop in `k10temp_get_ccd_support()` simply
+  walks `i = 0 .. limit` and reads `read_ccd_temp_reg(data, i, ...)` for each
+  `i`, setting the "channel" for `TCCD_BIT(i)` = i + 1 (so i=0 -> Tccd1,
+  i=1 -> Tccd2, etc.) whenever that index's register reports TEMP_VALID. The
+  index `i` passed to `ZEN_CCD_TEMP(data->ccd_offset, i)` addresses a register
+  slot in the SMN address space; nothing in this file states that slot 0 is
+  the physically left, right, top or bottom CCD, or that slot 0 for one chip
+  is the same physical CCD as slot 0 on a different chip of the same model.
+  The driver's own header comment says the CCD register address information
+  "is not confirmed from chip datasheets" — it was reverse-engineered
+  (credited to the external zenpower project), which further weighs against
+  treating the Tccd index as a documented physical-position mapping.

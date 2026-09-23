@@ -1,0 +1,85 @@
+# Documentation/power/powercap/powercap.rst: the RAPL energy_uj interface,
+# package and core (subzone) domains
+#
+# Command: curl https://raw.githubusercontent.com/torvalds/linux/v7.0/Documentation/power/powercap/powercap.rst
+# Date:    2026-09-23T16:28:00+05:30
+# Host:    dst-gova-pc
+# Source:  torvalds/linux, tag v7.0, path Documentation/power/powercap/powercap.rst
+# Why:     the CPU package power tooltip under PROCESSOR
+#          (/sys/class/powercap/intel-rapl:0/energy_uj, per CLAUDE.md
+#          section 5). This is the generic powercap framework doc; it
+#          describes RAPL by name even though this machine's package/core
+#          RAPL nodes come from an AMD Zen CPU exposing the same MSR-based
+#          "intel-rapl" powercap control type, not an Intel one.
+#
+# Extract: lines 148-213, the paragraph naming the "package" and "core"/
+# "uncore" zones, and the "Power Zone Attributes" table (energy_uj,
+# max_energy_range_uj, power_uw, ...), verbatim.
+#
+
+The above example illustrates a case in which the Intel RAPL technology,
+available in Intel® IA-64 and IA-32 Processor Architectures, is used. There is one
+control type called intel-rapl which contains two power zones, intel-rapl:0 and
+intel-rapl:1, representing CPU packages.  Each of these power zones contains
+two subzones, intel-rapl:j:0 and intel-rapl:j:1 (j = 0, 1), representing the
+"core" and the "uncore" parts of the given CPU package, respectively.  All of
+the zones and subzones contain energy monitoring attributes (energy_uj,
+max_energy_range_uj) and constraint attributes (constraint_*) allowing controls
+to be applied (the constraints in the 'package' power zones apply to the whole
+CPU packages and the subzone constraints only apply to the respective parts of
+the given package individually). Since Intel RAPL doesn't provide instantaneous
+power value, there is no power_uw attribute.
+
+In addition to that, each power zone contains a name attribute, allowing the
+part of the system represented by that zone to be identified.
+For example::
+
+	cat /sys/class/power_cap/intel-rapl/intel-rapl:0/name
+
+package-0
+---------
+
+Depending on different power zones, the Intel RAPL technology allows
+one or multiple constraints like short term, long term and peak power,
+with different time windows to be applied to each power zone.
+All the zones contain attributes representing the constraint names,
+power limits and the sizes of the time windows. Note that time window
+is not applicable to peak power. Here, constraint_j_* attributes
+correspond to the jth constraint (j = 0,1,2).
+
+For example::
+
+	constraint_0_name
+	constraint_0_power_limit_uw
+	constraint_0_time_window_us
+	constraint_1_name
+	constraint_1_power_limit_uw
+	constraint_1_time_window_us
+	constraint_2_name
+	constraint_2_power_limit_uw
+	constraint_2_time_window_us
+
+Power Zone Attributes
+=====================
+
+Monitoring attributes
+---------------------
+
+energy_uj (rw)
+	Current energy counter in micro joules. Write "0" to reset.
+	If the counter can not be reset, then this attribute is read only.
+
+max_energy_range_uj (ro)
+	Range of the above energy counter in micro-joules.
+
+power_uw (ro)
+	Current power in micro watts.
+
+max_power_range_uw (ro)
+	Range of the above power value in micro-watts.
+
+name (ro)
+	Name of this power zone.
+
+It is possible that some domains have both power ranges and energy counter ranges;
+however, only one is mandatory.

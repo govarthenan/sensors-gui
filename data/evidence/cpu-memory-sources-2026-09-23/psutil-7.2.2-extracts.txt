@@ -1,0 +1,549 @@
+# psutil 7.2.2, installed: cpu_percent/cpu_freq/virtual_memory/swap_memory/
+# getloadavg docstrings and their Linux implementations
+#
+# Command: sed -n '<range>p' .venv/lib/python3.12/site-packages/psutil/__init__.py
+#          and .venv/lib/python3.12/site-packages/psutil/_pslinux.py
+# Date:    2026-09-23T16:30:00+05:30
+# Host:    dst-gova-pc
+# Source:  psutil 7.2.2, installed in this project's venv.
+#          __init__.py sha256 d138a5786b163b56ba86ea0b2d5589dfca37e1bcdf8de1057fe1e933d6ab808a
+#          _pslinux.py sha256 a8a09bab87848075b691c46112b00692745785a8c9d5a2c87037ae124b469749
+# Why:     which psutil call and which sysfs/procfs files back each
+#          PROCESSOR and MEMORY channel in
+#          src/sensors_gui/collectors/system.py (cited, not copied, in
+#          FINDINGS.md in this folder).
+#
+# Eight extracts below, each with the source file and its own line numbers.
+#
+
+=====================================================================
+Extract 1 of 8 -- psutil/__init__.py lines 1789-1823: cpu_percent() docstring
+=====================================================================
+
+def cpu_percent(interval=None, percpu=False):
+    """Return a float representing the current system-wide CPU
+    utilization as a percentage.
+
+    When *interval* is > 0.0 compares system CPU times elapsed before
+    and after the interval (blocking).
+
+    When *interval* is 0.0 or None compares system CPU times elapsed
+    since last call or module import, returning immediately (non
+    blocking). That means the first time this is called it will
+    return a meaningless 0.0 value which you should ignore.
+    In this case is recommended for accuracy that this function be
+    called with at least 0.1 seconds between calls.
+
+    When *percpu* is True returns a list of floats representing the
+    utilization as a percentage for each CPU.
+    First element of the list refers to first CPU, second element
+    to second CPU and so on.
+    The order of the list is consistent across calls.
+
+    Examples:
+
+      >>> # blocking, system-wide
+      >>> psutil.cpu_percent(interval=1)
+      2.0
+      >>>
+      >>> # blocking, per-cpu
+      >>> psutil.cpu_percent(interval=1, percpu=True)
+      [2.0, 1.0]
+      >>>
+      >>> # non-blocking (percentage since last call)
+      >>> psutil.cpu_percent(interval=None)
+      2.9
+      >>>
+    """
+
+=====================================================================
+Extract 2 of 8 -- psutil/__init__.py lines 1935-1977: cpu_freq() docstring
+and the percpu aggregation
+=====================================================================
+
+if hasattr(_psplatform, "cpu_freq"):
+
+    def cpu_freq(percpu=False):
+        """Return CPU frequency as a namedtuple including current,
+        min and max frequency expressed in Mhz.
+
+        If *percpu* is True and the system supports per-cpu frequency
+        retrieval (Linux only) a list of frequencies is returned for
+        each CPU. If not a list with one element is returned.
+        """
+        ret = _psplatform.cpu_freq()
+        if percpu:
+            return ret
+        else:
+            num_cpus = float(len(ret))
+            if num_cpus == 0:
+                return None
+            elif num_cpus == 1:
+                return ret[0]
+            else:
+                currs, mins, maxs = 0.0, 0.0, 0.0
+                set_none = False
+                for cpu in ret:
+                    currs += cpu.current
+                    # On Linux if /proc/cpuinfo is used min/max are set
+                    # to None.
+                    if LINUX and cpu.min is None:
+                        set_none = True
+                        continue
+                    mins += cpu.min
+                    maxs += cpu.max
+
+                current = currs / num_cpus
+
+                if set_none:
+                    min_ = max_ = None
+                else:
+                    min_ = mins / num_cpus
+                    max_ = maxs / num_cpus
+
+                return _ntp.scpufreq(current, min_, max_)
+
+    __all__.append("cpu_freq")
+
+=====================================================================
+Extract 3 of 8 -- psutil/_pslinux.py lines 629-687: cpu_freq(), the Linux
+implementation. Reads scaling_cur_freq (or /proc/cpuinfo "cpu MHz" when
+it matches the CPU count), scaling_max_freq and scaling_min_freq --
+never cpuinfo_min_freq or cpuinfo_max_freq.
+=====================================================================
+
+def _cpu_get_cpuinfo_freq():
+    """Return current CPU frequency from cpuinfo if available."""
+    with open_binary(f"{get_procfs_path()}/cpuinfo") as f:
+        return [
+            float(line.split(b':', 1)[1])
+            for line in f
+            if line.lower().startswith(b'cpu mhz')
+        ]
+
+
+if os.path.exists("/sys/devices/system/cpu/cpufreq/policy0") or os.path.exists(
+    "/sys/devices/system/cpu/cpu0/cpufreq"
+):
+
+    def cpu_freq():
+        """Return frequency metrics for all CPUs.
+        Contrarily to other OSes, Linux updates these values in
+        real-time.
+        """
+        cpuinfo_freqs = _cpu_get_cpuinfo_freq()
+        paths = glob.glob(
+            "/sys/devices/system/cpu/cpufreq/policy[0-9]*"
+        ) or glob.glob("/sys/devices/system/cpu/cpu[0-9]*/cpufreq")
+        paths.sort(key=lambda x: int(re.search(r"[0-9]+", x).group()))
+        ret = []
+        pjoin = os.path.join
+        for i, path in enumerate(paths):
+            if len(paths) == len(cpuinfo_freqs):
+                # take cached value from cpuinfo if available, see:
+                # https://github.com/giampaolo/psutil/issues/1851
+                curr = cpuinfo_freqs[i] * 1000
+            else:
+                curr = bcat(pjoin(path, "scaling_cur_freq"), fallback=None)
+            if curr is None:
+                # Likely an old RedHat, see:
+                # https://github.com/giampaolo/psutil/issues/1071
+                curr = bcat(pjoin(path, "cpuinfo_cur_freq"), fallback=None)
+                if curr is None:
+                    online_path = f"/sys/devices/system/cpu/cpu{i}/online"
+                    # if cpu core is offline, set to all zeroes
+                    if cat(online_path, fallback=None) == "0\n":
+                        ret.append(ntp.scpufreq(0.0, 0.0, 0.0))
+                        continue
+                    msg = "can't find current frequency file"
+                    raise NotImplementedError(msg)
+            curr = int(curr) / 1000
+            max_ = int(bcat(pjoin(path, "scaling_max_freq"))) / 1000
+            min_ = int(bcat(pjoin(path, "scaling_min_freq"))) / 1000
+            ret.append(ntp.scpufreq(curr, min_, max_))
+        return ret
+
+else:
+
+    def cpu_freq():
+        """Alternate implementation using /proc/cpuinfo.
+        min and max frequencies are not available and are set to None.
+        """
+        return [ntp.scpufreq(x, 0.0, 0.0) for x in _cpu_get_cpuinfo_freq()]
+
+
+=====================================================================
+Extract 4 of 8 -- psutil/__init__.py lines 1996-2052: virtual_memory()
+docstring
+=====================================================================
+
+def virtual_memory():
+    """Return statistics about system memory usage as a namedtuple
+    including the following fields, expressed in bytes:
+
+     - total:
+       total physical memory available.
+
+     - available:
+       the memory that can be given instantly to processes without the
+       system going into swap.
+       This is calculated by summing different memory values depending
+       on the platform and it is supposed to be used to monitor actual
+       memory usage in a cross platform fashion.
+
+     - percent:
+       the percentage usage calculated as (total - available) / total * 100
+
+     - used:
+        memory used, calculated differently depending on the platform and
+        designed for informational purposes only:
+        macOS: active + wired
+        BSD: active + wired + cached
+        Linux: total - free
+
+     - free:
+       memory not being used at all (zeroed) that is readily available;
+       note that this doesn't reflect the actual memory available
+       (use 'available' instead)
+
+    Platform-specific fields:
+
+     - active (UNIX):
+       memory currently in use or very recently used, and so it is in RAM.
+
+     - inactive (UNIX):
+       memory that is marked as not used.
+
+     - buffers (BSD, Linux):
+       cache for things like file system metadata.
+
+     - cached (BSD, macOS):
+       cache for various things.
+
+     - wired (macOS, BSD):
+       memory that is marked to always stay in RAM. It is never moved to disk.
+
+     - shared (BSD):
+       memory that may be simultaneously accessed by multiple processes.
+
+    The sum of 'used' and 'available' does not necessarily equal total.
+    On Windows 'available' and 'free' are the same.
+    """
+    global _TOTAL_PHYMEM
+    ret = _psplatform.virtual_memory()
+    # cached for later use in Process.memory_percent()
+    _TOTAL_PHYMEM = ret.total
+    return ret
+
+=====================================================================
+Extract 5 of 8 -- psutil/_pslinux.py lines 306-432: virtual_memory(), the
+Linux implementation. Reads /proc/meminfo once; buffers/cached/shared come
+directly from Buffers:/Cached:(+SReclaimable:)/Shmem:; "used" is computed
+as total - avail (NOT total - free, despite the __init__.py docstring
+saying "Linux: total - free" -- see FINDINGS.md).
+=====================================================================
+
+def virtual_memory():
+    """Report virtual memory stats.
+    This implementation mimics procps-ng-3.3.12, aka "free" CLI tool:
+    https://gitlab.com/procps-ng/procps/blob/
+        24fd2605c51fccc375ab0287cec33aa767f06718/proc/sysinfo.c#L778-791
+    The returned values are supposed to match both "free" and "vmstat -s"
+    CLI tools.
+    """
+    missing_fields = []
+    mems = {}
+    with open_binary(f"{get_procfs_path()}/meminfo") as f:
+        for line in f:
+            fields = line.split()
+            mems[fields[0]] = int(fields[1]) * 1024
+
+    # /proc doc states that the available fields in /proc/meminfo vary
+    # by architecture and compile options, but these 3 values are also
+    # returned by sysinfo(2); as such we assume they are always there.
+    total = mems[b'MemTotal:']
+    free = mems[b'MemFree:']
+    try:
+        buffers = mems[b'Buffers:']
+    except KeyError:
+        # https://github.com/giampaolo/psutil/issues/1010
+        buffers = 0
+        missing_fields.append('buffers')
+    try:
+        cached = mems[b"Cached:"]
+    except KeyError:
+        cached = 0
+        missing_fields.append('cached')
+    else:
+        # "free" cmdline utility sums reclaimable to cached.
+        # Older versions of procps used to add slab memory instead.
+        # This got changed in:
+        # https://gitlab.com/procps-ng/procps/commit/
+        #     05d751c4f076a2f0118b914c5e51cfbb4762ad8e
+        cached += mems.get(b"SReclaimable:", 0)  # since kernel 2.6.19
+
+    try:
+        shared = mems[b'Shmem:']  # since kernel 2.6.32
+    except KeyError:
+        try:
+            shared = mems[b'MemShared:']  # kernels 2.4
+        except KeyError:
+            shared = 0
+            missing_fields.append('shared')
+
+    try:
+        active = mems[b"Active:"]
+    except KeyError:
+        active = 0
+        missing_fields.append('active')
+
+    try:
+        inactive = mems[b"Inactive:"]
+    except KeyError:
+        try:
+            inactive = (
+                mems[b"Inact_dirty:"]
+                + mems[b"Inact_clean:"]
+                + mems[b"Inact_laundry:"]
+            )
+        except KeyError:
+            inactive = 0
+            missing_fields.append('inactive')
+
+    try:
+        slab = mems[b"Slab:"]
+    except KeyError:
+        slab = 0
+
+    # - starting from 4.4.0 we match free's "available" column.
+    #   Before 4.4.0 we calculated it as (free + buffers + cached)
+    #   which matched htop.
+    # - free and htop available memory differs as per:
+    #   http://askubuntu.com/a/369589
+    #   http://unix.stackexchange.com/a/65852/168884
+    # - MemAvailable has been introduced in kernel 3.14
+    try:
+        avail = mems[b'MemAvailable:']
+    except KeyError:
+        avail = calculate_avail_vmem(mems)
+    else:
+        if avail == 0:
+            # Yes, it can happen (probably a kernel bug):
+            # https://github.com/giampaolo/psutil/issues/1915
+            # In this case "free" CLI tool makes an estimate. We do the same,
+            # and it matches "free" CLI tool.
+            avail = calculate_avail_vmem(mems)
+
+    if avail < 0:
+        avail = 0
+        missing_fields.append('available')
+    elif avail > total:
+        # If avail is greater than total or our calculation overflows,
+        # that's symptomatic of running within a LCX container where such
+        # values will be dramatically distorted over those of the host.
+        # https://gitlab.com/procps-ng/procps/blob/
+        #     24fd2605c51fccc375ab0287cec33aa767f06718/proc/sysinfo.c#L764
+        avail = free
+
+    used = total - avail
+
+    percent = usage_percent((total - avail), total, round_=1)
+
+    # Warn about missing metrics which are set to 0.
+    if missing_fields:
+        msg = "{} memory stats couldn't be determined and {} set to 0".format(
+            ", ".join(missing_fields),
+            "was" if len(missing_fields) == 1 else "were",
+        )
+        warnings.warn(msg, RuntimeWarning, stacklevel=2)
+
+    return ntp.svmem(
+        total,
+        avail,
+        percent,
+        used,
+        free,
+        active,
+        inactive,
+        buffers,
+        cached,
+        shared,
+        slab,
+    )
+
+=====================================================================
+Extract 6 of 8 -- psutil/_pslinux.py lines 243-304: calculate_avail_vmem(),
+the fallback virtual_memory() calls when /proc/meminfo has no
+"MemAvailable:" or it reads 0 -- not used on this machine's kernel, kept
+because virtual_memory() calls it and "available" is not simply MemFree.
+=====================================================================
+
+def calculate_avail_vmem(mems):
+    """Fallback for kernels < 3.14 where /proc/meminfo does not provide
+    "MemAvailable", see:
+    https://blog.famzah.net/2014/09/24/.
+
+    This code reimplements the algorithm outlined here:
+    https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/
+        commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773
+
+    We use this function also when "MemAvailable" returns 0 (possibly a
+    kernel bug, see: https://github.com/giampaolo/psutil/issues/1915).
+    In that case this routine matches "free" CLI tool result ("available"
+    column).
+
+    XXX: on recent kernels this calculation may differ by ~1.5% compared
+    to "MemAvailable:", as it's calculated slightly differently.
+    It is still way more realistic than doing (free + cached) though.
+    See:
+    * https://gitlab.com/procps-ng/procps/issues/42
+    * https://github.com/famzah/linux-memavailable-procfs/issues/2
+    """
+    # Note about "fallback" value. According to:
+    # https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/
+    #     commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773
+    # ...long ago "available" memory was calculated as (free + cached),
+    # We use fallback when one of these is missing from /proc/meminfo:
+    # "Active(file)": introduced in 2.6.28 / Dec 2008
+    # "Inactive(file)": introduced in 2.6.28 / Dec 2008
+    # "SReclaimable": introduced in 2.6.19 / Nov 2006
+    # /proc/zoneinfo: introduced in 2.6.13 / Aug 2005
+    free = mems[b'MemFree:']
+    fallback = free + mems.get(b"Cached:", 0)
+    try:
+        lru_active_file = mems[b'Active(file):']
+        lru_inactive_file = mems[b'Inactive(file):']
+        slab_reclaimable = mems[b'SReclaimable:']
+    except KeyError as err:
+        debug(
+            f"{err.args[0]} is missing from /proc/meminfo; using an"
+            " approximation for calculating available memory"
+        )
+        return fallback
+    try:
+        f = open_binary(f"{get_procfs_path()}/zoneinfo")
+    except OSError:
+        return fallback  # kernel 2.6.13
+
+    watermark_low = 0
+    with f:
+        for line in f:
+            line = line.strip()
+            if line.startswith(b'low'):
+                watermark_low += int(line.split()[1])
+    watermark_low *= PAGESIZE
+
+    avail = free - watermark_low
+    pagecache = lru_active_file + lru_inactive_file
+    pagecache -= min(pagecache / 2, watermark_low)
+    avail += pagecache
+    avail += slab_reclaimable - min(slab_reclaimable / 2.0, watermark_low)
+    return int(avail)
+
+
+=====================================================================
+Extract 7 of 8 -- psutil/__init__.py lines 2055-2068: swap_memory()
+docstring
+=====================================================================
+
+def swap_memory():
+    """Return system swap memory statistics as a namedtuple including
+    the following fields:
+
+     - total:   total swap memory in bytes
+     - used:    used swap memory in bytes
+     - free:    free swap memory in bytes
+     - percent: the percentage usage
+     - sin:     no. of bytes the system has swapped in from disk (cumulative)
+     - sout:    no. of bytes the system has swapped out from disk (cumulative)
+
+    'sin' and 'sout' on Windows are meaningless and always set to 0.
+    """
+    return _psplatform.swap_memory()
+
+psutil/_pslinux.py lines 435-487: swap_memory(), the Linux implementation.
+total/free from /proc/meminfo SwapTotal:/SwapFree: (used = total - free);
+sin/sout from /proc/vmstat pswpin/pswpout, each multiplied by 4*1024 to
+convert pages to bytes -- cumulative counters since boot, not a rate.
+=====================================================================
+
+def swap_memory():
+    """Return swap memory metrics."""
+    mems = {}
+    with open_binary(f"{get_procfs_path()}/meminfo") as f:
+        for line in f:
+            fields = line.split()
+            mems[fields[0]] = int(fields[1]) * 1024
+    # We prefer /proc/meminfo over sysinfo() syscall so that
+    # psutil.PROCFS_PATH can be used in order to allow retrieval
+    # for linux containers, see:
+    # https://github.com/giampaolo/psutil/issues/1015
+    try:
+        total = mems[b'SwapTotal:']
+        free = mems[b'SwapFree:']
+    except KeyError:
+        _, _, _, _, total, free, unit_multiplier = cext.linux_sysinfo()
+        total *= unit_multiplier
+        free *= unit_multiplier
+
+    used = total - free
+    percent = usage_percent(used, total, round_=1)
+    # get pgin/pgouts
+    try:
+        f = open_binary(f"{get_procfs_path()}/vmstat")
+    except OSError as err:
+        # see https://github.com/giampaolo/psutil/issues/722
+        msg = (
+            "'sin' and 'sout' swap memory stats couldn't "
+            f"be determined and were set to 0 ({err})"
+        )
+        warnings.warn(msg, RuntimeWarning, stacklevel=2)
+        sin = sout = 0
+    else:
+        with f:
+            sin = sout = None
+            for line in f:
+                # values are expressed in 4 kilo bytes, we want
+                # bytes instead
+                if line.startswith(b'pswpin'):
+                    sin = int(line.split(b' ')[1]) * 4 * 1024
+                elif line.startswith(b'pswpout'):
+                    sout = int(line.split(b' ')[1]) * 4 * 1024
+                if sin is not None and sout is not None:
+                    break
+            else:
+                # we might get here when dealing with exotic Linux
+                # flavors, see:
+                # https://github.com/giampaolo/psutil/issues/313
+                msg = "'sin' and 'sout' swap memory stats couldn't "
+                msg += "be determined and were set to 0"
+                warnings.warn(msg, RuntimeWarning, stacklevel=2)
+                sin = sout = 0
+    return ntp.sswap(total, used, free, percent, sin, sout)
+
+=====================================================================
+Extract 8 of 8 -- getloadavg
+=====================================================================
+
+psutil/__init__.py lines 1980-1988: getloadavg is os.getloadavg on any
+platform that has it (Linux does), not psutil's own code:
+
+if hasattr(os, "getloadavg") or hasattr(_psplatform, "getloadavg"):
+    # Perform this hasattr check once on import time to either use the
+    # platform based code or proxy straight from the os module.
+    if hasattr(os, "getloadavg"):
+        getloadavg = os.getloadavg
+    else:
+        getloadavg = _psplatform.getloadavg
+
+    __all__.append("getloadavg")
+
+os.getloadavg docstring, from the CPython installed in this project's venv
+(`uv run python -c "import os; print(os.getloadavg.__doc__)"`, run
+2026-09-23T16:30:00+05:30):
+
+Return average recent system load information.
+
+Return the number of processes in the system run queue averaged over
+the last 1, 5, and 15 minutes as a tuple of three floats.
+Raises OSError if the load average was unobtainable.

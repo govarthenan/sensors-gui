@@ -1,0 +1,69 @@
+# AMD Granite Ridge and Strix Point Zen 5 Die-sizes and Transistor Counts Confirmed
+#
+# Command: curl (Mozilla/5.0 UA) https://www.techpowerup.com/324562/amd-granite-ridge-and-strix-point-zen-5-die-sizes-and-transistor-counts-confirmed
+# Date:    2026-09-23T16:27:32+05:30
+# Host:    dst-gova-pc
+# Source:  TechPowerUp, by btarunr, published Jul 16th 2024, citing HardwareLuxx.de's
+#          Q&A with AMD
+# Why:     Answers Q2 (CCD and IOD die sizes)
+
+## Article text (verbatim, navigation and comments stripped)
+
+AMD is about give the new "Zen 5" microarchitecture a near-simultaneous launch
+across both its client segments—desktop and mobile. The desktop front is held
+by the Ryzen 9000 "Granite Ridge" Socket AM5 processors; while Ryzen AI 300
+"Strix Point" powers the company's crucial effort to capture Microsoft Copilot+
+AI PC market share. We recently did a technical deep-dive on the two.
+HardwareLuxx.de scored two important bits of specs for both processors in its
+Q&A interaction with AMD—die sizes and transistor counts.
+
+To begin with, "Strix Point" is a monolithic silicon, which is confirmed to be
+built on the TSMC N4P foundry node (4 nm). This is a slight upgrade over the N4
+node that the company built its previous generation "Phoenix" and "Hawk Point"
+processors on. The "Strix Point" silicon measures 232.5 mm² in area, which is
+significantly larger than the 178 mm² of "Hawk Point" and "Phoenix." The added
+die area comes from there being 12 CPU cores instead of 8, and 16 iGPU compute
+units instead of 12; and a larger NPU. There are many other factors, such as
+the larger 24 MB CPU L3 cache; and the sizes of the "Zen 5" and "Zen 5c" cores
+themselves.
+
+The "Granite Ridge" desktop processor is a chiplet-based processor, much like
+the Ryzen 7000 "Raphael." AMD is confirmed to be reusing the 6 nm client I/
+O die (cIOD) from "Raphael." This chip measures 122 mm², and packs 3.4 billion
+transistors. For reference, the cIOD of Ryzen 5000 "Vermeer" and Ryzen 3000
+"Matisse" is built on the Global Foundries 12 nm node, measures a similar 125
+mm², but with a much lower transistor count of 2.09 billion. The key
+contributor to the transistor count increase is the tiny iGPU that the Socket
+AM5 cIOD comes with. It may have just 1 workgroup processor (2 CU), but comes
+with the same display engines and media engines as the iGPU on APUs.
+
+And now, onto the CPU complex dies (CCDs), the key area of silicon innovation
+for AMD desktop processors. The 8-core "Zen 5" CCD is codenamed "Eldora," and
+is built on the 4 nm foundry node. The HardwareLuxx.de report says that this
+the same N4P node as "Strix Point," but we've heard several other credible
+sources claiming that it is the more advanced N4X node, which favors high
+frequencies. The "Zen 5" CCD has a transistor count of 8.315 billion, which is
+a significant increase over the 6.5 billion of "Durango," the 8-core CCD based
+on "Zen 4," powering "Raphael."
+
+What's most interesting is that this staggering 28% increase in transistor
+counts from the "Zen 4" Durango CCD to the "Zen 5" Eldora CCD comes at a die-
+area decrease of 0.5%. That's right, the "Zen 5" CCD measures 70.6 mm²,
+whereas the "Zen 4" CCD is 71 mm². The "Zen 4" CCD is built on TSMC N5 (5 nm),
+which goes to show the leap in transistor densities achieved from the switch to
+N4P (or N4X).
+
+A maxed out Ryzen 9 9950X processor hence has a total transistor count of 20.03
+billion, while the single-CCD Ryzen 7 9700X has a transistor count of 11.715
+billion.
+
+AMD Ryzen 9000 series goes on sale from July 31, 2024.
+
+Source: HardwareLuxx.de
+
+## Key figures (exact quotes)
+
+- IOD: "This chip measures 122 mm², and packs 3.4 billion transistors."
+- CCD: "the 'Zen 5' CCD measures 70.6 mm²"
+
+Both match the figures CLAUDE.md asked to confirm (~70.6 mm² CCD, ~122 mm² IOD).

@@ -80,6 +80,23 @@ the card, with a grid, used to read where the connector and the plate sit.
 
 Supports: `docs/diagram-positions.md`, the wireframe of the card.
 
+### `ryzen-9900x-package-layout-2026-09-23/`
+
+Published sources on the physical layout of the AM5 package and the Zen 5
+CCD/IOD dies, for the processor diagram: package outline size, where the IOD
+and CCDs sit on the substrate, CCD and IOD die sizes, the core layout inside a
+CCD, and whether the k10temp `Tccd1`/`Tccd2` index or the `Tctl` reading ties
+to a physical location. Web research only (TechPowerUp, Guru3D, WCCFTech,
+Wikipedia, the Linux kernel's k10temp documentation and driver source); each
+file gives its URL, the date and the tool in its first lines, and quotes the
+text. Its own `README.md` lists every question, its answer, the exact quote,
+and what was not established (which physical cores are disabled on the
+9900X; whether Tccd1/Tccd2 maps to a physical CCD position; which side of
+the package the pin-1 mark faces).
+
+Supports: the future card diagram work in `docs/diagram-positions.md` (not
+yet written into that file — this folder is the source material for it).
+
 ### `nct6687-driver-source/`
 
 Extracts from the out-of-tree driver, pinned to the commit that is installed, so
@@ -92,6 +109,29 @@ that later work does not depend on `/usr/src` still holding this version.
 | `dkms.conf` | The DKMS build description. |
 
 Supports: `lab/exp-0007-nct6687-verification/`, `lab/exp-0009-bios-ground-truth/`.
+
+### `cpu-memory-sources-2026-09-23/`
+
+The primary texts behind the PROCESSOR and MEMORY tooltip sentences: kernel
+documentation and driver source at tag v7.0, the installed psutil 7.2.2's
+own docstrings and Linux implementation, and a same-day read-only probe of
+this machine's CPU and DIMM sysfs state.
+
+| File | Contents |
+|---|---|
+| `k10temp.rst` | What Tctl and Tccd are, whole file. |
+| `k10temp-c-extracts.txt` | `drivers/hwmon/k10temp.c`: the `tctl_offset_table`, the temp label table, and the family/model switch that decides Tctl offset and CCD support. |
+| `spd5118.rst` | The DIMM temperature sensor and its RW limit attributes, whole file. |
+| `proc-meminfo-loadavg-stat.txt` | `Documentation/filesystems/proc.rst`: the `/proc/meminfo` field table, the `/proc/loadavg` format, and the `/proc/stat` cpu time fields. |
+| `cpufreq.rst-extract.txt` | `Documentation/admin-guide/pm/cpufreq.rst`: the `scaling_cur_freq`, `cpuinfo_min_freq`, `cpuinfo_max_freq`, `scaling_min_freq`, `scaling_max_freq` sysfs attributes. |
+| `amd-pstate.rst-extract.txt` | `Documentation/admin-guide/pm/amd-pstate.rst`: the CPPC performance levels, the per-policy frequency/perf sysfs attributes, and `amd_pstate_epp` (this machine's driver). |
+| `powercap.rst-extract.txt` | `Documentation/power/powercap/powercap.rst`: the RAPL `energy_uj` interface, package and core zones. |
+| `psutil-7.2.2-extracts.txt` | The installed psutil's docstrings and Linux implementation for `cpu_percent`, `cpu_freq`, `virtual_memory`, `swap_memory` and `getloadavg`. |
+| `probe-cpu-memory-sysfs.txt` | A read-only probe of this machine: `/proc/meminfo`, `/proc/loadavg`, cpu0's cpufreq attributes, `amd_pstate/status`, and the k10temp/spd5118 hwmon readings. |
+| `FINDINGS.md` | The answers this folder settles, each quoted from the file above it, plus a table citing `src/sensors_gui/collectors/system.py` by line for every CPU/memory channel. |
+
+Supports: the PROCESSOR and MEMORY tooltips (does not itself write tooltip
+text).
 
 ## Rules
 
