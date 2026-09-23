@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-23 (session 9; Gova's checkpoint 3 answer applied, waiting for Gova)
+Last update: 2026-09-23 (end of session 9; checkpoint 3 built and reviewed, history pushed)
 
 ## Phase
 
@@ -332,10 +332,11 @@ rules before any code is written. Reading comes first.
 
 ## Waiting for Gova
 
-**Session 9, latest.** The photographs are blurred and the local history is
-rewritten and re-signed; **the force push to GitHub waits for Gova**, because
-the remote still holds photographs 02, 04 and 05 unblurred. The scratch backup
-of the old history is deleted once the push is done.
+**Session 9, end.** Gova approved the force push ("Force push."). The
+rewritten, re-signed history is on GitHub at `6ae8c64`, GitHub shows the
+commits verified, and the photographs there are the blurred ones. The scratch
+backup and every scratch crop of the originals are deleted. Nothing waits for
+Gova except Q14, Q18 and Q20. **Next: `tmp/HANDOFF-gui-stream.md`, section 6.**
 
 **Session 9, later.** Gova's second answer is applied: the card is the SUPRIM
 LIQUID X, the wireframe is redrawn for it, and the pulse costs 90 % less.

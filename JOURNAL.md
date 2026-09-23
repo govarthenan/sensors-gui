@@ -1669,3 +1669,24 @@ label photograph.
    procedure by eye".
 5. **One display defect found by opening the Alerts screen**: a scaled range
    read "614 MHz to 5.7 GHz Hz". Fixed.
+
+---
+
+## 2026-09-23 — Session 9, end: the force push
+
+**Gova's words, verbatim**
+
+> Force push. End conversation and update the handoff doc for the next convo.
+
+**What was done**
+
+- The remote was fetched first, and the push was checked against it
+  (`--force-with-lease`): `6259b38` (session 6) was replaced by `6ae8c64`.
+  The remote now equals the local history.
+- GitHub reports the rewritten commits **verified**, and the blob of
+  `docs/photos/06-gpu-backplate-label.jpg` on GitHub is the blurred one.
+- The scratch backup of the old history, the copy of the original label
+  photograph and every zoomed crop of it were deleted.
+- GitHub can keep unreferenced old commits for a while; a complete purge on
+  its side needs GitHub Support. Not requested.
+- `tmp/HANDOFF-gui-stream.md` rewritten for the next conversation.
