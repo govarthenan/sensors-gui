@@ -27,8 +27,13 @@ Work happens over many sessions. To continue correctly:
 3. Read `docs/hardware-inventory.md` and `docs/sensor-sources.md` for facts
    about the machine.
 4. Do the work.
-5. Before the session ends, update `state/STATUS.md` and add a `JOURNAL.md`
-   entry. Then commit.
+5. Before the session ends, update `state/STATUS.md`, add a `JOURNAL.md`
+   entry and update `HANDOFF.md`. Then commit.
+
+**There is one handoff file, `HANDOFF.md`.** Gova, 2026-09-25: "There should
+be only one." A stream of work gets a section in it, never a file of its own.
+A second file (`tmp/HANDOFF-gui-stream.md`, sessions 8 to 10) drifted from the
+first: for two days they disagreed about the graphics card and the radiators.
 
 **Never start new work before you read `state/STATUS.md`.**
 

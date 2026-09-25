@@ -1840,3 +1840,34 @@ after every click; pause, resume, and a reload while paused.
 - Gova's new `TODO` file at the repository root (other devices that can
   measure power draw) is left untracked and unchanged; it is his.
 - **Not pushed**: 5 signed commits, `c7beb5d` to `8223e54`, wait for Gova.
+
+---
+
+## 2026-09-25 — Session 10: one handoff file
+
+**Gova's words, verbatim**
+
+> Why are there two handoff docs? There should be only one.
+
+**Why there were two.** `HANDOFF.md` was written in session 4 for the whole
+project. `tmp/HANDOFF-gui-stream.md` was started in session 8 for the GUI
+stream and rewritten every session since, and the two were never merged.
+They drifted: `HANDOFF.md` section 3 named the air-cooled card and put the CPU
+radiator at the bottom for two days after both were corrected elsewhere, and
+it still said the application runs in a terminal, with 170 channels and 356
+tests.
+
+**What was done**
+
+- `HANDOFF.md` is rewritten as the one handoff. The GUI stream is its
+  section 5. Its section 6, "Rules learned the hard way", and section 8, the
+  root scripts, are copied unchanged (checked with `diff` against a copy).
+  Current numbers: 178 channels (173 shown, 5 hidden), 112 described, 530
+  tests, 58 commits.
+- `tmp/HANDOFF-gui-stream.md` is removed. Both files are ignored by git, so a
+  copy of each was kept in the session's scratchpad before the change.
+- The references in `state/STATUS.md`, `exp-0015` and `exp-0018` point to
+  `HANDOFF.md`, with the old name kept where a record cites it. Earlier
+  `JOURNAL.md` entries are left as written.
+- `CLAUDE.md` now says there is one handoff file, and that the session end
+  updates it.

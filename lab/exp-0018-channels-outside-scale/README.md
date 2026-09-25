@@ -43,5 +43,5 @@ a threshold, not a load, not a helper channel.
 One run of five minutes, on an idle desktop. A channel that only leaves its
 scale under load — the card's power against its 480 W limit is the obvious
 one — cannot be seen here, and the project does not load the machine for a
-test (`tmp/HANDOFF-gui-stream.md` section 4). The alert log runs whenever the
+test (`HANDOFF.md` section 5.4; at the time `tmp/HANDOFF-gui-stream.md` section 4). The alert log runs whenever the
 application runs, so such a reading would be caught in ordinary use.

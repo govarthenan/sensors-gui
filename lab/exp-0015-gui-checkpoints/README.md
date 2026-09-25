@@ -138,7 +138,7 @@ values NVML gives and the collector does not read, and a tooltip on every
 value with the five parts of `docs/gui-goal.md` section 4.2.
 
 The card was idle for every screenshot, so both fans read 0 RPM. The machine
-was not loaded for a picture; `HANDOFF-gui-stream.md` section 4.
+was not loaded for a picture; `HANDOFF.md` section 5.4 (at the time `HANDOFF-gui-stream.md` section 4).
 
 **Six defects were found by opening it, and none by a test.**
 
@@ -181,7 +181,7 @@ finding.
 **How the test frame was made.** In the browser, `JSON.parse` was wrapped so
 that three values in each incoming frame were replaced before the page saw
 them. Heating the card to reach 480 W for a screenshot was not an option
-(`HANDOFF-gui-stream.md` section 4), and the alert log, which runs on the
+(`HANDOFF.md` section 5.4; at the time `HANDOFF-gui-stream.md` section 4), and the alert log, which runs on the
 server, correctly logged none of them.
 
 **Two defects found by opening it**: the whole line turned the "above

@@ -356,14 +356,14 @@ rules before any code is written. Reading comes first.
 5. **Gova's `TODO`** (other devices that can measure power draw): now, or
    after the GUI stream? The brief closes the catalogue for the stream.
 
-Still open from before: Q14, Q18, Q20. **Next: `tmp/HANDOFF-gui-stream.md`.**
+Still open from before: Q14, Q18, Q20. **Next: `HANDOFF.md`, section 5.**
 The "Slower" freeze and the "Pause" bug of 2026-09-25 are fixed (`8223e54`).
 
 **Session 9, end.** Gova approved the force push ("Force push."). The
 rewritten, re-signed history is on GitHub at `6ae8c64`, GitHub shows the
 commits verified, and the photographs there are the blurred ones. The scratch
 backup and every scratch crop of the originals are deleted. Nothing waits for
-Gova except Q14, Q18 and Q20. **Next: `tmp/HANDOFF-gui-stream.md`, section 6.**
+Gova except Q14, Q18 and Q20. **Next: the GUI stream handoff of that time, now section 5 of `HANDOFF.md`.**
 
 **Session 9, later.** Gova's second answer is applied: the card is the SUPRIM
 LIQUID X, the wireframe is redrawn for it, and the pulse costs 90 % less.
@@ -408,7 +408,7 @@ Verified on the machine at the end of session 6, not assumed:
 **The GUI stream comes first.** Everything below it was the list before
 `docs/gui-goal.md` arrived, and none of it blocks the GUI.
 
-0. **Read `tmp/HANDOFF-gui-stream.md` first** if this is a new conversation.
+0. **Read `HANDOFF.md` first** if this is a new conversation (since 2026-09-25 it is the one handoff; the GUI stream is its section 5).
    It is the picture of the GUI stream: what runs, what is decided, what Gova
    has said, and the traps.
 
