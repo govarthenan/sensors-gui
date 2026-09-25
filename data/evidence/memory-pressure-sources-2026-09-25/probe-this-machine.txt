@@ -1,0 +1,19 @@
+# The two files on this machine, read as user gova, and their permissions
+#
+# Commands: ls -l /proc/pressure/memory /proc/vmstat; cat /proc/pressure/memory;
+#           grep -E "^(pgfault|pgmajfault) " /proc/vmstat (twice, 1 s apart); uname -r
+# Date:    2026-09-25T16:09:13+05:30
+# Host:    dst-gova-pc
+# Source:  this machine
+
+7.0.0-31-generic
+-rw-rw-rw- 1 root root 0 Sep 22 10:38 /proc/pressure/memory
+-r--r--r-- 1 root root 0 Sep 25 11:54 /proc/vmstat
+
+some avg10=0.00 avg60=0.00 avg300=0.00 total=6103668
+full avg10=0.00 avg60=0.00 avg300=0.00 total=5442976
+
+pgfault 5282633152
+pgmajfault 118881
+pgfault 5282711365
+pgmajfault 118881

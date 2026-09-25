@@ -10,6 +10,7 @@ import logging
 from sensors_gui import naming
 from sensors_gui.app.sensors_app import SensorsApp
 from sensors_gui.collectors.hwmon import HwmonCollector
+from sensors_gui.collectors.memory_pressure import MemoryPressureCollector
 from sensors_gui.collectors.nvidia import NvidiaCollector
 from sensors_gui.collectors.power_supply import PowerSupplyCollector
 from sensors_gui.collectors.privileged import PrivilegedCollector
@@ -42,6 +43,7 @@ def main() -> None:
             PowerSupplyCollector(),
             PrivilegedCollector(),
             SystemCollector(),
+            MemoryPressureCollector(),
         ],
         decorate=naming.friendly,
         keep=worth_showing,

@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from sensors_gui.descriptions import NOT_COLLECTED, UNREACHABLE, Description, describe
+from sensors_gui.descriptions import DERIVED, NOT_COLLECTED, UNREACHABLE, Description, describe
 from sensors_gui.model import Group, SensorId, SensorSpec, Unit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,11 +70,12 @@ def _machine_specs(groups: tuple[Group, ...]) -> list[SensorSpec]:
     helper is not running (ADR 0005 rule 3), so none of these needs root.
     """
     from sensors_gui.collectors.hwmon import HwmonCollector
+    from sensors_gui.collectors.memory_pressure import MemoryPressureCollector
     from sensors_gui.collectors.privileged import PrivilegedCollector
     from sensors_gui.collectors.system import SystemCollector
 
     specs: list[SensorSpec] = []
-    for collector in (HwmonCollector(), PrivilegedCollector(), SystemCollector()):
+    for collector in (HwmonCollector(), PrivilegedCollector(), SystemCollector(), MemoryPressureCollector()):
         try:
             specs.extend(spec for spec in collector.discover() if spec.group in groups)
         finally:
@@ -255,3 +256,22 @@ def test_each_dimm_names_its_slot_and_its_address() -> None:
     b2 = _one("DIMM B2")
     assert "A2" in a2.measures and "0-0051" in a2.neighbours
     assert "B2" in b2.measures and "0-0053" in b2.neighbours
+
+
+# --- values a view makes from two channels, 2026-09-25 --------------------------
+
+
+def test_the_memory_the_kernel_can_take_back_is_described_as_made_from_two_channels() -> None:
+    """The middle part of the memory bar is no channel; its tooltip must say what it is made from."""
+    description = DERIVED["memory_reclaimable"]
+    assert "Memory available" in description.call
+    assert "Memory free" in description.call
+    assert description.measures.strip().endswith(".")
+
+
+def test_every_source_of_a_derived_value_is_a_file_in_this_repository() -> None:
+    assert DERIVED
+    for description in DERIVED.values():
+        for source in description.sources:
+            assert source.startswith(EVIDENCE_ROOTS), source
+            assert (ROOT / source).is_file(), source

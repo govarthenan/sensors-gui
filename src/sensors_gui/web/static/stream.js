@@ -8,7 +8,7 @@
  * Nothing here can write to hardware. The server offers no route that could.
  */
 
-const HISTORY = 600; // 60 s at 10 Hz, 40 min at 0.25 Hz
+const HISTORY = 600; // 60 s at 10 Hz, 100 min at 0.1 Hz
 
 /** The static description of every channel, with ways to find one. */
 export class Catalogue {
@@ -20,6 +20,7 @@ export class Catalogue {
     this.hz = payload.hz;
     this.min_hz = payload.min_hz;
     this.max_hz = payload.max_hz;
+    this.rateSteps = payload.rate_steps ?? [];
     this.paused = payload.paused ?? false;
     this.shown = payload.shown;
     this.hidden = payload.hidden;
@@ -28,6 +29,8 @@ export class Catalogue {
     // its reason and its sources. Written in Python; see descriptions.py.
     this.unreachable = payload.unreachable ?? [];
     this.notCollected = payload.not_collected ?? [];
+    // The text of each value a view makes from other channels, by key.
+    this.derived = payload.derived ?? {};
     this._byLabel = new Map(this.channels.map((channel) => [channel.label, channel]));
   }
 
@@ -101,15 +104,22 @@ export class Stream {
     for (const listener of this._listeners) listener(frame, { closed: false });
   }
 
-  /** Return the current value of one channel, or null. */
+  /**
+   * Return the current value of one channel, or null.
+   *
+   * A derived channel is one a view makes from others, such as the memory the
+   * kernel can take back (available less free). It carries `derive`, and its
+   * tooltip says it is made here; no frame carries it.
+   */
   value(channel) {
+    if (channel?.derive) return channel.derive(this);
     if (!channel || !this.latest) return null;
     return this.latest.v[channel.i] ?? null;
   }
 
   /** Return what the frame said about one channel beyond its value. */
   extra(channel) {
-    if (!channel || !this.latest) return {};
+    if (!channel || !this.latest || channel.derive) return {};
     return { error: this.latest.errors[String(channel.i)], age: this.latest.ages[String(channel.i)] };
   }
 
@@ -147,6 +157,24 @@ export async function start() {
   const catalogue = new Catalogue(await (await fetch("/api/catalogue")).json());
   const stream = new Stream(catalogue);
   return { catalogue, stream };
+}
+
+/**
+ * Return the rate one click on "Faster" or "Slower" asks for.
+ *
+ * Gova, 2026-09-25: fixed steps, 10, 5, 2, 1, 0.5, 0.25, 0.2 and 0.1 Hz. A rate
+ * between two steps (from `--hz`) goes to the nearest step in the direction of
+ * the click. At either end the rate stays where it is.
+ *
+ * @param {number[]} steps the rates, slowest first, from the catalogue
+ * @param {number} hz the rate now
+ * @param {1|-1} direction 1 for faster, -1 for slower
+ * @returns {number}
+ */
+export function nextRate(steps, hz, direction) {
+  const tolerance = 1e-9;
+  if (direction > 0) return steps.find((step) => step > hz + tolerance) ?? hz;
+  return steps.findLast((step) => step < hz - tolerance) ?? hz;
 }
 
 /** Ask the server to change the sample rate. */

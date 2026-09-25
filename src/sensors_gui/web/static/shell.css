@@ -951,3 +951,109 @@ footer #alerts-link[data-state="over"] b {
   stroke: var(--axis);
   stroke-width: 1;
 }
+
+/* --- the memory view, 2026-09-25 ------------------------------------------ */
+
+/* The reading on a module of the memory drawing, on a plate so it reads
+   over the module's fill. The colour is its state, set by the drawing. */
+.wire-plate {
+  fill: var(--surface-raised);
+  stroke: var(--border);
+}
+
+.wire-value {
+  font: 600 15px var(--sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Four large figures side by side above the memory bar. */
+.tile-row-wide {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+/* The memory bar: one track, divided; the key under it. */
+.stack {
+  margin: 4px 0 14px;
+}
+
+.stack-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--grid);
+}
+
+.stack-segment {
+  display: block;
+  height: 100%;
+  background: var(--part);
+  min-width: 0;
+}
+
+/* A thin gap between two parts, so two dark parts do not merge. */
+.stack-segment + .stack-segment {
+  border-left: 2px solid var(--surface);
+}
+
+.stack-key {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 4px 24px;
+  margin-top: 8px;
+}
+
+.stack-line {
+  display: grid;
+  grid-template-columns: 12px 1fr auto 44px;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-secondary);
+}
+
+.stack-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--part);
+  align-self: center;
+}
+
+.stack-value {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.stack-share {
+  color: var(--ink-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A small table of values: a name column and one column for each window. */
+.cell-table {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, auto);
+  gap: 6px 20px;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.cell-head {
+  color: var(--ink-muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.cell-name {
+  color: var(--ink-secondary);
+}
+
+.cell-value {
+  color: var(--ink);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

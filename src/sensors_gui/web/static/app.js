@@ -8,7 +8,7 @@
  * second and there is no reason to draw a view nobody is looking at.
  */
 
-import { setPaused, setRate, start } from "./stream.js";
+import { nextRate, setPaused, setRate, start } from "./stream.js";
 import { setText } from "./widgets.js";
 import { refreshTooltip } from "./tooltip.js";
 import { alertsView } from "./views/alerts.js";
@@ -155,17 +155,17 @@ async function main() {
   });
 
   // --- the controls -------------------------------------------------------
-  // The rate the last answer gave, so two quick clicks double twice.
+  // The rate the last answer gave, so two quick clicks move two steps.
   let rateNow = catalogue.hz;
   stream.onFrame((frame, how) => {
     if (!how.closed) rateNow = frame.hz;
   });
   $("faster").addEventListener("click", async () => {
-    rateNow = (await setRate(Math.min(rateNow * 2, catalogue.max_hz))).hz;
+    rateNow = (await setRate(nextRate(catalogue.rateSteps, rateNow, 1))).hz;
     showRate(rateNow);
   });
   $("slower").addEventListener("click", async () => {
-    rateNow = (await setRate(Math.max(rateNow / 2, catalogue.min_hz))).hz;
+    rateNow = (await setRate(nextRate(catalogue.rateSteps, rateNow, -1))).hz;
     showRate(rateNow);
   });
   // A paused service sends no frames, so the state for the next click and the

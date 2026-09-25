@@ -253,6 +253,17 @@ which any user can read; only the values need root.
 Install: `sudo ./scripts/install-helper.sh`. Remove:
 `sudo ./scripts/uninstall-helper.sh`.
 
+## I2. Memory pressure and page faults — `/proc` (2026-09-25)
+
+Added on Gova's choice for the memory view ("Add memory pressure"). Collector:
+`src/sensors_gui/collectors/memory_pressure.py`. Evidence:
+`data/evidence/memory-pressure-sources-2026-09-25/`.
+
+| Source | Channels | Unit | Root? | Writes? | Status |
+|---|---|---|---|---|---|
+| `/proc/pressure/memory` | `some` and `full`, each over 10, 60 and 300 s: 6 channels | % (two decimals, as the kernel writes them) | no | **no.** The file is `-rw-rw-rw-`, because a write sets a trigger (`psi.rst`). The collector only reads it. | OK |
+| `/proc/vmstat` `pgfault`, `pgmajfault` | 2 rates, from the rise of each counter between two reads | per second | no | no | OK |
+
 ## J. Other, to examine later
 
 | Source | Note | Status |

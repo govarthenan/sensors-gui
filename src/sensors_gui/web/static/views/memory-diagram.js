@@ -13,8 +13,12 @@
  * sits is not established, and the tooltip says so. The drawing is a
  * schematic of the order, not to scale. `docs/diagram-positions.md` holds the
  * claims.
+ *
+ * Gova, 2026-09-25: each module shows its temperature on it, in the colour of
+ * its state, so the drawing says something without a hover.
  */
 
+import { colourOf, formatValue, setText, stateOf } from "../widgets.js";
 import { Dots, make } from "./dots.js";
 
 /** The four slots, from the socket outward, and the channel of a fitted one. */
@@ -26,9 +30,10 @@ const SLOTS = [
 ];
 
 const WIDTH = 820;
-const HEIGHT = 360;
-const SLOT_TOP = 76;
-const SLOT_HEIGHT = 220;
+const HEIGHT = 330;
+const SLOT_TOP = 66;
+const SLOT_HEIGHT = 210;
+const SLOT_WIDTH = 34;
 
 /**
  * Build the drawing.
@@ -57,28 +62,47 @@ export function memoryDiagram(catalogue, stream) {
     make("text", { x: 125, y: SLOT_TOP + 110, class: "wire-edge", "text-anchor": "middle" }, "processor socket"),
   );
 
-  const first = 330;
-  const step = 100;
+  const first = 320;
+  const step = 118;
+  const values = [];
   SLOTS.forEach((slot, index) => {
     const x = first + index * step;
-    svg.appendChild(make("rect", { x, y: SLOT_TOP, width: 22, height: SLOT_HEIGHT, rx: 3, class: "wire-line" }));
+    const middle = x + SLOT_WIDTH / 2;
     svg.appendChild(
-      make("text", { x: x + 11, y: SLOT_TOP + SLOT_HEIGHT + 20, class: "wire-dot-name", "text-anchor": "middle" },
+      make("rect", { x, y: SLOT_TOP, width: SLOT_WIDTH, height: SLOT_HEIGHT, rx: 3, class: "wire-line" }),
+    );
+    svg.appendChild(
+      make("text", { x: middle, y: SLOT_TOP + SLOT_HEIGHT + 20, class: "wire-dot-name", "text-anchor": "middle" },
         slot.name),
     );
     if (!slot.fitted) {
       svg.appendChild(
-        make("text", { x: x + 11, y: SLOT_TOP + SLOT_HEIGHT + 36, class: "wire-edge", "text-anchor": "middle" },
+        make("text", { x: middle, y: SLOT_TOP + SLOT_HEIGHT + 36, class: "wire-edge", "text-anchor": "middle" },
           "empty"),
       );
       return;
     }
-    svg.appendChild(make("rect", { x: x + 3, y: SLOT_TOP + 4, width: 16, height: SLOT_HEIGHT - 8, rx: 2, class: "wire-module" }));
     svg.appendChild(
-      make("text", { x: x + 11, y: SLOT_TOP + SLOT_HEIGHT + 36, class: "wire-edge", "text-anchor": "middle" },
+      make("rect", {
+        x: x + 4,
+        y: SLOT_TOP + 4,
+        width: SLOT_WIDTH - 8,
+        height: SLOT_HEIGHT - 8,
+        rx: 2,
+        class: "wire-module",
+      }),
+    );
+    svg.appendChild(
+      make("text", { x: middle, y: SLOT_TOP + SLOT_HEIGHT + 36, class: "wire-edge", "text-anchor": "middle" },
         "32 GB"),
     );
     const channel = catalogue.byLabel(slot.label);
+    // The reading, on a plate across the module, where it is read without a hover.
+    const plateY = SLOT_TOP + SLOT_HEIGHT / 2 + 14;
+    svg.appendChild(make("rect", { x: middle - 44, y: plateY, width: 88, height: 30, rx: 6, class: "wire-plate" }));
+    const text = make("text", { x: middle, y: plateY + 20, class: "wire-value", "text-anchor": "middle" }, "—");
+    svg.appendChild(text);
+    values.push({ text, channel });
     dots.add(
       {
         id: slot.name,
@@ -89,10 +113,24 @@ export function memoryDiagram(catalogue, stream) {
           "is not established.",
         rows: [{ label: "Temperature", channel }],
       },
-      x + 11,
-      SLOT_TOP + SLOT_HEIGHT / 2,
+      middle,
+      SLOT_TOP + SLOT_HEIGHT / 2 - 26,
     );
   });
 
-  return { element, update: () => dots.update() };
+  return {
+    element,
+    update() {
+      dots.update();
+      for (const { text, channel } of values) {
+        const value = stream.value(channel);
+        setText(text, formatValue(value, channel));
+        const state = stateOf(value, channel, stream.extra(channel));
+        if (text.dataset.state !== state) {
+          text.dataset.state = state;
+          text.style.fill = colourOf(state);
+        }
+      }
+    },
+  };
 }

@@ -50,7 +50,7 @@ class RevalidatedFiles(StaticFiles):
 class RateRequest(BaseModel):
     """The body of a request to change the sample rate."""
 
-    hz: float = Field(ge=MIN_HZ, le=MAX_HZ, description="Passes per second, from 0.25 to 10.")
+    hz: float = Field(ge=MIN_HZ, le=MAX_HZ, description="Passes per second, from 0.1 to 10.")
 
 
 class PauseRequest(BaseModel):

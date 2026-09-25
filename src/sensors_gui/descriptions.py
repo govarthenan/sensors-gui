@@ -59,6 +59,12 @@ EXP_0011 = "lab/exp-0011-privileged-helper/README.md"
 EXP_0012 = "lab/exp-0012-per-core-energy/README.md"
 HELPER = "src/sensors_gui/helper/sensors_guid.py"
 SYSTEM_COLLECTOR = "src/sensors_gui/collectors/system.py"
+# Memory pressure and page faults, added on Gova's choice of 2026-09-25.
+_PRESSURE_SOURCES = "data/evidence/memory-pressure-sources-2026-09-25/"
+PSI_DOC = _PRESSURE_SOURCES + "psi.rst"
+FAULT_DOC = _PRESSURE_SOURCES + "page-fault-counters.txt"
+PRESSURE_PROBE = _PRESSURE_SOURCES + "probe-this-machine.txt"
+PRESSURE_COLLECTOR = "src/sensors_gui/collectors/memory_pressure.py"
 
 
 @dataclass(frozen=True, slots=True)
@@ -675,6 +681,56 @@ _SWAP: dict[str, Description] = {
     ),
 }
 
+_PRESSURE_KIND = {
+    "some": "at least one task waited for memory",
+    "full": "every task that had work to do waited for memory at the same time",
+}
+
+
+def _pressure(kind: str, window: str) -> Description:
+    """Return the description of one memory pressure average."""
+    other = "full" if kind == "some" else "some"
+    return Description(
+        measures=f"The part of the last {window} s in which {_PRESSURE_KIND[kind]}, as a running average in percent.",
+        call=f"/proc/pressure/memory, the {kind} line, avg{window}",
+        neighbours=(
+            f"The {other} line is the other measure: {_PRESSURE_KIND[other]}. "
+            "The kernel documentation calls a long time in full thrashing. The 10, 60 and 300 s averages are the "
+            "same measure over three windows. Memory use says how much memory is in use; this says whether tasks "
+            "had to wait for it. The file can also take a write, to set a trigger; this application only reads it."
+        ),
+        sources=(PSI_DOC, PRESSURE_PROBE, PRESSURE_COLLECTOR),
+    )
+
+
+_FAULTS: dict[str, Description] = {
+    "pgfault_rate": Description(
+        measures=(
+            "Page faults each second: the rise of the kernel's pgfault counter between two reads. A page fault "
+            "occurs when a program uses a page of memory that is not yet mapped for it."
+        ),
+        call="/proc/vmstat, pgfault",
+        neighbours=(
+            "Most page faults are minor: the page is already in memory. Major page faults are the part that had to "
+            "be read from the drive. The counter includes faults that failed."
+        ),
+        sources=(FAULT_DOC, PRESSURE_PROBE, PRESSURE_COLLECTOR),
+    ),
+    "pgmajfault_rate": Description(
+        measures=(
+            "Major page faults each second: the rise of the kernel's pgmajfault counter between two reads. A major "
+            "fault had to read the page from the drive, from a file not in the page cache or from swap."
+        ),
+        call="/proc/vmstat, pgmajfault",
+        neighbours=(
+            "Page faults counts all faults, minor and major. A high rate here, with memory pressure above 0, means "
+            "the machine reads memory back from the drive."
+        ),
+        sources=(FAULT_DOC, PRESSURE_PROBE, PRESSURE_COLLECTOR),
+    ),
+}
+
+_PRESSURE_PATTERN = re.compile(r"^(?P<kind>some|full)_avg(?P<window>10|60|300)$")
 _THREAD_PATTERN = re.compile(r"^core(?P<thread>\d+)_(?P<kind>percent|frequency)$")
 _CORE_DEVICE_PATTERN = re.compile(r"^cpu-cores\.core-(?P<core>\d+)$")
 
@@ -711,6 +767,16 @@ def _describe_system(spec: SensorSpec) -> Description | None:
     return None
 
 
+def _describe_proc(spec: SensorSpec) -> Description | None:
+    """Return the description of a memory pressure or page fault channel, or None."""
+    if spec.id.device == "pressure/memory":
+        matched = _PRESSURE_PATTERN.match(spec.id.channel)
+        return _pressure(matched["kind"], matched["window"]) if matched else None
+    if spec.id.device == "vmstat":
+        return _FAULTS.get(spec.id.channel)
+    return None
+
+
 def describe(spec: SensorSpec) -> Description | None:
     """Return the description of one channel, or None when it has none yet.
 
@@ -728,6 +794,8 @@ def describe(spec: SensorSpec) -> Description | None:
         return _describe_privileged(spec)
     if spec.id.source == "system":
         return _describe_system(spec)
+    if spec.id.source == "proc":
+        return _describe_proc(spec)
     if spec.id.source != "nvidia":
         return None
     matched = _FAN_PATTERN.match(spec.id.channel)
@@ -762,6 +830,30 @@ UNREACHABLE: tuple[Missing, ...] = (
         sources=(EXP_0013, ADR_0011),
     ),
 )
+
+# --- values a view makes from channels, and says so ------------------------------
+
+# Gova, 2026-09-25: the memory view shows one bar, divided into the memory in
+# use, the cache the kernel can take back, and the free memory. The middle part
+# is no channel; the page makes it from two. Its text lives here, with every
+# other tooltip, and the catalogue sends it by this key.
+DERIVED: dict[str, Description] = {
+    "memory_reclaimable": Description(
+        measures=(
+            "The memory the kernel can take back for a new program: file cache and other caches it can empty. "
+            "It is Memory available less Memory free."
+        ),
+        call="Memory available - Memory free",
+        neighbours=(
+            "MemAvailable is the kernel's estimate, from MemFree, SReclaimable, the file lists and the low "
+            "watermarks, so this part is an estimate too. Memory cached can be larger: the kernel documentation says "
+            "the system needs some page cache to work well, and that not all reclaimable slab can be taken back. "
+            "What the estimate leaves out is in Memory used, which is Memory total less Memory available. So Memory "
+            "used, this part and Memory free add up to Memory total."
+        ),
+        sources=(PROC_DOC, PSUTIL),
+    ),
+}
 
 # Q13 is answered: the clock event reasons and the PCIe link are channels now
 # (Gova, 2026-09-23). The list stays, empty, so a later group can use it.

@@ -29,6 +29,8 @@ const SOURCE_NAMES = {
   privileged: "sensors-guid, the root helper, over /run/sensors-gui.sock",
   system: "psutil and /proc",
   power_supply: "the kernel's power_supply class",
+  proc: "the kernel, through /proc",
+  derived: "made in this page from other channels, not read from the machine",
 };
 
 /** Return a number of seconds as short text: 0.5, 2, 0.25. */

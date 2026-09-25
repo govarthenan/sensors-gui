@@ -26,6 +26,7 @@ class Unit(StrEnum):
     HERTZ = "hertz"
     BYTE = "byte"
     BYTE_PER_SECOND = "byte_per_second"
+    PER_SECOND = "per_second"
     PWM = "pwm"
     COUNT = "count"
     SECOND = "second"
@@ -54,6 +55,7 @@ _UNIT_SYMBOLS: dict[Unit, str] = {
     Unit.HERTZ: "Hz",
     Unit.BYTE: "B",
     Unit.BYTE_PER_SECOND: "B/s",
+    Unit.PER_SECOND: "/s",
     Unit.PWM: "",
     Unit.COUNT: "",
     Unit.SECOND: "s",
@@ -69,6 +71,7 @@ _UNIT_SCALING: dict[Unit, str] = {
     Unit.HERTZ: "si",
     Unit.JOULE: "si",
     Unit.BYTE_PER_SECOND: "si",
+    Unit.PER_SECOND: "si",
     Unit.BYTE: "binary",
 }
 
@@ -194,6 +197,9 @@ class SensorSpec:
             sensor. Zero means "read it on every pass". A value above zero
             protects a sensor whose read starts a bus transaction. See ADR 0006.
         origin: The raw path or call, for the diagnostic view.
+        decimals: How many decimal places this channel needs, when its unit's
+            own number is wrong for it. Memory pressure is a percent the
+            kernel writes with two decimals, and 0.40 % must not read 0 %.
     """
 
     id: SensorId
@@ -206,6 +212,7 @@ class SensorSpec:
     critical: float | None = None
     min_interval: float = 0.0
     origin: str = ""
+    decimals: int | None = None
 
     def format(self, value: float | None) -> str:
         """Return the value as text with its unit, or an em dash when it is missing.
@@ -227,7 +234,8 @@ class SensorSpec:
         scaled, prefix = _scale(value, scaling)
         # A unit that can be scaled always keeps one decimal, so that the
         # column does not change width when the value crosses a step.
-        decimals = 1 if scaling is not None else self.unit.decimals
+        own = self.decimals if self.decimals is not None else self.unit.decimals
+        decimals = 1 if scaling is not None else own
         return f"{scaled:.{decimals}f} {prefix}{self.unit.symbol}".rstrip()
 
 

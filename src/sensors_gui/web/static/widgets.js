@@ -36,6 +36,7 @@ const UNIT_SCALING = {
   hertz: "si",
   joule: "si",
   byte_per_second: "si",
+  per_second: "si",
   byte: "binary",
 };
 
@@ -1041,6 +1042,91 @@ export class StatTile {
 const MAX_BAR = 16; // the widest a column may be, so the leftover of a slot is air
 const MAX_SLOT = 26; // the furthest apart two columns may stand
 const PEAKS = 600; // the updates the following axis remembers: 60 s at 10 Hz
+
+/**
+ * Return the share of the bar each part takes, or null when it is not known.
+ *
+ * The parts of the memory bar are read in one pass but not at one instant, so
+ * they can add up to a little more than the total. Then each share is taken
+ * of their sum instead, and the bar stays inside its box.
+ *
+ * @param {number|null} total what the whole bar stands for
+ * @param {Array<number>|null} parts the values, in the order they are drawn
+ * @returns {Array<number>|null} one share from 0 to 1 for each part
+ */
+export function stackShares(total, parts) {
+  if (total === null || total === undefined || !(total > 0) || !parts) return null;
+  if (parts.some((part) => part === null || part === undefined || Number.isNaN(part))) return null;
+  const clean = parts.map((part) => Math.max(part, 0));
+  const whole = Math.max(total, clean.reduce((sum, part) => sum + part, 0));
+  return clean.map((part) => part / whole);
+}
+
+/**
+ * One bar divided into parts, with a key under it that gives each part's
+ * value and share.
+ *
+ * Gova, 2026-09-25, of the memory view: the kernel's account was a list of
+ * numbers, and nothing showed how the memory divides. Each segment and each
+ * key line is an element of its own, so a view can give it a tooltip.
+ */
+export class StackBar {
+  /**
+   * @param {{parts: Array<{label: string, token: string}>, spec: object, caption?: string}} options
+   *   the parts in the order they are drawn, each with its colour token, and
+   *   the channel whose unit the values have
+   */
+  constructor(options) {
+    this.spec = options.spec;
+    this.element = document.createElement("figure");
+    this.element.className = "stack";
+    this.bar = document.createElement("div");
+    this.bar.className = "stack-bar";
+    this.bar.setAttribute("role", "img");
+    this.key = document.createElement("div");
+    this.key.className = "stack-key";
+    this.segments = [];
+    this.keys = [];
+    for (const part of options.parts) {
+      const segment = document.createElement("span");
+      segment.className = "stack-segment";
+      segment.style.setProperty("--part", `var(${part.token})`);
+      this.bar.appendChild(segment);
+      const line = document.createElement("div");
+      line.className = "stack-line";
+      line.style.setProperty("--part", `var(${part.token})`);
+      line.innerHTML = `<i class="stack-swatch"></i><span class="stack-name"></span>
+        <span class="stack-value">—</span><span class="stack-share"></span>`;
+      line.querySelector(".stack-name").textContent = part.label;
+      this.key.appendChild(line);
+      this.segments.push(segment);
+      this.keys.push({
+        line,
+        value: line.querySelector(".stack-value"),
+        share: line.querySelector(".stack-share"),
+        label: part.label,
+      });
+    }
+    this.element.append(this.bar, this.key);
+  }
+
+  /** Draw the parts of one total. A part that is not known leaves the bar empty. */
+  update(total, values) {
+    const shares = stackShares(total, values);
+    const words = [];
+    this.segments.forEach((segment, index) => {
+      const share = shares ? shares[index] : 0;
+      const width = `${(share * 100).toFixed(2)}%`;
+      if (segment.style.width !== width) segment.style.width = width;
+      const key = this.keys[index];
+      const value = values ? values[index] : null;
+      setText(key.value, formatValue(value, this.spec));
+      setText(key.share, shares ? `${Math.round(share * 100)} %` : "");
+      if (shares) words.push(`${key.label} ${formatValue(value, this.spec)}`);
+    });
+    this.bar.setAttribute("aria-label", shares ? words.join(", ") : "not known yet");
+  }
+}
 
 /**
  * Return the prefix a whole axis is written in, from its top.

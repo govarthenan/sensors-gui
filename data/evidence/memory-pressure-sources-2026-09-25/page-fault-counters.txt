@@ -1,0 +1,44 @@
+# The page fault counters: pgfault and pgmajfault in /proc/vmstat
+#
+# Commands:
+#   curl https://raw.githubusercontent.com/torvalds/linux/v7.0/Documentation/admin-guide/cgroup-v2.rst
+#   curl https://raw.githubusercontent.com/torvalds/linux/v7.0/mm/vmstat.c
+#   curl https://raw.githubusercontent.com/torvalds/linux/v7.0/mm/memory.c
+#   curl https://raw.githubusercontent.com/torvalds/linux/v7.0/mm/filemap.c
+# Date:    2026-09-25T16:09:13+05:30
+# Host:    dst-gova-pc
+# Source:  torvalds/linux, tag v7.0; four extracts below, each with its path and line numbers.
+#
+# Why kept: what the two counters count. A major fault is one where the page
+# had to be read from the drive: from swap (memory.c) or from a file not in the
+# page cache (filemap.c).
+
+## 1. Documentation/admin-guide/cgroup-v2.rst, lines 1698-1702 (memory.stat, the same event names)
+	  pgfault (npn)
+		Total number of page faults incurred
+
+	  pgmajfault (npn)
+		Number of major page faults incurred
+
+## 2. mm/vmstat.c, lines 1317-1318 (the names written into /proc/vmstat)
+	[I(PGFAULT)]				= "pgfault",
+	[I(PGMAJFAULT)]				= "pgmajfault",
+
+## 3. mm/memory.c, lines 4818-4821 and 6483-6489
+		/* Had to read the page from swap area: Major fault */
+		ret = VM_FAULT_MAJOR;
+		count_vm_event(PGMAJFAULT);
+		count_memcg_event_mm(vma->vm_mm, PGMAJFAULT);
+	/*
+	 * To preserve the behavior of older kernels, PGFAULT counters record
+	 * both successful and failed faults, as opposed to perf counters,
+	 * which ignore failed cases.
+	 */
+	count_vm_event(PGFAULT);
+	count_memcg_event_mm(mm, PGFAULT);
+
+## 4. mm/filemap.c, lines 3550-3553
+		/* No page in the page cache at all */
+		count_vm_event(PGMAJFAULT);
+		count_memcg_event_mm(vmf->vma->vm_mm, PGMAJFAULT);
+		ret = VM_FAULT_MAJOR;

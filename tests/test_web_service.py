@@ -382,3 +382,20 @@ def test_only_the_cpu_frequency_channels_get_the_alert_margin() -> None:
     assert alert_margin(spec("system", "frequency")) == 0.10
     assert alert_margin(spec("nvidia", "clock_sm")) == 0.0
     assert alert_margin(spec("system", "core3_percent")) == 0.0
+
+
+def test_catalogue_carries_the_description_of_each_value_a_view_makes(service: SensorService) -> None:
+    """The memory bar's middle part, 2026-09-25: its text is written in Python, like every tooltip."""
+    derived = service.catalogue()["derived"]
+    assert set(derived["memory_reclaimable"]) == {"measures", "call", "neighbours", "sources"}
+
+
+def test_catalogue_sends_the_decimals_of_the_spec_when_it_has_them() -> None:
+    """The front end formats with the catalogue's decimals; an override must reach it."""
+    from sensors_gui.collectors.memory_pressure import MemoryPressureCollector
+
+    service = SensorService([MemoryPressureCollector()], hz=10.0)
+    service.discover()
+    rows = {row["label"]: row for row in service.catalogue()["channels"]}
+    assert rows["Memory pressure, some, 10 s"]["decimals"] == 2
+    assert rows["Page faults"]["decimals"] == Unit.PER_SECOND.decimals

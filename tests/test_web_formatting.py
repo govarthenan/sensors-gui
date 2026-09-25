@@ -57,6 +57,9 @@ CASES: list[tuple[Unit, float]] = [
     (Unit.BYTE, 25757220864.0),
     (Unit.BYTE_PER_SECOND, 1900.0),
     (Unit.BYTE_PER_SECOND, 0.0),
+    # Page faults, 2026-09-25: events each second, on the decimal step.
+    (Unit.PER_SECOND, 3.0),
+    (Unit.PER_SECOND, 12400.0),
     (Unit.NONE, 5.0),
     # Exact ties, where the two disagreed until this test was written.
     (Unit.CELSIUS, 0.25),

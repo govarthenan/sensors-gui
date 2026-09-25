@@ -66,6 +66,22 @@ export function builders(stream, painters) {
       return widget;
     },
 
+    /** One value alone, for a cell of a table; the table gives the label. */
+    cell(parent, channel) {
+      const value = document.createElement("span");
+      value.className = "cell-value";
+      value.textContent = "—";
+      parent.appendChild(value);
+      if (channel === null) {
+        value.textContent = "not found";
+        value.classList.add("absent");
+        return null;
+      }
+      attachTooltip(value, channel, stream);
+      painters.push(() => setText(value, formatValue(stream.value(channel), channel)));
+      return value;
+    },
+
     /** A line of label and value. `format` may turn the number into other text. */
     fact(body, channel, label, format = null) {
       if (channel === null) {

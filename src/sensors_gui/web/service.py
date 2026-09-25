@@ -24,7 +24,7 @@ from collections.abc import Callable, Iterable
 
 from sensors_gui import naming
 from sensors_gui.collectors import Collector
-from sensors_gui.descriptions import NOT_COLLECTED, UNREACHABLE, describe
+from sensors_gui.descriptions import DERIVED, NOT_COLLECTED, UNREACHABLE, describe
 from sensors_gui.model import Group, Reading, Sample, SensorId, SensorSpec
 from sensors_gui.registry import Registry
 from sensors_gui.sampler import Sampler
@@ -35,8 +35,13 @@ logger = logging.getLogger(__name__)
 type FrameSubscriber = Callable[[dict[str, object]], None]
 
 DEFAULT_HZ = 2.0
-MIN_HZ = 0.25
-MAX_HZ = 10.0
+# The rates the "Slower" and "Faster" buttons step through. Gova, 2026-09-25:
+# "Fixed steps. 10hz, 5 hz, 2 hz, 1 hz, 0.5 hz, 0.25 hz, 0.2 hz, 0.1 hz".
+# Halving and doubling gave 0.63 Hz and 0.31 Hz. `--hz` can still start the
+# service between two steps; a click then goes to the nearest step.
+RATE_STEPS = (0.1, 0.2, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0)
+MIN_HZ = RATE_STEPS[0]
+MAX_HZ = RATE_STEPS[-1]
 PASS_WINDOW = 200
 
 
@@ -160,7 +165,7 @@ class Channel:
             "group": str(spec.group),
             "unit": str(spec.unit),
             "symbol": spec.unit.symbol,
-            "decimals": spec.unit.decimals,
+            "decimals": spec.decimals if spec.decimals is not None else spec.unit.decimals,
             "low": spec.low,
             "high": spec.high,
             "warn": spec.warn,
@@ -253,6 +258,7 @@ class SensorService:
             "hz": self._hz,
             "min_hz": MIN_HZ,
             "max_hz": MAX_HZ,
+            "rate_steps": list(RATE_STEPS),
             "paused": self._paused,
             "groups": [str(group) for group in Group],
             "shown": sum(1 for channel in channels if not channel.hidden),
@@ -262,6 +268,7 @@ class SensorService:
             # each with its reason. `docs/gui-goal.md` 4.2: never a silent gap.
             "unreachable": [entry.as_dict() for entry in UNREACHABLE],
             "not_collected": [entry.as_dict() for entry in NOT_COLLECTED],
+            "derived": {key: description.as_dict() for key, description in DERIVED.items()},
         }
 
     # --- frames -------------------------------------------------------------
@@ -405,7 +412,7 @@ class SensorService:
         return self._hz
 
     def set_rate(self, hz: float) -> float:
-        """Set the sample rate, held between 0.25 Hz and 10 Hz.
+        """Set the sample rate, held between 0.1 Hz and 10 Hz.
 
         Args:
             hz: The wanted rate.
@@ -437,6 +444,7 @@ def build_service(hz: float = DEFAULT_HZ) -> SensorService:
         A service that has not discovered or started yet.
     """
     from sensors_gui.collectors.hwmon import HwmonCollector
+    from sensors_gui.collectors.memory_pressure import MemoryPressureCollector
     from sensors_gui.collectors.nvidia import NvidiaCollector
     from sensors_gui.collectors.power_supply import PowerSupplyCollector
     from sensors_gui.collectors.privileged import PrivilegedCollector
@@ -449,6 +457,7 @@ def build_service(hz: float = DEFAULT_HZ) -> SensorService:
             PowerSupplyCollector(),
             PrivilegedCollector(),
             SystemCollector(),
+            MemoryPressureCollector(),
         ],
         hz=hz,
         decorate=naming.friendly,

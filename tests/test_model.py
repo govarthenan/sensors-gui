@@ -107,3 +107,39 @@ def test_sensor_spec_uses_more_decimals_for_volts_than_for_degrees() -> None:
         unit=Unit.VOLT,
     )
     assert volt_spec.format(1.305) == "1.305 V"
+
+
+def test_per_second_unit_scales_on_the_decimal_step_with_the_symbol_per_second() -> None:
+    """Page faults each second, 2026-09-25: 12 400 of them read as 12.4 k/s."""
+    spec = SensorSpec(
+        id=SensorId(source="proc", device="vmstat", channel="pgfault_rate"),
+        label="Page faults",
+        group=Group.MEMORY,
+        unit=Unit.PER_SECOND,
+    )
+    assert Unit.PER_SECOND.symbol == "/s"
+    assert spec.format(12400.0) == "12.4 k/s"
+    assert spec.format(3.0) == "3.0 /s"
+
+
+def test_spec_decimals_override_the_unit_for_one_channel() -> None:
+    """Memory pressure, 2026-09-25: the kernel gives two decimals, and 0.40 % must not read as 0 %."""
+    spec = SensorSpec(
+        id=SensorId(source="proc", device="pressure/memory", channel="some_avg10"),
+        label="Memory pressure, some, 10 s",
+        group=Group.MEMORY,
+        unit=Unit.PERCENT,
+        decimals=2,
+    )
+    assert spec.format(0.4) == "0.40 %"
+
+
+def test_spec_without_decimals_keeps_the_decimals_of_its_unit() -> None:
+    spec = SensorSpec(
+        id=SensorId(source="system", device="memory", channel="percent"),
+        label="Memory use",
+        group=Group.MEMORY,
+        unit=Unit.PERCENT,
+    )
+    assert spec.decimals is None
+    assert spec.format(33.4) == "33 %"

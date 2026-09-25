@@ -176,3 +176,9 @@ drawing is not to scale.
 The system memory readings (used, cached, available and the rest) are the
 kernel's account across both modules together, so no dot carries them: no
 channel says how much of it is on one module.
+
+**2026-09-25 (checkpoint 4b), on Gova's choice.** Each fitted module carries
+its temperature on a plate across its middle, in the colour of its state, and
+the dot moved up the module to make room. The slots are wider and further
+apart. Neither change is a new claim: the plate is on the module whose sensor
+it reads, and the drawing is still not to scale.
