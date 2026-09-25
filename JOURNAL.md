@@ -1819,3 +1819,24 @@ server's answer, so it is right while paused too.
 after every click; pause, resume, and a reload while paused.
 
 530 tests pass.
+
+---
+
+## 2026-09-25 — Session 10, end
+
+**Gova's words, verbatim**
+
+> Good. Prepare to end the conversation. Rewrite the handoff doc for the next
+> agent run.
+
+**What was done**
+
+- `tmp/HANDOFF-gui-stream.md` rewritten for session 11.
+- `HANDOFF.md` section 3 corrected at last: the card is the SUPRIM LIQUID X,
+  the CPU radiator is at the top, the bottom radiator is the card's, and the
+  machine has 10 fans and a pump. The session 9 handoff asked for this.
+- `state/STATUS.md` lists what waits for Gova: the checkpoint 4 review, the
+  cost of the processor view, the rate steps, the push, and his `TODO`.
+- Gova's new `TODO` file at the repository root (other devices that can
+  measure power draw) is left untracked and unchanged; it is his.
+- **Not pushed**: 5 signed commits, `c7beb5d` to `8223e54`, wait for Gova.

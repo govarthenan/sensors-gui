@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-23 (session 10; checkpoint 4 built and waiting for Gova's review)
+Last update: 2026-09-25 (end of session 10; checkpoint 4 waits for Gova's review; 5 commits not pushed)
 
 ## Phase
 
@@ -345,9 +345,19 @@ rules before any code is written. Reading comes first.
 
 ## Waiting for Gova
 
-**Session 10: checkpoint 4.** The processor and memory views, for review.
-The questions are in the `JOURNAL.md` entry of session 10 and in the reply
-of that session. Still open from before: Q14, Q18, Q20.
+**Session 10, end (2026-09-25).** Waiting for Gova on:
+
+1. **Checkpoint 4**, the processor and memory views.
+2. **The cost of the processor view**, 0.199 cores at 10 Hz, the highest so
+   far: reduce it?
+3. **Rate steps**: keep halving (0.63, 0.31 Hz), or fixed steps 0.25, 0.5,
+   1, 2, 5, 10 Hz?
+4. **Push**: 5 signed commits are local only (`c7beb5d` to `8223e54`).
+5. **Gova's `TODO`** (other devices that can measure power draw): now, or
+   after the GUI stream? The brief closes the catalogue for the stream.
+
+Still open from before: Q14, Q18, Q20. **Next: `tmp/HANDOFF-gui-stream.md`.**
+The "Slower" freeze and the "Pause" bug of 2026-09-25 are fixed (`8223e54`).
 
 **Session 9, end.** Gova approved the force push ("Force push."). The
 rewritten, re-signed history is on GitHub at `6ae8c64`, GitHub shows the
