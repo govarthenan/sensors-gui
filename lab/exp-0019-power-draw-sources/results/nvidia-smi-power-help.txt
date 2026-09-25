@@ -1,0 +1,28 @@
+# Command: nvidia-smi --help-query-gpu | grep -A3 power.draw ; nvidia-smi --version
+# Date: 2026-09-25T10:20:24Z (2026-09-25), host dst-gova-pc
+# Source: the help text installed with the NVIDIA driver on this machine. A help text; nothing is sent to the card.
+
+NVIDIA-SMI version  : 595.91.07
+NVML version        : 595.91
+DRIVER version      : 595.91.07
+CUDA Version        : 13.2
+
+"power.draw"
+The last measured power draw for the entire board, in watts. On Ampere or newer devices, returns average power draw over 1 sec. On older devices, returns instantaneous power draw. Only available if power management is supported. This reading is accurate to within +/- 5 watts.
+
+"power.draw.average" or "gpu.power.draw.average"
+The last measured average power draw for the entire board, in watts. Only available if power management is supported and Ampere (except GA100) or newer devices. This reading is accurate to within +/- 5 watts.
+
+"power.draw.instant" or "gpu.power.draw.instant"
+The last measured instant power draw for the entire board, in watts. Only available if power management is supported. This reading is accurate to within +/- 5 watts.
+
+"power.limit" or "gpu.power.requested_limit"
+The software power limit in watts. Set by software like nvidia-smi. On Kepler devices Power Limit can be adjusted using [-pl | --power-limit=] switches.
+
+"enforced.power.limit" or "gpu.power.current_limit"
+The power management algorithm's power ceiling, in watts. Total board power draw is manipulated by the power management algorithm such that it stays under this value. This value is the minimum of various power limiters.
+
+--
+"power.max_limit" or "gpu.power.max_limit"
+The maximum value in watts that power limit can be set to.
+

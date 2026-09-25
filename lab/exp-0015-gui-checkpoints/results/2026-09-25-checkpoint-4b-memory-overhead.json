@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-25",
+  "checkpoint": "4b-memory",
+  "command": "uv run python -m sensors_gui.web",
+  "cpu_threads": 24,
+  "note": "cores = CPU seconds used per second of wall time. 1.0 = one thread saturated.",
+  "rows": [
+    {
+      "hz": 1.0,
+      "page": "/#memory",
+      "window_seconds": 30.0,
+      "groups": [
+        {
+          "label": "python (sampler+server)",
+          "cores": 0.0123,
+          "rss_mib": 221.9,
+          "processes": 4
+        },
+        {
+          "label": "chrome (window)",
+          "cores": 0.0303,
+          "rss_mib": 1145.7,
+          "processes": 9
+        }
+      ],
+      "total_cores": 0.0426
+    },
+    {
+      "hz": 10.0,
+      "page": "/#memory",
+      "window_seconds": 30.0,
+      "groups": [
+        {
+          "label": "python (sampler+server)",
+          "cores": 0.0413,
+          "rss_mib": 222.7,
+          "processes": 4
+        },
+        {
+          "label": "chrome (window)",
+          "cores": 0.0627,
+          "rss_mib": 1161.5,
+          "processes": 9
+        }
+      ],
+      "total_cores": 0.104
+    }
+  ]
+}

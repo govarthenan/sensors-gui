@@ -1,0 +1,105 @@
+# Command: ls -l /dev/nvme0 /dev/nvme0n1; ls /sys/class/nvme/nvme0 and its power/; cat of readable nvme sysfs attributes; nvme version; nvme id-ctrl /dev/nvme0 (as user gova, NO sudo); grep for power in helper source
+# Date: 2026-09-25T10:16:01Z (2026-09-25), host dst-gova-pc
+# Source: devfs, sysfs, nvme-cli, src/sensors_gui/helper/sensors_guid.py. Read only. Nothing was run as root.
+
+crw------- 1 root root 240, 0 Sep 22 10:38 /dev/nvme0
+brw-rw---- 1 root disk 259, 0 Sep 22 10:38 /dev/nvme0n1
+
+== /sys/class/nvme/nvme0
+address
+cntlid
+cntrltype
+dctype
+dev
+device
+firmware_rev
+hmb
+hwmon1
+kato
+model
+ng0n1
+numa_node
+nvme0n1
+passthru_err_log_enabled
+power
+queue_count
+quirks
+rescan_controller
+reset_controller
+serial
+sqsize
+state
+subsysnqn
+subsystem
+transport
+uevent
+  model        WD_BLACK SN770 1TB                      
+  firmware_rev 731100WD
+  state        live
+  transport    pcie
+  numa_node    -1
+== power/
+  async                                    disabled
+  autosuspend_delay_ms                     cat: /sys/class/nvme/nvme0/power/autosuspend_delay_ms: Input/output error
+  control                                  auto
+  pm_qos_latency_tolerance_us              100000
+  runtime_active_kids                      0
+  runtime_active_time                      0
+  runtime_enabled                          disabled
+  runtime_status                           unsupported
+  runtime_suspended_time                   0
+  runtime_usage                            0
+
+== nvme version
+nvme version 2.8 (git 2.8)
+libnvme version 1.8 (git 1.8)
+
+== nvme id-ctrl /dev/nvme0 (as user gova) -- expected to fail without root
+/dev/nvme0: Permission denied
+[1mUsage: nvme id-ctrl <device> [OPTIONS][0m
+
+Send an Identify Controller command to the given device and report
+information about the specified controller in human-readable or binary
+
+== the helper's NVMe command (grep nvme src/sensors_gui/helper/sensors_guid.py)
+21:loaded, and the only external command it runs is a fixed `nvme smart-log`
+718:        field: The key in the JSON that `nvme smart-log -o json` prints.
+749:# `data/probes/privileged-20260922T051641Z/nvme0-smart-log.json`,
+777:# stderr gave "Usage: nvme smart-log ..." and hid "Permission denied", which is
+805:    return shutil.which("nvme")
+842:    The log is fetched by running `nvme smart-log -o json <node>`: a fixed
+902:            origin = f"nvme smart-log -o json {node}"
+951:        command = [self.nvme_command, "smart-log", "-o", "json", str(node)]
+962:            return {}, f"nvme smart-log took longer than {self.timeout:.0f} s"
+964:            return {}, f"cannot run nvme smart-log: {exc}"
+968:            return {}, f"nvme smart-log failed: {reason}"
+973:            return {}, f"nvme smart-log did not give JSON: {exc}"
+975:            return {}, "nvme smart-log gave JSON that is not an object"
+
+== APST module parameter
+100000
+
+== COPY of the power state table, from data/probes/privileged-20260922T051641Z/nvme0-id-ctrl.txt (captured 2026-09-22T05:16:54Z by 'nvme id-ctrl /dev/nvme0' as root, through the helper probe). Copied 2026-09-25; not re-run, because it needs root.
+# captured 2026-09-22T05:16:54Z on dst-gova-pc
+# command: nvme id-ctrl /dev/nvme0
+# source:  this machine, dst-gova-pc
+
+36:npss      : 5
+38:apsta     : 0x1
+ps      0 : mp:5.00W operational enlat:0 exlat:0 rrt:0 rrl:0
+            rwt:0 rwl:0 idle_power:0.3000W active_power:5.00W
+            active_power_workload:80K 128KiB SW
+ps      1 : mp:3.30W operational enlat:0 exlat:0 rrt:0 rrl:0
+            rwt:0 rwl:0 idle_power:0.3000W active_power:3.00W
+            active_power_workload:80K 128KiB SW
+ps      2 : mp:2.20W operational enlat:0 exlat:0 rrt:0 rrl:0
+            rwt:0 rwl:0 idle_power:0.3000W active_power:2.00W
+            active_power_workload:80K 128KiB SW
+ps      3 : mp:0.0150W non-operational enlat:1500 exlat:2500 rrt:3 rrl:3
+            rwt:3 rwl:3 idle_power:0.0150W active_power:-
+            active_power_workload:-
+ps      4 : mp:0.0050W non-operational enlat:10000 exlat:6000 rrt:4 rrl:4
+            rwt:4 rwl:4 idle_power:0.0050W active_power:-
+            active_power_workload:-
+ps      5 : mp:0.0033W non-operational enlat:176000 exlat:25000 rrt:5 rrl:5
+            rwt:5 rwl:5 idle_power:0.0033W active_power:-

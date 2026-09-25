@@ -1,0 +1,26 @@
+# Command: find /sys/class/powercap/ -maxdepth 2, then for each zone: ls -l of its files and cat of every file readable by user gova
+# Date: 2026-09-25T10:11:52Z (2026-09-25), host dst-gova-pc
+# Source: sysfs /sys/class/powercap, read as user gova. Root-only files are NOT read; their mode is listed.
+
+total 0
+lrwxrwxrwx 1 root root 0 Sep 22 10:38 intel-rapl -> ../../devices/virtual/powercap/intel-rapl
+lrwxrwxrwx 1 root root 0 Sep 22 10:38 intel-rapl:0 -> ../../devices/virtual/powercap/intel-rapl/intel-rapl:0
+lrwxrwxrwx 1 root root 0 Sep 22 10:38 intel-rapl:0:0 -> ../../devices/virtual/powercap/intel-rapl/intel-rapl:0/intel-rapl:0:0
+
+== /sys/class/powercap/intel-rapl -> /sys/devices/virtual/powercap/intel-rapl
+  enabled                          -rw-r--r-- root  1 
+  uevent                           -rw-r--r-- root  
+
+== /sys/class/powercap/intel-rapl:0 -> /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0
+  enabled                          -rw-r--r-- root  0 
+  energy_uj                        -r-------- root  (not readable as gova: needs root, not read)
+  max_energy_range_uj              -r--r--r-- root  65532610987 
+  name                             -r--r--r-- root  package-0 
+  uevent                           -rw-r--r-- root  
+
+== /sys/class/powercap/intel-rapl:0:0 -> /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/intel-rapl:0:0
+  enabled                          -rw-r--r-- root  0 
+  energy_uj                        -r-------- root  (not readable as gova: needs root, not read)
+  max_energy_range_uj              -r--r--r-- root  65532610987 
+  name                             -r--r--r-- root  core 
+  uevent                           -rw-r--r-- root  

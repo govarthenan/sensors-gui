@@ -1,0 +1,56 @@
+# Command: ls /sys/bus/acpi/devices | grep ACPI000D (ACPI power meter); ls /dev/ipmi* ; lsmod | grep -E 'acpi_power_meter|ipmi|pmbus'; upower --dump; dpkg -l for nut, upower, apcupsd, powerstat, powertop
+# Date: 2026-09-25T10:16:29Z (2026-09-25), host dst-gova-pc
+# Source: sysfs, devfs, /proc/modules, UPower over D-Bus (a query to a local daemon, not to hardware), dpkg database. Read only.
+
+== ACPI devices with power-meter IDs (ACPI000D) or battery/AC (PNP0C0A, ACPI0003)
+(none)
+
+== /dev/ipmi*
+ls: cannot access '/dev/ipmi*': No such file or directory
+
+== modules acpi_power_meter|ipmi|pmbus
+(none loaded)
+
+== upower --dump
+Device: /org/freedesktop/UPower/devices/battery_hidpp_battery_3
+  native-path:          hidpp_battery_3
+  model:                G305 Lightspeed Wireless Gaming Mouse
+  serial:               f4-73-bc-80
+  power supply:         no
+  updated:              Fri 25 Sep 2026 03:46:04 PM +0530 (25 seconds ago)
+  has history:          yes
+  has statistics:       yes
+  mouse
+    present:             yes
+    rechargeable:        yes
+    state:               fully-charged
+    warning-level:       none
+    battery-level:       full
+    percentage:          100% (should be ignored)
+    icon-name:          'battery-full-charged-symbolic'
+
+Device: /org/freedesktop/UPower/devices/DisplayDevice
+  power supply:         no
+  updated:              Tue 22 Sep 2026 10:38:51 AM +0530 (277658 seconds ago)
+  has history:          no
+  has statistics:       no
+  unknown
+    warning-level:       none
+    percentage:          0%
+    icon-name:          'battery-missing-symbolic'
+
+Daemon:
+  daemon-version:  1.90.3
+  on-battery:      no
+  lid-is-closed:   no
+  lid-is-present:  no
+  critical-action: PowerOff
+
+== packages
+dpkg-query: no packages found matching nut
+dpkg-query: no packages found matching nut-client
+dpkg-query: no packages found matching nut-server
+dpkg-query: no packages found matching apcupsd
+dpkg-query: no packages found matching powerstat
+dpkg-query: no packages found matching powertop
+ii  upower         1.90.3-1     amd64        abstraction for power management

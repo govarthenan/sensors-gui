@@ -1,0 +1,1311 @@
+{
+ "command": "uv run python lab/exp-0019-power-draw-sources/probe.py --samples 30",
+ "date": "2026-09-25T10:14:53.796764+00:00",
+ "source": "sysfs amdgpu hwmon and gpu_metrics, NVML Get calls, /run/sensors-gui.sock (helper)",
+ "machine_state": "idle desktop, no load started by this script",
+ "nvml_driver": "595.91.07",
+ "nvml_context": {
+  "enforced_limit_mw": 480000,
+  "management_limit_mw": 480000,
+  "default_limit_mw": 480000,
+  "limit_constraints_mw": [
+   150000,
+   530000
+  ],
+  "power_management_mode": 1,
+  "power_source": 0,
+  "power_state": 2
+ },
+ "samples": [
+  {
+   "t": 1790331294.8012908,
+   "amdgpu_power1_input_uw": 44000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 174,
+    "cpu_mw": null,
+    "soc_mw": 20880,
+    "gfx_mw": 5658,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 368385,
+    "total_energy_mj": 13601600555,
+    "fi_power_instant_gpu": {
+     "ullVal": 370120,
+     "uiVal": 370120,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 368385,
+     "uiVal": 368385,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.5971940503401,
+    "CPU Core 0 (RAPL) Power": 8.480854865902685,
+    "CPU Cores Power": 102.94920882866586
+   }
+  },
+  {
+   "t": 1790331295.809757,
+   "amdgpu_power1_input_uw": 50000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 198,
+    "cpu_mw": null,
+    "soc_mw": 20716,
+    "gfx_mw": 29668,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 331898,
+    "total_energy_mj": 13601922282,
+    "fi_power_instant_gpu": {
+     "ullVal": 361734,
+     "uiVal": 361734,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 331898,
+     "uiVal": 331898,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.71938522196066,
+    "CPU Core 0 (RAPL) Power": 9.795295136680972,
+    "CPU Cores Power": 103.09367958252733
+   }
+  },
+  {
+   "t": 1790331296.8162825,
+   "amdgpu_power1_input_uw": 34000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 134,
+    "cpu_mw": null,
+    "soc_mw": 21858,
+    "gfx_mw": 30089,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 348674,
+    "total_energy_mj": 13602268639,
+    "fi_power_instant_gpu": {
+     "ullVal": 226410,
+     "uiVal": 226410,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 348674,
+     "uiVal": 348674,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.55842105325075,
+    "CPU Core 0 (RAPL) Power": 8.807127829524251,
+    "CPU Cores Power": 103.03499677308938
+   }
+  },
+  {
+   "t": 1790331297.8226087,
+   "amdgpu_power1_input_uw": 32000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 127,
+    "cpu_mw": null,
+    "soc_mw": 20553,
+    "gfx_mw": 25198,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 357165,
+    "total_energy_mj": 13602631243,
+    "fi_power_instant_gpu": {
+     "ullVal": 378254,
+     "uiVal": 378254,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 357165,
+     "uiVal": 357165,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.16689397091267,
+    "CPU Core 0 (RAPL) Power": 8.457213517172192,
+    "CPU Cores Power": 102.66614746992516
+   }
+  },
+  {
+   "t": 1790331298.8287215,
+   "amdgpu_power1_input_uw": 44000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 196,
+    "cpu_mw": null,
+    "soc_mw": 24142,
+    "gfx_mw": 21428,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 344025,
+    "total_energy_mj": 13602962732,
+    "fi_power_instant_gpu": {
+     "ullVal": 311601,
+     "uiVal": 311601,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 344025,
+     "uiVal": 344025,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.15501732972098,
+    "CPU Core 0 (RAPL) Power": 9.074821427694312,
+    "CPU Cores Power": 102.59047079468725
+   }
+  },
+  {
+   "t": 1790331299.8333056,
+   "amdgpu_power1_input_uw": 51000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 200,
+    "cpu_mw": null,
+    "soc_mw": 20553,
+    "gfx_mw": 32518,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 332171,
+    "total_energy_mj": 13603295983,
+    "fi_power_instant_gpu": {
+     "ullVal": 310124,
+     "uiVal": 310124,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 332171,
+     "uiVal": 332171,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.49859463235975,
+    "CPU Core 0 (RAPL) Power": 9.930707952123582,
+    "CPU Cores Power": 102.32978241736711
+   }
+  },
+  {
+   "t": 1790331300.8533142,
+   "amdgpu_power1_input_uw": 51000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 202,
+    "cpu_mw": null,
+    "soc_mw": 20716,
+    "gfx_mw": 34303,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 329998,
+    "total_energy_mj": 13603624646,
+    "fi_power_instant_gpu": {
+     "ullVal": 364407,
+     "uiVal": 364407,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 329998,
+     "uiVal": 329998,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 160.7062349283515,
+    "CPU Core 0 (RAPL) Power": 9.579462859147652,
+    "CPU Cores Power": 101.48959746287763
+   }
+  },
+  {
+   "t": 1790331301.8591278,
+   "amdgpu_power1_input_uw": 55000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 218,
+    "cpu_mw": null,
+    "soc_mw": 20716,
+    "gfx_mw": 50233,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 358033,
+    "total_energy_mj": 13603966819,
+    "fi_power_instant_gpu": {
+     "ullVal": 353131,
+     "uiVal": 353131,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 358033,
+     "uiVal": 358033,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.86452135024786,
+    "CPU Core 0 (RAPL) Power": 8.523715196927567,
+    "CPU Cores Power": 102.82770785651078
+   }
+  },
+  {
+   "t": 1790331302.867434,
+   "amdgpu_power1_input_uw": 47000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 184,
+    "cpu_mw": null,
+    "soc_mw": 20553,
+    "gfx_mw": 16445,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 361570,
+    "total_energy_mj": 13604338188,
+    "fi_power_instant_gpu": {
+     "ullVal": 363516,
+     "uiVal": 363516,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 361570,
+     "uiVal": 361570,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.74754339833703,
+    "CPU Core 0 (RAPL) Power": 9.578513832416116,
+    "CPU Cores Power": 103.21423764966895
+   }
+  },
+  {
+   "t": 1790331303.873282,
+   "amdgpu_power1_input_uw": 44000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 174,
+    "cpu_mw": null,
+    "soc_mw": 21612,
+    "gfx_mw": 3888,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 339546,
+    "total_energy_mj": 13604675182,
+    "fi_power_instant_gpu": {
+     "ullVal": 300608,
+     "uiVal": 300608,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 339546,
+     "uiVal": 339546,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.57860315821813,
+    "CPU Core 0 (RAPL) Power": 9.282960973759277,
+    "CPU Cores Power": 102.93250862288859
+   }
+  },
+  {
+   "t": 1790331304.8784177,
+   "amdgpu_power1_input_uw": 37000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 178,
+    "cpu_mw": null,
+    "soc_mw": 20474,
+    "gfx_mw": 10335,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 373280,
+    "total_energy_mj": 13605066212,
+    "fi_power_instant_gpu": {
+     "ullVal": 383319,
+     "uiVal": 383319,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 373280,
+     "uiVal": 373280,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.35120417775207,
+    "CPU Core 0 (RAPL) Power": 8.92902519246562,
+    "CPU Cores Power": 102.2009540916081
+   }
+  },
+  {
+   "t": 1790331305.8907206,
+   "amdgpu_power1_input_uw": 44000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 174,
+    "cpu_mw": null,
+    "soc_mw": 21206,
+    "gfx_mw": 5183,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 339432,
+    "total_energy_mj": 13605402673,
+    "fi_power_instant_gpu": {
+     "ullVal": 386042,
+     "uiVal": 386042,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 339432,
+     "uiVal": 339432,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.30372471820917,
+    "CPU Core 0 (RAPL) Power": 8.950095609215568,
+    "CPU Cores Power": 102.28622286105262
+   }
+  },
+  {
+   "t": 1790331306.8957403,
+   "amdgpu_power1_input_uw": 32000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 126,
+    "cpu_mw": null,
+    "soc_mw": 21369,
+    "gfx_mw": 22944,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 333198,
+    "total_energy_mj": 13605720197,
+    "fi_power_instant_gpu": {
+     "ullVal": 334490,
+     "uiVal": 334490,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 333198,
+     "uiVal": 333198,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.6504521838847,
+    "CPU Core 0 (RAPL) Power": 9.047483606941904,
+    "CPU Cores Power": 102.46493827413194
+   }
+  },
+  {
+   "t": 1790331307.9015617,
+   "amdgpu_power1_input_uw": 40000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 158,
+    "cpu_mw": null,
+    "soc_mw": 20553,
+    "gfx_mw": 55984,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 353553,
+    "total_energy_mj": 13606062187,
+    "fi_power_instant_gpu": {
+     "ullVal": 374419,
+     "uiVal": 374419,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 353553,
+     "uiVal": 353553,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.2700991032833,
+    "CPU Core 0 (RAPL) Power": 8.418699152242285,
+    "CPU Cores Power": 102.15299485618561
+   }
+  },
+  {
+   "t": 1790331308.914793,
+   "amdgpu_power1_input_uw": 32000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 127,
+    "cpu_mw": null,
+    "soc_mw": 21369,
+    "gfx_mw": 24299,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 358333,
+    "total_energy_mj": 13606422140,
+    "fi_power_instant_gpu": {
+     "ullVal": 372471,
+     "uiVal": 372471,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 358333,
+     "uiVal": 358333,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.48134392090182,
+    "CPU Core 0 (RAPL) Power": 9.642743071288487,
+    "CPU Cores Power": 102.67615002877753
+   }
+  },
+  {
+   "t": 1790331309.9207828,
+   "amdgpu_power1_input_uw": 30000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 118,
+    "cpu_mw": null,
+    "soc_mw": 22185,
+    "gfx_mw": 13776,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 359858,
+    "total_energy_mj": 13606763468,
+    "fi_power_instant_gpu": {
+     "ullVal": 408385,
+     "uiVal": 408385,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 359858,
+     "uiVal": 359858,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.0162072363045,
+    "CPU Core 0 (RAPL) Power": 8.931321951062593,
+    "CPU Cores Power": 102.054556785796
+   }
+  },
+  {
+   "t": 1790331310.9254591,
+   "amdgpu_power1_input_uw": 48000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 190,
+    "cpu_mw": null,
+    "soc_mw": 20880,
+    "gfx_mw": 21553,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 369772,
+    "total_energy_mj": 13607122920,
+    "fi_power_instant_gpu": {
+     "ullVal": 376636,
+     "uiVal": 376636,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 369772,
+     "uiVal": 369772,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.08122169373968,
+    "CPU Core 0 (RAPL) Power": 9.936331515420587,
+    "CPU Cores Power": 102.0092233135431
+   }
+  },
+  {
+   "t": 1790331311.9312773,
+   "amdgpu_power1_input_uw": 33000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 130,
+    "cpu_mw": null,
+    "soc_mw": 21287,
+    "gfx_mw": 26809,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 335299,
+    "total_energy_mj": 13607450338,
+    "fi_power_instant_gpu": {
+     "ullVal": 392734,
+     "uiVal": 392734,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 335299,
+     "uiVal": 335299,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.127500848026,
+    "CPU Core 0 (RAPL) Power": 9.093271005253248,
+    "CPU Cores Power": 101.5381486911964
+   }
+  },
+  {
+   "t": 1790331312.9365625,
+   "amdgpu_power1_input_uw": 27000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 108,
+    "cpu_mw": null,
+    "soc_mw": 23163,
+    "gfx_mw": 2031,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 351594,
+    "total_energy_mj": 13607788817,
+    "fi_power_instant_gpu": {
+     "ullVal": 303436,
+     "uiVal": 303436,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 351594,
+     "uiVal": 351594,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 158.2085806719853,
+    "CPU Core 0 (RAPL) Power": 8.24448816391202,
+    "CPU Cores Power": 98.5969016675013
+   }
+  },
+  {
+   "t": 1790331313.945455,
+   "amdgpu_power1_input_uw": 52000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 207,
+    "cpu_mw": null,
+    "soc_mw": 21612,
+    "gfx_mw": 37627,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 369670,
+    "total_energy_mj": 13608140382,
+    "fi_power_instant_gpu": {
+     "ullVal": 392156,
+     "uiVal": 392156,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 369670,
+     "uiVal": 369670,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.1437191207449,
+    "CPU Core 0 (RAPL) Power": 9.79515983754742,
+    "CPU Cores Power": 100.87626838975356
+   }
+  },
+  {
+   "t": 1790331314.9504464,
+   "amdgpu_power1_input_uw": 50000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 197,
+    "cpu_mw": null,
+    "soc_mw": 20390,
+    "gfx_mw": 29488,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 345502,
+    "total_energy_mj": 13608495731,
+    "fi_power_instant_gpu": {
+     "ullVal": 389434,
+     "uiVal": 389434,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 345502,
+     "uiVal": 345502,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 160.97426459127678,
+    "CPU Core 0 (RAPL) Power": 9.83892000766309,
+    "CPU Cores Power": 101.58468588312017
+   }
+  },
+  {
+   "t": 1790331315.9551828,
+   "amdgpu_power1_input_uw": 47000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 184,
+    "cpu_mw": null,
+    "soc_mw": 20474,
+    "gfx_mw": 16205,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 361616,
+    "total_energy_mj": 13608850484,
+    "fi_power_instant_gpu": {
+     "ullVal": 389975,
+     "uiVal": 389975,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 361616,
+     "uiVal": 361616,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.60652554819276,
+    "CPU Core 0 (RAPL) Power": 9.819981927250584,
+    "CPU Cores Power": 102.85131574620975
+   }
+  },
+  {
+   "t": 1790331316.9643111,
+   "amdgpu_power1_input_uw": 33000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 130,
+    "cpu_mw": null,
+    "soc_mw": 21695,
+    "gfx_mw": 26498,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 385693,
+    "total_energy_mj": 13609195724,
+    "fi_power_instant_gpu": {
+     "ullVal": 377211,
+     "uiVal": 377211,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 385693,
+     "uiVal": 385693,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.69304582191296,
+    "CPU Core 0 (RAPL) Power": 8.31966694622154,
+    "CPU Cores Power": 102.5070061667405
+   }
+  },
+  {
+   "t": 1790331317.9711213,
+   "amdgpu_power1_input_uw": 38000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 151,
+    "cpu_mw": null,
+    "soc_mw": 21858,
+    "gfx_mw": 47744,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 330818,
+    "total_energy_mj": 13609577904,
+    "fi_power_instant_gpu": {
+     "ullVal": 316782,
+     "uiVal": 316782,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 330818,
+     "uiVal": 330818,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.69675574765782,
+    "CPU Core 0 (RAPL) Power": 8.40640057178914,
+    "CPU Cores Power": 102.89351745684462
+   }
+  },
+  {
+   "t": 1790331318.9772785,
+   "amdgpu_power1_input_uw": 41000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 164,
+    "cpu_mw": null,
+    "soc_mw": 21532,
+    "gfx_mw": 61026,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 349567,
+    "total_energy_mj": 13609927105,
+    "fi_power_instant_gpu": {
+     "ullVal": 371866,
+     "uiVal": 371866,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 349567,
+     "uiVal": 349567,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.08063722964627,
+    "CPU Core 0 (RAPL) Power": 9.12120074401882,
+    "CPU Cores Power": 102.31731693499054
+   }
+  },
+  {
+   "t": 1790331319.9836886,
+   "amdgpu_power1_input_uw": 49000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 193,
+    "cpu_mw": null,
+    "soc_mw": 20716,
+    "gfx_mw": 24578,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 361183,
+    "total_energy_mj": 13610267894,
+    "fi_power_instant_gpu": {
+     "ullVal": 209956,
+     "uiVal": 209956,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 361183,
+     "uiVal": 361183,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.46445311768434,
+    "CPU Core 0 (RAPL) Power": 8.93194965481944,
+    "CPU Cores Power": 101.91168902330453
+   }
+  },
+  {
+   "t": 1790331320.9907005,
+   "amdgpu_power1_input_uw": 54000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 214,
+    "cpu_mw": null,
+    "soc_mw": 21125,
+    "gfx_mw": 45218,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 358651,
+    "total_energy_mj": 13610623168,
+    "fi_power_instant_gpu": {
+     "ullVal": 370408,
+     "uiVal": 370408,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 358651,
+     "uiVal": 358651,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 161.6705997281841,
+    "CPU Core 0 (RAPL) Power": 9.856049859216967,
+    "CPU Cores Power": 101.9703544149626
+   }
+  },
+  {
+   "t": 1790331321.9955635,
+   "amdgpu_power1_input_uw": 26000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 104,
+    "cpu_mw": null,
+    "soc_mw": 20716,
+    "gfx_mw": 1943,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 333265,
+    "total_energy_mj": 13610956350,
+    "fi_power_instant_gpu": {
+     "ullVal": 272542,
+     "uiVal": 272542,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 333265,
+     "uiVal": 333265,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 159.11082250636386,
+    "CPU Core 0 (RAPL) Power": 8.399690505864474,
+    "CPU Cores Power": 99.73075848610642
+   }
+  },
+  {
+   "t": 1790331323.0036812,
+   "amdgpu_power1_input_uw": 38000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 151,
+    "cpu_mw": null,
+    "soc_mw": 21206,
+    "gfx_mw": 48239,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 341408,
+    "total_energy_mj": 13611290479,
+    "fi_power_instant_gpu": {
+     "ullVal": 304163,
+     "uiVal": 304163,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 341408,
+     "uiVal": 341408,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 158.93437453965518,
+    "CPU Core 0 (RAPL) Power": 8.443365927348639,
+    "CPU Cores Power": 98.78482752093915
+   }
+  },
+  {
+   "t": 1790331324.0089674,
+   "amdgpu_power1_input_uw": 59000,
+   "gpu_metrics": {
+    "size": 120,
+    "format": "2.1",
+    "socket_mw": 233,
+    "cpu_mw": null,
+    "soc_mw": 21369,
+    "gfx_mw": 64393,
+    "core0_mw": null,
+    "core1_mw": null,
+    "core2_mw": null,
+    "core3_mw": null,
+    "core4_mw": null,
+    "core5_mw": null,
+    "core6_mw": null,
+    "core7_mw": null
+   },
+   "nvml": {
+    "usage_mw": 352877,
+    "total_energy_mj": 13611628262,
+    "fi_power_instant_gpu": {
+     "ullVal": 377386,
+     "uiVal": 377386,
+     "valueType": 1
+    },
+    "fi_power_average_gpu": {
+     "ullVal": 352877,
+     "uiVal": 352877,
+     "valueType": 1
+    },
+    "fi_power_instant_module": "nvmlReturn 3",
+    "fi_power_average_module": "nvmlReturn 3",
+    "fi_power_instant_memory": "nvmlReturn 3",
+    "fi_power_average_memory": "nvmlReturn 3"
+   },
+   "helper": {
+    "CPU Package Power": 159.29116810010993,
+    "CPU Core 0 (RAPL) Power": 9.040415927623542,
+    "CPU Cores Power": 99.9648702551503
+   }
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-25 (end of session 10; checkpoint 4 waits for Gova's review; 5 commits not pushed)
+Last update: 2026-09-25 (session 11; the memory view is rebuilt as checkpoint 4b and waits for Gova's review)
 
 ## Phase
 
@@ -32,6 +32,15 @@ with its sources, two drawings, and the core columns at sensor granularity
 (Gova: "If we 24 freq data, then 24 columns"). Open it with
 `uv run python -m sensors_gui.web --page "/#cpu"`, then "Memory". Checkpoint 5
 does not start before Gova answers.
+
+**Checkpoint 4b, session 11 (2026-09-25).** Gova on checkpoint 4: "The memory
+view is subpar imo. Can't pinpoint what to improve though." He made no
+remark on the processor view. The memory view is rebuilt on his three
+choices (a bar that divides the memory, the values on the drawing, memory
+pressure) and **waits for his review**:
+`uv run python -m sensors_gui.web --page "/#memory"`. The rate buttons now
+step through 0.1, 0.2, 0.25, 0.5, 1, 2, 5 and 10 Hz. 186 channels (181 shown,
+5 hidden); 570 tests.
 
 **The command.** This is the one `docs/gui-goal.md` section 5 rule 2 asks for:
 
@@ -345,6 +354,27 @@ rules before any code is written. Reading comes first.
 
 ## Waiting for Gova
 
+**Session 11 (2026-09-25).** Waiting for Gova on:
+
+1. **Checkpoint 4b**: the rebuilt memory view. Checkpoint 5 waits for it.
+2. **Q21**: each read of the `amdgpu` "PPT" channel makes the kernel driver
+   send a message to the SMU (`exp-0019`, finding 4). Keep the channel, or
+   drop it? It also does not follow the CPU, so it gives no useful power
+   figure.
+3. **The power research** (`lab/exp-0019-power-draw-sources/`): which route,
+   if any? The agent ranks a smart plug with a local API first, then a
+   "CPU + GPU (measured)" channel now. It also needs the C1200's model number
+   from its label, and approval before `avahi-browse` queries the network.
+4. **The tests of session 11** were written from the kernel's documented
+   formats, not from values Gova gave: the pressure file
+   `some avg10=1.53 ...` gives 1.53 %; `pgfault` 1000 then 1600 two seconds
+   later gives 300/s; a counter that falls counts from 0; the bar of 20.0,
+   40.4 and 1.7 GiB gives 20.0, 38.7 and 1.7 GiB. Confirm or correct.
+
+Answered in session 11: the processor view's cost stays ("Leave it as it
+is."); fixed rate steps; the push was already done; the `TODO` got its
+preliminary research.
+
 **Session 10, end (2026-09-25).** Waiting for Gova on:
 
 1. **Checkpoint 4**, the processor and memory views.
@@ -352,7 +382,8 @@ rules before any code is written. Reading comes first.
    far: reduce it?
 3. **Rate steps**: keep halving (0.63, 0.31 Hz), or fixed steps 0.25, 0.5,
    1, 2, 5, 10 Hz?
-4. **Push**: 5 signed commits are local only (`c7beb5d` to `8223e54`).
+4. ~~**Push**~~ **DONE**: on 2026-09-25 `git ls-remote origin main` gave
+   `4c80e14`, the same as local `main`.
 5. **Gova's `TODO`** (other devices that can measure power draw): now, or
    after the GUI stream? The brief closes the catalogue for the stream.
 
@@ -486,6 +517,8 @@ Verified on the machine at the end of session 6, not assumed:
 | Q18 | **Updated 2026-09-23:** Gova's photographs 06 and 07 added the coolant tubes and the card's fan to the drawing, and confirmed the chip plate and the connector. Memory, VRM, PCIe and the fan channels still have no position. The original question follows. The wireframe places two dots on the card: the power connector (seen in photograph 02) and the chip (inferred from the backplate plate). Memory, VRM, PCIe, the fans and the hotspot are in a "position not established" row. A photograph of the card's fan side, or of the bare board, would place more. Will Gova take one, or is the row the answer? | the wireframe | Gova |
 | ~~Q19~~ | **ANSWERED 2026-09-23**, Gova: "Is the cost significant? Reduce if it is." It was: it doubled the view's cost at 1 Hz. A pulse in 12 steps over 3 s, on compositor-only HTML, costs about 0.005 cores at 1 Hz and 0.008 at 10 Hz, about 90 % less. The original question follows. The pulse of the wireframe dots costs about 0.045 cores while it is on screen, and roughly doubles the view's cost at 1 Hz (0.0876 against 0.0450 cores). Keep it, slow it, or pulse only a dot whose state is not normal? | overhead | Gova |
 | Q20 | **Half answered 2026-09-23:** Gova traced the airflow with a string. The CPU radiator is at the top, with the 3 top fans; the full table is in `docs/physical-build.md`. **Still open: which fans each board header reads** — `CPU_FAN1`, `PUMP_FAN1`, `SYS_FAN1` and the EZ Conn header. The original question follows. **Where is the CPU cooler's radiator, and which fans are on `CPU_FAN1`?** The bottom radiator turned out to be the graphics card's (2026-09-23). The CPU cooler's tubes run from the pump toward the top of the case (photograph 05), so its radiator is probably under the 3 top fans. `docs/physical-build.md` guessed that `CPU Fan` drives "the radiator fans", meaning the bottom ones; that is now open again. A photograph of the top of the case, or Gova's own knowledge, answers it. It matters for the Cooling view at checkpoint 5. | the cooling view, and `HANDOFF.md` section 3 | Gova |
+| Q21 | **2026-09-25, `exp-0019` finding 4.** Each read of `amdgpu` `power1_input` ("PPT", in the catalogue in group `gpu`; no view shows it yet, but the collector reads it) makes the kernel driver send `SMU_MSG_TransferTableSmu2Dram` to the SMU, at most once each millisecond; the collector reads it on every pass. ADR 0011 section 2 permits what a kernel driver publishes, but ADR 0010 closed the SMU route. The channel also reads 0.03-0.06 W while the package draws 161 W, so its meaning is not established. Keep it, or drop it? The other `amdgpu` channels may take the same path; that is not checked. | the integrated graphics channels | Gova |
+| Q22 | **2026-09-25, `exp-0019`.** A webcam, Sonix `0c45:6366` "USB 2.0 Camera", behind a Genesys hub on bus 9, is not in `docs/hardware-inventory.md`. `lab/exp-0019-power-draw-sources/results/usb-devices.txt`. Add it at the next inventory pass. | inventory | Claude |
 | Q10 | **The screen now shows this live**: on 2026-09-22 it read 31 unsafe shutdowns in 150 power cycles, about one in five. One of them was the thermal shutdown of 2026-09-22. Does Gova know what causes the rest? (This row no longer holds a copy of the number. `HANDOFF.md` said 29 and this file said 28; both were true when written, at 145 and 144 power cycles.) | health | Gova |
 
 ## Expected fan count (Gova, 2026-09-21)

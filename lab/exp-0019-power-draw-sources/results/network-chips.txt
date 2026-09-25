@@ -1,0 +1,107 @@
+# Command: ls /sys/class/net; for wlp8s0 and enp11s0: driver, device path, hwmon under the device, power/; ls /sys/class/ieee80211/*/; ls /sys/class/thermal; cat thermal_zone*/type
+# Date: 2026-09-25T10:16:19Z (2026-09-25), host dst-gova-pc
+# Source: sysfs, read as user gova. No ethtool, iw or other command that sends a request to the chips.
+
+== wlp8s0 driver=ath12k_wifi7_pci device=/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:04.0/0000:06:00.0/0000:07:00.0/0000:08:00.0
+  hwmon under device: 
+  files matching power|curr|volt|energy under device (depth 2):
+/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:04.0/0000:06:00.0/0000:07:00.0/0000:08:00.0/current_link_width
+/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:04.0/0000:06:00.0/0000:07:00.0/0000:08:00.0/current_link_speed
+  operstate=up carrier=1 speed=cat: /sys/class/net/wlp8s0/speed: Invalid argument
+== enp11s0 driver=r8169 device=/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:06.0/0000:0b:00.0
+  hwmon under device: 
+  files matching power|curr|volt|energy under device (depth 2):
+/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:06.0/0000:0b:00.0/current_link_width
+/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:06.0/0000:0b:00.0/current_link_speed
+  operstate=down carrier=0 speed=-1
+
+== /sys/class/ieee80211
+phy0
+addresses
+address_mask
+device
+index
+macaddress
+name
+power
+rfkill1
+subsystem
+uevent
+
+== /sys/class/thermal
+/sys/class/thermal/cooling_device0 type=PCIe_Port_Link_Speed_0000:00:01.1
+/sys/class/thermal/cooling_device1 type=PCIe_Port_Link_Speed_0000:00:01.2
+/sys/class/thermal/cooling_device10 type=PCIe_Port_Link_Speed_0000:04:08.0
+/sys/class/thermal/cooling_device11 type=PCIe_Port_Link_Speed_0000:07:00.0
+/sys/class/thermal/cooling_device12 type=PCIe_Port_Link_Speed_0000:07:06.0
+/sys/class/thermal/cooling_device13 type=PCIe_Port_Link_Speed_0000:07:0e.0
+/sys/class/thermal/cooling_device14 type=Processor
+/sys/class/thermal/cooling_device15 type=Processor
+/sys/class/thermal/cooling_device16 type=Processor
+/sys/class/thermal/cooling_device17 type=Processor
+/sys/class/thermal/cooling_device18 type=Processor
+/sys/class/thermal/cooling_device19 type=Processor
+/sys/class/thermal/cooling_device2 type=PCIe_Port_Link_Speed_0000:00:02.1
+/sys/class/thermal/cooling_device20 type=Processor
+/sys/class/thermal/cooling_device21 type=Processor
+/sys/class/thermal/cooling_device22 type=Processor
+/sys/class/thermal/cooling_device23 type=Processor
+/sys/class/thermal/cooling_device24 type=Processor
+/sys/class/thermal/cooling_device25 type=Processor
+/sys/class/thermal/cooling_device26 type=Processor
+/sys/class/thermal/cooling_device27 type=Processor
+/sys/class/thermal/cooling_device28 type=Processor
+/sys/class/thermal/cooling_device29 type=Processor
+/sys/class/thermal/cooling_device3 type=PCIe_Port_Link_Speed_0000:00:02.2
+/sys/class/thermal/cooling_device30 type=Processor
+/sys/class/thermal/cooling_device31 type=Processor
+/sys/class/thermal/cooling_device32 type=Processor
+/sys/class/thermal/cooling_device33 type=Processor
+/sys/class/thermal/cooling_device34 type=Processor
+/sys/class/thermal/cooling_device35 type=Processor
+/sys/class/thermal/cooling_device36 type=Processor
+/sys/class/thermal/cooling_device37 type=Processor
+/sys/class/thermal/cooling_device4 type=PCIe_Port_Link_Speed_0000:00:08.1
+/sys/class/thermal/cooling_device5 type=PCIe_Port_Link_Speed_0000:00:08.3
+/sys/class/thermal/cooling_device6 type=PCIe_Port_Link_Speed_0000:04:00.0
+/sys/class/thermal/cooling_device7 type=PCIe_Port_Link_Speed_0000:04:04.0
+/sys/class/thermal/cooling_device8 type=PCIe_Port_Link_Speed_0000:04:06.0
+/sys/class/thermal/cooling_device9 type=PCIe_Port_Link_Speed_0000:04:07.0
+cooling_device0
+cooling_device1
+cooling_device10
+cooling_device11
+cooling_device12
+cooling_device13
+cooling_device14
+cooling_device15
+cooling_device16
+cooling_device17
+cooling_device18
+cooling_device19
+cooling_device2
+cooling_device20
+cooling_device21
+cooling_device22
+cooling_device23
+cooling_device24
+cooling_device25
+cooling_device26
+cooling_device27
+cooling_device28
+cooling_device29
+cooling_device3
+cooling_device30
+cooling_device31
+cooling_device32
+cooling_device33
+cooling_device34
+cooling_device35
+cooling_device36
+cooling_device37
+cooling_device4
+cooling_device5
+cooling_device6
+cooling_device7
+cooling_device8
+cooling_device9

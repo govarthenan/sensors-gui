@@ -1,0 +1,67 @@
+# Command: for each /sys/class/hwmon/hwmon*: name, device path, and every power*/curr*/in*/energy* file with its mode and value (cat as user gova)
+# Date: 2026-09-25T10:11:43Z (2026-09-25), host dst-gova-pc, kernel 7.0.0-31-generic
+# Source: sysfs, read as user gova. Read only. Files that are not readable are listed with the error.
+
+== /sys/class/hwmon/hwmon0 name=r8169_0_b00:00 device=/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:06.0/0000:0b:00.0/mdio_bus/r8169-0-b00/r8169-0-b00:00
+== /sys/class/hwmon/hwmon1 name=nvme device=/sys/devices/pci0000:00/0000:00:01.2/0000:02:00.0/nvme/nvme0
+== /sys/class/hwmon/hwmon2 name=k10temp device=/sys/devices/pci0000:00/0000:00:18.3
+== /sys/class/hwmon/hwmon3 name=spd5118 device=/sys/devices/pci0000:00/0000:00:14.0/i2c-0/0-0051
+== /sys/class/hwmon/hwmon4 name=spd5118 device=/sys/devices/pci0000:00/0000:00:14.0/i2c-0/0-0053
+== /sys/class/hwmon/hwmon5 name=nct6687 device=/sys/devices/platform/nct6687.2592
+  in0_input                    -r--r--r--  12024 
+  in0_label                    -r--r--r--  +12V 
+  in0_max                      -r--r--r--  12144 
+  in0_min                      -r--r--r--  12000 
+  in1_input                    -r--r--r--  5030 
+  in1_label                    -r--r--r--  +5V 
+  in1_max                      -r--r--r--  5110 
+  in1_min                      -r--r--r--  5020 
+  in3_input                    -r--r--r--  1314 
+  in3_label                    -r--r--r--  CPU Soc 
+  in3_max                      -r--r--r--  1316 
+  in3_min                      -r--r--r--  1296 
+  in4_input                    -r--r--r--  1126 
+  in4_label                    -r--r--r--  CPU Vcore 
+  in4_max                      -r--r--r--  1386 
+  in4_min                      -r--r--r--  748 
+  in7_input                    -r--r--r--  1364 
+  in7_label                    -r--r--r--  CPU VDDIO 
+  in7_max                      -r--r--r--  1372 
+  in7_min                      -r--r--r--  1360 
+  in8_input                    -r--r--r--  360 
+  in8_label                    -r--r--r--  Chipset 
+  in8_max                      -r--r--r--  390 
+  in8_min                      -r--r--r--  282 
+  in9_input                    -r--r--r--  608 
+  in9_label                    -r--r--r--  CPU SA 
+  in9_max                      -r--r--r--  822 
+  in9_min                      -r--r--r--  578 
+  in10_input                   -r--r--r--  1524 
+  in10_label                   -r--r--r--  Voltage #2 
+  in10_max                     -r--r--r--  1532 
+  in10_min                     -r--r--r--  1522 
+  in11_input                   -r--r--r--  3276 
+  in11_label                   -r--r--r--  System 3.3V 
+  in11_max                     -r--r--r--  3296 
+  in11_min                     -r--r--r--  3268 
+  in13_input                   -r--r--r--  3112 
+  in13_label                   -r--r--r--  CMOS Battery 
+  in13_max                     -r--r--r--  3124 
+  in13_min                     -r--r--r--  0 
+== /sys/class/hwmon/hwmon6 name=amdgpu device=/sys/devices/pci0000:00/0000:00:08.1/0000:74:00.0
+  in0_input                    -r--r--r--  1155 
+  in0_label                    -r--r--r--  vddgfx 
+  in1_input                    -r--r--r--  1305 
+  in1_label                    -r--r--r--  vddnb 
+  power1_input                 -r--r--r--  37000 
+  power1_label                 -r--r--r--  PPT 
+== /sys/class/hwmon/hwmon7 name=hidpp_battery_3 device=/sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-5/1-5:1.2/0003:046D:C53F.0019/0003:046D:4074.001A/power_supply/hidpp_battery_3
+
+== Channel types the nct6687 driver declares (grep -n HWMON_CHANNEL_INFO lab/exp-0010-driver-patch-results/results/nct6687.c.orig, a copy of the driver source kept by exp-0010; read 2026-09-25)
+1493:	HWMON_CHANNEL_INFO(in,
+1499:	HWMON_CHANNEL_INFO(fan,
+1503:	HWMON_CHANNEL_INFO(temp,
+1507:	HWMON_CHANNEL_INFO(pwm,
+   -> in, fan, temp, pwm only. No curr and no power channel type. The board chip reports voltages, not currents or power.
+
+== What the application reads from hwmon: src/sensors_gui/collectors/hwmon.py reads EVERY <kind><n>_input for kind in temp,in,curr,power,energy,fan,pwm,freq,humidity (KIND_UNITS, _discover_device). So every hwmon power/curr/in/energy channel listed above is ALREADY in the application. amdgpu power1 'PPT' is already a channel.

@@ -1,0 +1,20 @@
+# Command: top -b -n 1 -o %CPU | head -12; nvidia-smi --query-gpu=utilization.gpu,power.draw,pstate --format=csv; nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv
+# Date: 2026-09-25T10:14:53Z (2026-09-25), host dst-gova-pc
+# Source: procps top and nvidia-smi (query only). Why: the machine was NOT idle during this experiment. Folding@home (fah-client, nice 19) was running on the CPU and the GPU. This experiment did not start it.
+
+top - 15:44:53 up 3 days,  5:06,  2 users,  load average: 21.17, 21.13, 21.18
+Tasks: 765 total,   6 running, 758 sleeping,   0 stopped,   1 zombie
+%Cpu(s):  4.9 us,  1.1 sy, 82.5 ni, 11.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+MiB Mem :  61826.2 total,   1600.1 free,  20604.8 used,  40867.8 buff/cache     
+MiB Swap:      0.0 total,      0.0 free,      0.0 used.  41221.4 avail Mem 
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+ 511133 fah-cli+  39  19 1591652 166588  14684 R  1758   0.3      8,38 FahCore+
+ 410824 fah-cli+  39  19   17.8g   4.8g 149976 R  91.7   7.9 106:18.00 FahCore+
+  36507 gova      20   0   53.3g 663196 229576 R  75.0   1.0  87:33.90 chrome
+  36459 gova      20   0   53.1g 621492 318520 S   8.3   1.0  21:24.35 chrome
+ 566270 gova      20   0   18356   6744   4480 R   8.3   0.0   0:00.01 top
+utilization.gpu [%], power.draw [W], pstate
+74 %, 315.51 W, P2
+pid, process_name, used_gpu_memory [MiB]
+410824, /var/lib/fah-client/cores/openmm-core-27/centos-7.9.2009-64bit/release/fahcore-27-centos-7.9.2009-64bit-release-8.2.1/FahCore_27, 1134 MiB

@@ -303,3 +303,61 @@ last 1, 5 & 15 minutes", so the card now says that.
 The processor view is the most costly view so far. Against the memory view
 it has 16 pulsing dots, where the card has 8, and three column displays that
 redraw on every frame. Which of the two costs more is not measured.
+
+### Checkpoint 4b — the memory view rebuilt, and fixed rate steps, 2026-09-25 (session 11)
+
+**Gova's words, verbatim**, on checkpoint 4:
+
+> had a look. The memory view is subpar imo. Can't pinpoint what to improve
+> though.
+
+The view was opened at 2560 x 1440 beside the processor view
+(`2026-09-25-checkpoint-4b-memory-before-2560.png`) and five defects were
+named: two thirds of the screen empty; the kernel's account a list of eight
+numbers, with nothing to show how the 60 GiB divides; the swap card six rows
+of zero; a large drawing with no value on it; and no large figures. Gova chose
+three changes from four: **the composition bar with large figures**, **the
+values on the drawing** and **memory pressure**. He did not choose to fold the
+swap card into one line, so it stays.
+
+**What changed**
+
+- One bar for the memory the kernel can use, divided into **in use**, **what
+  the kernel can take back** (available less free, made in the page) and
+  **free**, with four large figures above it. The three parts add up to the
+  total because psutil 7.2.2 gives used as total less available. The middle
+  part is no channel; its tooltip text is in `descriptions.py` (`DERIVED`) and
+  says it is made from two channels and is an estimate.
+- Each module on the drawing carries its temperature, in its state colour.
+- **8 new channels** from `/proc`, readable without root: memory pressure,
+  `some` and `full` over 10, 60 and 300 s, with the kernel's two decimals, and
+  the rates of page faults and major page faults. The pressure file is
+  writable by every user (a write sets a trigger); the collector only reads it.
+- The drawing is one row high, not two, and the temperature and pressure cards
+  are two cells wide: the grid of five cells is full at 2560 px.
+- **Rate steps** (Gova: "Fixed steps. 10hz, 5 hz, 2 hz, 1 hz, 0.5 hz, 0.25 hz,
+  0.2 hz, 0.1 hz"): each click moves one step. Checked in the page: 2 → 0.1 Hz
+  and 0.1 → 10 Hz stop at the ends with the button disabled, and at 0.1 Hz a
+  frame arrived every 10 s for 27 s (the session 10 freeze does not return).
+
+**Defects found by opening the view**, none by a test: the drawing's two-row
+span left an empty space under it; the "Memory use" meter repeated the bar's
+first part; the pressure cells showed whole percents, so 0.40 % would read
+0 % (a spec now carries `decimals` when its unit's number is wrong for it);
+and the tooltip of the derived part said "made in this page" twice.
+
+Screenshots: `2026-09-25-checkpoint-4b-memory-2560.png`,
+`2026-09-25-checkpoint-4b-memory-1280.png` and `-1280-lower.png`. At 1280
+every card takes the whole row and the page does not scroll sideways.
+
+**Cost** (30 s each, `2026-09-25-checkpoint-4b-memory-overhead.json`; the
+machine was close to idle, load 1.05 over 1 min):
+
+| View | Rate | Python | Chrome | Total | Before (checkpoint 4) |
+|---|---|---|---|---|---|
+| Memory | 1 Hz | 0.0123 | 0.0303 | **0.0426 cores** | 0.0320 |
+| Memory | 10 Hz | 0.0413 | 0.0627 | **0.1040 cores** | 0.0920 |
+
+The rise is 0.011 cores at 1 Hz and 0.012 at 10 Hz, for 8 more channels, two
+more charts and the bar. The script counted 4 Python processes where it
+counted 2 before (the `uv` wrapper is one); the Python cores barely moved.

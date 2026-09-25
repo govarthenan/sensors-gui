@@ -1,0 +1,106 @@
+# Command: lsusb; lsusb -t; for d in /sys/bus/usb/devices/*: idVendor idProduct manufacturer product bMaxPower bcdUSB speed power/runtime_status; /sys/class/hidraw/*/device/uevent
+# Date: 2026-09-25T10:12:09Z (2026-09-25), host dst-gova-pc
+# Source: usbutils lsusb (usbutils) 017 and sysfs, read as user gova. lsusb reads cached descriptors from sysfs; it sends no control transfer that sets state.
+# NOTE: bMaxPower is the maximum current the device DECLARES in its configuration descriptor. It is not a measurement.
+
+== lsusb
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 004: ID 0db0:0076 Micro Star International MYSTIC LIGHT
+Bus 001 Device 005: ID 0489:e10a Foxconn / Hon Hai 
+Bus 001 Device 010: ID 046d:c53f Logitech, Inc. USB Receiver
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 005 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 006 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 007 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 007 Device 003: ID 046d:c358 Logitech, Inc. G515 TKL
+Bus 008 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 009 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 009 Device 002: ID 05e3:0608 Genesys Logic, Inc. Hub
+Bus 009 Device 003: ID 0c45:6366 Microdia Webcam Vitade AF
+
+== lsusb -t
+/:  Bus 001.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/12p, 480M
+    |__ Port 005: Dev 010, If 0, Class=Human Interface Device, Driver=usbhid, 12M
+    |__ Port 005: Dev 010, If 1, Class=Human Interface Device, Driver=usbhid, 12M
+    |__ Port 005: Dev 010, If 2, Class=Human Interface Device, Driver=usbhid, 12M
+    |__ Port 006: Dev 004, If 0, Class=Human Interface Device, Driver=usbhid, 12M
+    |__ Port 011: Dev 005, If 0, Class=Wireless, Driver=btusb, 12M
+    |__ Port 011: Dev 005, If 1, Class=Wireless, Driver=btusb, 12M
+/:  Bus 002.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/5p, 20000M/x2
+/:  Bus 003.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/2p, 480M
+/:  Bus 004.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/2p, 20000M/x2
+/:  Bus 005.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/2p, 480M
+/:  Bus 006.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/2p, 10000M
+/:  Bus 007.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/2p, 480M
+    |__ Port 002: Dev 003, If 0, Class=Human Interface Device, Driver=usbhid, 12M
+    |__ Port 002: Dev 003, If 1, Class=Human Interface Device, Driver=usbhid, 12M
+    |__ Port 002: Dev 003, If 2, Class=Human Interface Device, Driver=usbhid, 12M
+/:  Bus 008.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/2p, 10000M
+/:  Bus 009.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/1p, 480M
+    |__ Port 001: Dev 002, If 0, Class=Hub, Driver=hub/4p, 480M
+        |__ Port 001: Dev 003, If 0, Class=Video, Driver=uvcvideo, 480M
+        |__ Port 001: Dev 003, If 1, Class=Video, Driver=uvcvideo, 480M
+
+== sysfs descriptors
+dev        vid:pid   bcdUSB  bMaxPower speed   rstat  manufacturer                             product
+1-11       0489:e10a 1.10    100mA     12      suspended                                          
+1-5        046d:c53f 2.00    98mA      12      active Logitech                                 USB Receiver
+1-6        0db0:0076 1.10    100mA     12      active MSI                                      MYSTIC LIGHT
+7-2        046d:c358 2.00    500mA     12      active Logitech                                 G515 TKL
+9-1        05e3:0608 2.00    100mA     480     suspended                                          USB2.0 Hub
+9-1.1      0c45:6366 2.00    500mA     480     suspended Sonix Technology Co., Ltd.               USB 2.0 Camera
+usb1       1d6b:0002 2.00    0mA       480     active Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+usb2       1d6b:0003 3.10    0mA       20000   suspended Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+usb3       1d6b:0002 2.00    0mA       480     suspended Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+usb4       1d6b:0003 3.10    0mA       20000   suspended Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+usb5       1d6b:0002 2.00    0mA       480     suspended Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+usb6       1d6b:0003 3.10    0mA       10000   suspended Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+usb7       1d6b:0002 2.00    0mA       480     active Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+usb8       1d6b:0003 3.10    0mA       10000   suspended Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+usb9       1d6b:0002 2.00    0mA       480     suspended Linux 7.0.0-31-generic xhci-hcd          xHCI Host Controller
+
+== hidraw devices (uevent)
+-- /sys/class/hidraw/hidraw0
+HID_ID=0003:0000046D:0000C53F
+HID_NAME=Logitech USB Receiver
+HID_PHYS=usb-0000:0e:00.0-5/input0
+-- /sys/class/hidraw/hidraw1
+HID_ID=0003:0000046D:0000C53F
+HID_NAME=Logitech USB Receiver
+HID_PHYS=usb-0000:0e:00.0-5/input1
+-- /sys/class/hidraw/hidraw2
+HID_ID=0003:0000046D:0000C53F
+HID_NAME=Logitech USB Receiver
+HID_PHYS=usb-0000:0e:00.0-5/input2
+-- /sys/class/hidraw/hidraw3
+HID_ID=0003:0000046D:00004074
+HID_NAME=Logitech G305
+HID_PHYS=usb-0000:0e:00.0-5/input2:1
+-- /sys/class/hidraw/hidraw4
+HID_ID=0003:0000046D:0000C358
+HID_NAME=Logitech G515 TKL
+HID_PHYS=usb-0000:74:00.4-2/input0
+-- /sys/class/hidraw/hidraw5
+HID_ID=0003:0000046D:0000C358
+HID_NAME=Logitech G515 TKL
+HID_PHYS=usb-0000:74:00.4-2/input1
+-- /sys/class/hidraw/hidraw6
+HID_ID=0003:00000DB0:00000076
+HID_NAME=MSI MYSTIC LIGHT
+HID_PHYS=usb-0000:0e:00.0-6/input0
+-- /sys/class/hidraw/hidraw7
+HID_ID=0003:0000046D:0000C358
+HID_NAME=Logitech G515 TKL
+HID_PHYS=usb-0000:74:00.4-2/input2
+
+== HID drivers bound (/sys/bus/hid/devices/*/driver)
+0003:046D:4074.001A -> logitech-hidpp-device
+0003:046D:C358.0024 -> hid-generic
+0003:046D:C358.0025 -> hid-generic
+0003:046D:C358.0026 -> hid-generic
+0003:046D:C53F.0017 -> logitech-djreceiver
+0003:046D:C53F.0018 -> logitech-djreceiver
+0003:046D:C53F.0019 -> logitech-djreceiver
+0003:0DB0:0076.0007 -> hid-generic

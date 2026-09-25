@@ -1,0 +1,36 @@
+# Command: ls /sys/class/power_supply, cat of every readable attribute; ls /sys/class/typec /sys/class/usb_power_delivery /sys/class/usb_role; lsmod | grep -i ucsi|typec
+# Date: 2026-09-25T10:12:00Z (2026-09-25), host dst-gova-pc
+# Source: sysfs and /proc/modules, read as user gova. Read only.
+
+== /sys/class/power_supply
+total 0
+lrwxrwxrwx 1 root root 0 Sep 25 09:33 hidpp_battery_3 -> ../../devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-5/1-5:1.2/0003:046D:C53F.0019/0003:046D:4074.001A/power_supply/hidpp_battery_3
+-- /sys/class/power_supply/hidpp_battery_3 -> /sys/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:0c.0/0000:0e:00.0/usb1/1-5/1-5:1.2/0003:046D:C53F.0019/0003:046D:4074.001A/power_supply/hidpp_battery_3
+   capacity_level         Full 
+   manufacturer           Logitech 
+   model_name             G305 Lightspeed Wireless Gaming Mouse 
+   online                 1 
+   scope                  Device 
+   serial_number          f4-73-bc-80 
+   status                 Discharging 
+   type                   Battery 
+   uevent                 DEVTYPE=power_supply POWER_SUPPLY_NAME=hidpp_battery_3 POWER_SUPPLY_TYPE=Battery POWER_SUPPLY_STATUS=Discharging POWER_SUPPLY_ONLINE=1 POWER_SUPPLY_CAPACITY_LEVEL=Full POWER_SUPPLY_TYPE=Battery POWER_SUPPLY_SCOPE=Device POWER_SUPPLY_MODEL_NAME=G305 Lightspeed Wireless Gaming Mouse POWER_SUPPLY_MANUFACTURER=Logitech POWER_SUPPLY_SERIAL_NUMBER=f4-73-bc-80 
+
+== /sys/class/typec
+ls: cannot access '/sys/class/typec/': No such file or directory
+
+== /sys/class/usb_power_delivery
+ls: cannot access '/sys/class/usb_power_delivery/': No such file or directory
+
+== /sys/class/usb_role
+total 0
+drwxr-xr-x  2 root root 0 Sep 25 15:42 .
+drwxr-xr-x 84 root root 0 Sep 22 10:38 ..
+
+== /sys/class/ucsi (if any)
+drwxr-xr-x  2 root root 0 Sep 22 10:43 powercap
+drwxr-xr-x  2 root root 0 Sep 25 15:42 power_supply
+drwxr-xr-x  2 root root 0 Sep 23 12:12 ppdev
+
+== lsmod | grep -i -E 'ucsi|typec|tps|pd'
+(none loaded)

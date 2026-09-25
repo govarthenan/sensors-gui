@@ -1,0 +1,22 @@
+# Command: uv run python - (inline summary of the file below; the code is in the README, Method step 4)
+# Date: 2026-09-25
+# Source: lab/exp-0019-power-draw-sources/results/2026-09-25-power-channels-30s.json taken 2026-09-25T10:14:53.796764+00:00 - Folding@home was running (results/machine-state.txt)
+
+amdgpu_PPT_W             n=30 min    0.026 mean    0.042 max    0.059 stdev   0.009
+gpu_metrics_socket_raw   n=30 min  104.000 mean  168.133 max  233.000 stdev  35.698
+gpu_metrics_soc_W        n=30 min   20.390 mean   21.249 max   24.142 stdev   0.827
+gpu_metrics_gfx_W        n=30 min    1.943 mean   27.843 max   64.393 stdev  17.458
+RAPL_package_W           n=30 min  158.209 mean  161.058 max  161.865 stdev   0.922
+MSR_cores_sum_W          n=30 min   98.597 mean  101.950 max  103.214 stdev   1.216
+NVML_usage_W             n=30 min  329.998 mean  351.201 max  385.693 stdev  14.631
+NVML_FI_instant_W        n=30 min  209.956 mean  348.124 max  408.385 stdev  49.274
+
+correlation gpu_metrics_socket_raw vs RAPL_package_W: +0.263
+correlation gpu_metrics_gfx_W vs MSR_cores_sum_W: -0.065
+correlation gpu_metrics_gfx_W vs gpu_metrics_socket_raw: +0.392
+correlation amdgpu_PPT_W vs gpu_metrics_socket_raw: +0.981
+RAPL package minus core sum (uncore, SoC, I/O die): mean 59.11 W
+NVML energy counter, mean power over the run: 343.32 W
+NVML context: {'enforced_limit_mw': 480000, 'management_limit_mw': 480000, 'default_limit_mw': 480000, 'limit_constraints_mw': [150000, 530000], 'power_management_mode': 1, 'power_source': 0, 'power_state': 2}
+NVML FI power, scope MODULE and MEMORY: nvmlReturn 3 / nvmlReturn 3 (3 = NVML_ERROR_NOT_SUPPORTED)
+Known DC sum (RAPL package + NVML usage), mean: 512.3 W
