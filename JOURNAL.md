@@ -1764,3 +1764,58 @@ Sources copied this session: `data/evidence/cpu-memory-sources-2026-09-23/`
 (kernel v7.0 documents, psutil 7.2.2, a probe of this machine) and
 `data/evidence/ryzen-9900x-package-layout-2026-09-23/` (the package layout),
 each gathered by a research agent and checked against its quotes before use.
+
+---
+
+## 2026-09-25 — Session 10: "Slower" froze the page, and "Pause" could not be undone
+
+**Gova's report, verbatim** (dictated):
+
+> Hey Claude, I just uh, caught a bug. After I launch the monitor, I can click
+> on the faster button however many times I want. But if I click on the
+> slower button, then the whole thing just gets stuck. You know, the whole
+> page just gets frozen. So I think that um, there's a bug. Uh, in this and
+> also if the hertz or the sampling rate was shown just uh, by those buttons
+> it would be much better I've attached the terminal output I've I got when I
+> was after I hit control and C two times to stop the program
+
+The attached traceback was the shutdown after Ctrl+C: the stream was waiting
+for its next frame when it was cancelled. It showed that frames had stopped,
+not why.
+
+**Reproduced first, in the browser.** 30 s at 10 Hz, one click on "Slower":
+no frame for about 50 s, then frames again at 5 Hz.
+
+**Cause.** The worker set its next deadline as `start + passes * period`.
+When a pass fell behind, it set `passes` from the time since the start at the
+rate in use. So after a change to a slower rate, the next deadline was about
+(time since start) × (old rate / new rate) away: a click from 10 Hz to 5 Hz
+waited **as long as the monitor had already run**. The measured 50 s matches
+a server start at about 11:56:05 and a click at 11:57:10. "Faster" worked,
+because a deadline in the past is caught up at once. The terminal screen does
+not have the bug: it makes a new timer at each change.
+
+**Fix.** `next_deadline`: each deadline is the last one plus the period in
+use now; a missed deadline skips ahead, never as a burst. A test on the real
+worker reproduces the bug at test speed (2 s at 10 Hz, then 5 Hz, a pass
+wanted within 0.5 s). **Its first version passed on the broken loop**,
+because the pass already waiting at the old period ran once after the click;
+the count now starts after that pass, and the test failed on the old loop
+before the fix.
+
+**A second bug, found while checking the first.** After "Pause" the button
+never read "Resume", because its label came from the frames and a paused
+service sends none. A second click paused again, and the page could not
+resume sampling at all. The label and the next action now come from the
+server's answer to the click, and the catalogue carries the paused state for
+a page that opens while paused (with a test).
+
+**Gova's request.** The rate is now between "Slower" and "Faster", and each
+button is disabled at its limit, 0.25 Hz and 10 Hz. It changes on the
+server's answer, so it is right while paused too.
+`lab/exp-0015-gui-checkpoints/results/2026-09-25-rate-between-the-buttons.png`.
+
+**Verified in the browser**: 10 Hz down to 0.25 Hz step by step with frames
+after every click; pause, resume, and a reload while paused.
+
+530 tests pass.

@@ -9,6 +9,7 @@
  */
 
 import { setPaused, setRate, start } from "./stream.js";
+import { setText } from "./widgets.js";
 import { refreshTooltip } from "./tooltip.js";
 import { alertsView } from "./views/alerts.js";
 import { cpuView } from "./views/cpu.js";
@@ -105,6 +106,18 @@ async function main() {
   let frames = 0;
   let paintTotal = 0;
 
+  /**
+   * Show the rate between the buttons that change it, and disable a button
+   * at its limit. Called on every frame and on the answer to a click, because
+   * a paused service sends no frames.
+   */
+  function showRate(hz) {
+    setText($("rate-now"), `${Number(hz.toFixed(2))} Hz`);
+    $("slower").disabled = hz <= catalogue.min_hz;
+    $("faster").disabled = hz >= catalogue.max_hz;
+  }
+  showRate(catalogue.hz);
+
   stream.onFrame((frame, how) => {
     if (how.closed) {
       $("link").textContent = "stream closed";
@@ -118,6 +131,7 @@ async function main() {
     frames += 1;
 
     $("rate").textContent = `${frame.hz.toFixed(2)} Hz`;
+    showRate(frame.hz);
     $("pass").textContent = `${frame.pass.median_ms.toFixed(2)} median, ${frame.pass.max_ms.toFixed(2)} max ms`;
     $("paint").textContent = `${(paintTotal / frames).toFixed(2)} ms`;
     $("sampled").textContent = new Date(frame.t * 1000).toLocaleTimeString();
@@ -141,16 +155,31 @@ async function main() {
   });
 
   // --- the controls -------------------------------------------------------
+  // The rate the last answer gave, so two quick clicks double twice.
+  let rateNow = catalogue.hz;
+  stream.onFrame((frame, how) => {
+    if (!how.closed) rateNow = frame.hz;
+  });
   $("faster").addEventListener("click", async () => {
-    const current = stream.latest?.hz ?? catalogue.hz;
-    await setRate(Math.min(current * 2, 10));
+    rateNow = (await setRate(Math.min(rateNow * 2, catalogue.max_hz))).hz;
+    showRate(rateNow);
   });
   $("slower").addEventListener("click", async () => {
-    const current = stream.latest?.hz ?? catalogue.hz;
-    await setRate(Math.max(current / 2, 0.25));
+    rateNow = (await setRate(Math.max(rateNow / 2, catalogue.min_hz))).hz;
+    showRate(rateNow);
+  });
+  // A paused service sends no frames, so the state for the next click and the
+  // label come from the answer to the last click. Reading them from the frames
+  // left the button on "Pause" for ever, and a second click paused again
+  // (found 2026-09-25, beside Gova's report of the "Slower" freeze).
+  let pausedNow = catalogue.paused;
+  $("pause").textContent = pausedNow ? "Resume" : "Pause";
+  stream.onFrame((frame, how) => {
+    if (!how.closed) pausedNow = frame.paused;
   });
   $("pause").addEventListener("click", async () => {
-    await setPaused(!(stream.latest?.paused ?? false));
+    pausedNow = (await setPaused(!pausedNow)).paused;
+    $("pause").textContent = pausedNow ? "Resume" : "Pause";
   });
 
   show(location.hash.slice(1) || "summary");

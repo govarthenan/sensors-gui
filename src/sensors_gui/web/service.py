@@ -56,6 +56,32 @@ def alert_margin(spec: SensorSpec) -> float:
     return 0.0
 
 
+def next_deadline(deadline: float, period: float, now: float) -> float:
+    """Return the time of the next pass, one period after the last deadline.
+
+    The period is the one in use now, so a change of rate acts on the next
+    pass. A deadline already past is skipped to the next one ahead, never
+    run as a burst of catch-up passes.
+
+    The loop used to compute `start + passes * period`, with `passes` counted
+    since the worker started. A slower rate then put the next pass as far in
+    the future as the worker had already run: the page froze (Gova,
+    2026-09-25).
+
+    Args:
+        deadline: When the pass that just ran was due.
+        period: The time between two passes at the rate in use now.
+        now: The clock now.
+
+    Returns:
+        The next deadline, always later than `now`.
+    """
+    following = deadline + period
+    if following <= now:
+        following += (int((now - following) / period) + 1) * period
+    return following
+
+
 def _identity(spec: SensorSpec) -> SensorSpec:
     """Return the spec unchanged. The default when no naming layer is given."""
     return spec
@@ -227,6 +253,7 @@ class SensorService:
             "hz": self._hz,
             "min_hz": MIN_HZ,
             "max_hz": MAX_HZ,
+            "paused": self._paused,
             "groups": [str(group) for group in Group],
             "shown": sum(1 for channel in channels if not channel.hidden),
             "hidden": sum(1 for channel in channels if channel.hidden),
@@ -343,14 +370,12 @@ class SensorService:
     def _run(self) -> None:
         """Sample at the chosen rate until stopped.
 
-        The next deadline comes from a fixed start, so the loop does not drift.
-        When a pass runs past a deadline, the loop skips to the next one still
-        ahead instead of firing a burst of catch-up passes. This is the same
-        rule as `Sampler.run`, kept here because the rate can change while the
-        loop runs.
+        Each deadline is the last one plus the period in use now, so the loop
+        does not drift, and a change of rate acts on the next pass. When a pass
+        runs past a deadline, the loop skips to the next one still ahead
+        instead of firing a burst of catch-up passes. See `next_deadline`.
         """
-        start = self._clock()
-        passes = 0
+        deadline = self._clock()
         while not self._stop.is_set():
             if not self._paused:
                 try:
@@ -359,13 +384,8 @@ class SensorService:
                     logger.error("service: a pass raised, which is against contract: %s", exc)
                 else:
                     self._publish(frame)
-            passes += 1
-            period = 1.0 / self._hz
-            delay = start + passes * period - self._clock()
-            if delay < 0:
-                passes = int((self._clock() - start) / period) + 1
-                delay = start + passes * period - self._clock()
-            self._stop.wait(max(delay, 0.0))
+            deadline = next_deadline(deadline, 1.0 / self._hz, self._clock())
+            self._stop.wait(max(deadline - self._clock(), 0.0))
 
     def _publish(self, frame: dict[str, object]) -> None:
         """Hand one frame to every subscriber. A raising subscriber is logged, not fatal."""

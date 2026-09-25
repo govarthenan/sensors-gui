@@ -18,6 +18,9 @@ export class Catalogue {
   constructor(payload) {
     this.machine = payload.machine;
     this.hz = payload.hz;
+    this.min_hz = payload.min_hz;
+    this.max_hz = payload.max_hz;
+    this.paused = payload.paused ?? false;
     this.shown = payload.shown;
     this.hidden = payload.hidden;
     this.channels = payload.channels;

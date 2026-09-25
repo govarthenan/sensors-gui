@@ -15,7 +15,7 @@ from dataclasses import replace
 import pytest
 
 from sensors_gui.model import Group, Reading, SensorId, SensorSpec, Unit
-from sensors_gui.web.service import MAX_HZ, MIN_HZ, PassTimes, SensorService
+from sensors_gui.web.service import MAX_HZ, MIN_HZ, PassTimes, SensorService, next_deadline
 
 
 class RecordingCollector:
@@ -93,6 +93,13 @@ def test_catalogue_reports_the_counts_and_every_channel(service: SensorService) 
     assert catalogue["hidden"] == 0
     assert len(catalogue["channels"]) == 3
     assert {channel["label"] for channel in catalogue["channels"]} == {"Tctl", "CPU Fan", "CPU Package Power"}
+
+
+def test_catalogue_says_whether_sampling_is_paused(service: SensorService) -> None:
+    """A paused service sends no frames, so a page that opens then learns the state here."""
+    assert service.catalogue()["paused"] is False
+    service.set_paused(True)
+    assert service.catalogue()["paused"] is True
 
 
 def test_catalogue_carries_the_scale_and_the_thresholds(service: SensorService) -> None:
@@ -192,6 +199,48 @@ def test_pausing_stops_the_passes_and_resuming_starts_them(
         service.set_paused(False)
         time.sleep(0.4)
         assert collector.reads > taken + 1
+    finally:
+        service.stop()
+
+
+def test_next_deadline_is_one_new_period_after_the_last_deadline() -> None:
+    """A slower rate acts on the next pass. Gova, 2026-09-25: "Slower" froze the page."""
+    assert next_deadline(100.0, 0.2, now=100.01) == pytest.approx(100.2)
+
+
+def test_next_deadline_does_not_depend_on_how_long_the_worker_has_run() -> None:
+    """The same step at any time: the old loop's wait grew with the time since start."""
+    early = next_deadline(1.0, 0.2, now=1.01) - 1.01
+    late = next_deadline(3600.0, 0.2, now=3600.01) - 3600.01
+    assert early == pytest.approx(late)
+
+
+def test_next_deadline_skips_missed_deadlines_without_a_burst() -> None:
+    """A pass that ran long moves on to the next deadline still ahead, one pass only."""
+    assert next_deadline(100.0, 0.1, now=100.35) == pytest.approx(100.4)
+
+
+def test_next_deadline_is_always_ahead_of_now() -> None:
+    assert next_deadline(100.0, 0.5, now=100.5) > 100.5
+
+
+def test_a_slower_rate_keeps_the_passes_coming(service: SensorService, collector: RecordingCollector) -> None:
+    """The bug of 2026-09-25, at test speed.
+
+    At 10 Hz for 2 s, then 5 Hz: the old loop set its next deadline from the
+    passes counted since the start, and waited about 2 s before the next pass.
+    A pass must come within one new period and a margin. The pass already
+    waiting at the old period still runs, so the count starts after it.
+    """
+    service.set_rate(10.0)
+    service.start()
+    try:
+        time.sleep(2.0)
+        service.set_rate(5.0)
+        time.sleep(0.15)
+        taken = collector.reads
+        time.sleep(0.5)
+        assert collector.reads > taken
     finally:
         service.stop()
 
