@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-25 (session 11; the memory view is rebuilt as checkpoint 4b and waits for Gova's review)
+Last update: 2026-09-25 (end of session 11; checkpoint 4b waits for Gova's review; session 11 commits not pushed)
 
 ## Phase
 

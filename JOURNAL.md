@@ -1918,3 +1918,20 @@ as one line".
 - The tests of the new collector and the bar were written from the kernel's
   documented formats, not from input and output values Gova gave. They are
   listed in the report for him to confirm.
+
+---
+
+## 2026-09-25 — Session 11, end
+
+**Gova's words, verbatim**
+
+> OK. End th convo and rewrite handoff
+
+**What was done**
+
+- `HANDOFF.md` rewritten for session 12: a "start here" line, the push state
+  (every session 11 commit after `4c80e14` is local), the held-back
+  `network-neighbours.txt`, two new traps (an agent's results can hold
+  private data; a probe can cause the SMU message it reports), and the five
+  answers that wait for Gova.
+- Not pushed; the network file stays untracked. Both wait for Gova.
