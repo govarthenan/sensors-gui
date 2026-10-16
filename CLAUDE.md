@@ -41,6 +41,7 @@ first: for two days they disagreed about the graphics card and the radiators.
 
 ```
 CLAUDE.md              This file.
+launch.sh              The one command to start the GUI, the terminal screen and the checks.
 README.md              Short description for a human.
 JOURNAL.md             Dated log of events, findings and decisions. Short entries.
 state/STATUS.md        Live state: phase, next actions, open questions, blockers.
@@ -65,6 +66,10 @@ scripts/               Helper scripts for the developer.
   system Python.
 - **Record everything.** A finding, an experiment or a decision that is not in
   `docs/`, `lab/` or `JOURNAL.md` does not exist.
+- **Keep `launch.sh` current.** When an entry point, a flag or a developer
+  tool is added, removed or renamed, change `launch.sh` (and its `help` text)
+  in the same commit. `./launch.sh help` must always list every way to run
+  the project. It must never use sudo and never write to hardware.
 - **Run the thing and look at it.** Four screen defects were found by rendering
   the application and none by the tests. Use
   `uv run python scripts/preview-screen.py --rows 0 --all`.

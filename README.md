@@ -34,7 +34,9 @@ uv sync
 ## Run
 
 ```bash
-uv run python -m sensors_gui
+./launch.sh            # the GUI, in its own Chrome window
+./launch.sh tui        # the terminal screen
+./launch.sh help       # every command
 ```
 
 Two sources need root: the CPU energy counters and the drive's SMART log. A

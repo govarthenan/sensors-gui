@@ -1935,3 +1935,46 @@ as one line".
   private data; a probe can cause the SMU message it reports), and the five
   answers that wait for Gova.
 - Not pushed; the network file stays untracked. Both wait for Gova.
+
+## 2026-09-25 — Session 12: checkpoint 4b accepted
+
+**Gova's words, verbatim**
+
+> 1. I had a look. It's OK
+
+**What it means**
+
+- Checkpoint 4b, the rebuilt memory view, is **accepted**. Checkpoint 5 may
+  start once the open answers allow it (Q20 for the fan positions).
+- Gova asked for an explanation of Q21 (the `amdgpu` "PPT" channel) before
+  he answers it.
+
+## 2026-10-16 — Session 12: `launch.sh`
+
+**Gova's words, verbatim**
+
+> Add a launch.sh script to the proj root that evolves with the project.
+
+**What was done**
+
+- `launch.sh` at the root: `gui` (the default), `serve`, `tui`, `preview`,
+  `status`, `check`, `test` and `help`. Each command calls the real entry point
+  through `uv run` and passes the extra arguments through, so a new flag on an
+  entry point works with no change to the script. No sudo, no hardware write.
+- "Evolves with the project" is a rule now: CLAUDE.md, section 4. A change to
+  an entry point, a flag or a tool changes `launch.sh` in the same commit.
+- Checked by running each command: `help`, `status` (helper active, socket
+  `srw-rw---- root:gova`), an unknown command (exit 2), `check` (ruff clean,
+  570 tests pass), `serve --port 8799` (page answers 200), `preview`, and
+  `gui --port 8798 --page "/#cpu"` (the Chrome window opened; screenshot
+  looked at).
+
+**Found on the way, not fixed**
+
+- When the server process gets SIGTERM, the Chrome window stays open:
+  `launch.py` closes the window in a `finally` block that did not run. A
+  Ctrl+C in the terminal was not tested.
+- With `--page "/#cpu"` the window showed the Motherboard view in the
+  screenshot. The Chrome command line had `#cpu`, so `launch.sh` passed it
+  correctly. The cause is not known; it can be a click in the window.
+- README.md still gives old channel counts (177 and 19 for the helper).
