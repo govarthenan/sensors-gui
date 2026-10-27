@@ -1,0 +1,14 @@
+# Command: cat /sys/class/hwmon/hwmon5/{fan1,fan2,fan3,fan9}_input, pwm1..pwm3, pwm1..3_enable; k10temp temp1_input. Read only; nothing written.
+# Date: 2026-10-27, about 05:32Z (UTC), host dst-gova-pc. hwmon5 is nct6687 (checked by its name file).
+# Source: the patched nct6687 driver (exp-0010). pwm is 0-255; enable 2 = the chip's own automatic curve.
+fan1_input 2234
+fan2_input 1461
+fan3_input 1266
+fan9_input 986
+pwm1 148
+pwm2 255
+pwm3 153
+pwm1_enable 2
+pwm2_enable 2
+pwm3_enable 2
+k10temp temp1_input (Tctl, milli-degC) 60000

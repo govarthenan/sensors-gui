@@ -1,0 +1,59 @@
+# Command: firecrawl scrape https://www.msi.com/Liquid-Cooling/MAG-CORELIQUID-E360/Specification (specification block only, repeated lines removed)
+# Date: 2026-10-27
+# Source: MSI's product page for the MAG CORELIQUID E360 / WHITE
+
+# MAG CORELIQUID E360 / WHITE
+Accessories
+1 x 1 to 3 Fan PWM cable
+1 x Molex 4-Pin to 4-Pin fan cable
+1 x low noise adapter cable
+1 x Thermal paste
+AMD Socket Support
+AM5/AM4/TR4/sTRx4
+Intel Socket Support
+LGA 1150/1151/1155/1156/1200/1700/1851
+Block Dimensions (WxDxH)
+74.9 x 65.4 x 54.2 mm
+Cold Plate Material
+Copper
+Pump Connector
+4-pin
+Pump Speed
+3000 RPM ± 10%
+Pump Power Consumption
+3W (Max: 6W)
+Pump Rated Current
+0.25A (Max: 0.5A)
+Pump Noise Level
+20 dBA (avg.)
+Pump Life Expectancy
+50,000 hours in typical use
+Fan Lighting
+ARGB
+Fan Connector
+4-Pin
+Cable Length (PWM Cable)
+550 / 500 mm; 21.65 / 19.69 inches
+PWM Mode
+YES
+Fan Power Consumption
+3W(Max:4.8W)
+Fan Rated Current
+0.25A(Max:0.4A)
+Fan Life Expectancy
+50,000 hrs@40℃
+Fan Bearing
+Fluid Dynamic Bearing (FDB)
+Fan Air Flow
+25.5~75.04 CFM
+Fan Dimensions (WxDxH)
+120 x 120 x 25mm / 4.7 x 4.7 x 0.98 inches
+Number of Fans
+3
+Water Cooling Tube Material
+Black Rubber
+Radiator Material
+Aluminum
+Radiator Dimensions (WxDxH)
+394 x 119.2 x 27mm / 15.51 x 4.69 x 1.06 inches
+Radiator Size

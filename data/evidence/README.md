@@ -133,6 +133,23 @@ this machine's CPU and DIMM sysfs state.
 Supports: the PROCESSOR and MEMORY tooltips (does not itself write tooltip
 text).
 
+### `mag-coreliquid-e360-2026-10-27/`
+
+The manual pages and the specification of the MSI MAG CORELIQUID E360, the
+CPU cooler that the pump in photograph 03 matches. The model is **inferred**
+from the photograph, not read from a label.
+
+| File | Contents |
+|---|---|
+| `README.md` | Sources, commands, the SHA-256 of the manual, what it says, and the conflict with this machine's fan readings. |
+| `manual-p12-connection.png` | The manual's connection drawing: pump to `PUMP_FAN`, the 3 fans through a 1-to-3 cable to `CPU_FAN`. |
+| `manual-contents-06.png`, `manual-contents-07.png` | The packing contents, with the 1-to-3 cable (Q) and the low-noise cable (R). |
+| `manual-cover-01.png` | The cover: one manual for the E240 and the E360. |
+| `specification.txt` | MSI's specification: pump 3000 RPM ± 10 %, 4-pin fans. |
+| `msi-e360-overview-screenshot.jpg` | MSI's product image, for the visual match. |
+
+Supports: `lab/exp-0020-case-cooler-identity/`, Q20.
+
 ## Rules
 
 1. **Copy, do not link.** A path under `/usr/src` or `/tmp` is not evidence. It

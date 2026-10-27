@@ -2024,3 +2024,20 @@ model names: "Use the photos. Which components do you need named?"
 - `docs/hardware-inventory.md` open question 6 was marked answered from the
   EZ Conn tachometer alone. It is open again; it is Q20.
 - HANDOFF 5.1 and STATUS: checkpoint 4b accepted, checkpoint 5 started.
+
+## 2026-10-27 — Session 13: `exp-0020`, the cooler from the photographs
+
+- The pump in photograph 03 matches the **MSI MAG CORELIQUID E360**, black.
+  Inferred from MSI's product image and the manual's drawing; no label read.
+  Manual pages and specification in
+  `data/evidence/mag-coreliquid-e360-2026-10-27/`.
+- The manual: pump to `PUMP_FAN`, the 3 radiator fans to `CPU_FAN` through
+  one 1-to-3 cable. Pump 3000 RPM ± 10 %.
+- **The readings fit the manual poorly.** `CPU_FAN1` reads 2234 RPM at duty
+  148 of 255, above the fans' published maximum (1800 ± 200 or 2000), and
+  3125 RPM in the BIOS, inside the pump's range. `PUMP_SYS1` reads a steady
+  1461 RPM at 255 of 255, half the pump's speed. H1: the pump is on
+  `CPU_FAN1`. If so, the thermal shutdown of 2026-09-22 stopped the pump.
+  Not established; the BIOS test of Q20 settles it.
+- The case and the case fans were not identified. Gova asked which names are
+  needed: the case model and the front, top and rear fan models.
