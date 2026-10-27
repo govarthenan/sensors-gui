@@ -12,6 +12,7 @@ import { nextRate, setPaused, setRate, start } from "./stream.js";
 import { setText } from "./widgets.js";
 import { refreshTooltip } from "./tooltip.js";
 import { alertsView } from "./views/alerts.js";
+import { coolingView } from "./views/cooling.js";
 import { cpuView } from "./views/cpu.js";
 import { gpuView } from "./views/gpu.js";
 import { memoryView } from "./views/memory.js";
@@ -30,7 +31,7 @@ const VIEWS = [
   { id: "cpu", name: "Processor", build: cpuView },
   { id: "memory", name: "Memory", build: memoryView },
   { id: "board", name: "Motherboard", checkpoint: 5, note: "MSI PRO X870-P WIFI — 9 fans, 10 voltages, 7 temperatures" },
-  { id: "cooling", name: "Cooling", checkpoint: 5, note: "every fan and the pump, beside the temperature it acts on" },
+  { id: "cooling", name: "Cooling", build: coolingView },
   {
     id: "igpu",
     name: "Integrated graphics",

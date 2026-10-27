@@ -182,3 +182,28 @@ its temperature on a plate across its middle, in the colour of its state, and
 the dot moved up the module to make room. The slots are wider and further
 apart. Neither change is a new claim: the plate is on the module whose sensor
 it reads, and the drawing is still not to scale.
+
+## The case and its air — `src/sensors_gui/web/static/views/airflow-diagram.js`
+
+Written 2026-10-27, at checkpoint 5a. A schematic of the case from the side,
+not to scale.
+
+| Claim | Source |
+|---|---|
+| 3 fans at the front, air in; 1 at the rear, air out; 3 at the top on the CPU cooler's radiator, air out through the top; 2 on the graphics card's radiator at the bottom, air down through the drive bay; 1 on the card's underside, air down; the pump on the processor | Gova's trace with a string, the CORRECTION table of `docs/physical-build.md` (a test holds the drawing's copy equal to it) |
+| The rear is on the left and the front on the right | Photograph 04, `docs/photos/04-full-interior.jpg`: the rear fan and the card's output bracket are on the left of the frame, the 3 front fans on the right |
+| The card's radiator sits on the shroud at the bottom | Photographs 02 and 04 |
+| The power supply is under the shroud, at the rear | **Inferred**, not seen: photograph 04 shows the shroud and a vented plate at its rear end, not the power supply itself |
+| The CPU cooler's tubes run to the top radiator | Photograph 05, and `docs/physical-build.md` |
+| One dot for the card's two NVML fan channels, between the card's fan and its radiator | Both channels drive the card's three fans (`lab/exp-0017-gpu-fan-channels/README.md`); which channel drives which fans is not established (Q14), so the dot sits between the two groups and on neither |
+
+**Not established, so not placed:** which fans each board header drives
+(Q20). The four live headers, `CPU_FAN1`, `PUMP_SYS1`, `SYS_FAN1` and `JAF_1`,
+are in the dashed box under the case. That includes `PUMP_SYS1`: the header's
+name does not say what is plugged into it, and `lab/exp-0020-case-cooler-identity`
+found that the pump may be on `CPU_FAN1`. When Q20 is settled, `HEADERS` in the
+drawing names the group of each header and its dot moves onto the drawing.
+
+The places of the fans, the radiators and the parts inside the case are
+approximate: the drawing shows the order and the direction of the air, not
+sizes.

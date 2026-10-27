@@ -1057,3 +1057,41 @@ footer #alerts-link[data-state="over"] b {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+/* --- the cooling view, 2026-10-27 ------------------------------------------ */
+
+/* A fan seen edge-on, and a radiator. Neutral: colour means state, and a
+   fan's state is in its reading, not in its outline. */
+.wire-fanbox {
+  fill: var(--plane);
+  stroke: var(--ink-muted);
+  stroke-width: 1.2;
+}
+
+.wire-radiator {
+  fill: none;
+  stroke: var(--ink-secondary);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 3;
+}
+
+/* The motherboard behind the other parts. */
+.wire-board {
+  fill: none;
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+
+/* The air. One neutral colour; the words say in or out. */
+.wire-air {
+  stroke: var(--ink-muted);
+  stroke-width: 2;
+}
+
+.wire-air-head {
+  fill: var(--ink-muted);
+}
+
+.wire-value-small {
+  font-size: 13px;
+}

@@ -361,6 +361,31 @@ rules before any code is written. Reading comes first.
 
 ## Waiting for Gova
 
+**Session 13 (2026-10-27): checkpoint 5a waits for Gova's review.**
+Open it with `./launch.sh gui --page "/#cooling"`. Built: the airflow drawing
+of the case (`views/airflow-diagram.js`) and a first cooling view. Cost
+0.052 cores at 1 Hz, 0.092 at 10 Hz. Waiting for Gova on:
+
+1. **Checkpoint 5a**: the airflow drawing. The rest of checkpoint 5 (board
+   view, board drawing, full cooling view) waits for it.
+2. **Q20 in the BIOS**, when Gova has time: one header at 100 %, the others
+   at their BIOS minimum, the pump never stopped; say which fans change.
+   `exp-0020` H1: the pump may be on `CPU_FAN1`. Photograph each header's
+   Smart Fan page in the same visit.
+3. **The model names**: the case, and the front, top and rear fans. The CPU
+   cooler matches an MSI MAG CORELIQUID E360 (inferred); confirm from the box
+   or a label.
+4. Still open from before: Q21, the power research, the session 11 test
+   values.
+
+Found and done in session 13: the DIMM sensors moved from i2c bus 0 to bus 5
+at the boot of 2026-10-26, so both modules had lost their labels; fixed by
+matching the address (`83539c4`). The card's fans turned at 30-42 % duty
+with the card cool, against "stopped at idle" in `exp-0017` (correction
+written there). For stage 4e: `views/summary.js` still says the BIOS put
+case fans on EZ Conn and that the card's fans stop at idle. The NVIDIA driver
+is now 595.99.02; the inventory says 595.91.07.
+
 **Session 11 (2026-09-25).** Waiting for Gova on:
 
 1. **Checkpoint 4b**: the rebuilt memory view. Checkpoint 5 waits for it.

@@ -361,3 +361,42 @@ machine was close to idle, load 1.05 over 1 min):
 The rise is 0.011 cores at 1 Hz and 0.012 at 10 Hz, for 8 more channels, two
 more charts and the bar. The script counted 4 Python processes where it
 counted 2 before (the `uv` wrapper is one); the Python cores barely moved.
+
+### Checkpoint 5a — the airflow drawing and the first cooling view, 2026-10-27 (session 13)
+
+Gova chose to stop at the airflow drawing before the rest of checkpoint 5.
+Built: `views/airflow-diagram.js` (the case from the side, every fan, the
+air, one dot for the card's two fan channels, the four live board headers in
+a dashed "not established (Q20)" box, values on the drawing) and the first
+`views/cooling.js` (the drawing, the board headers with two charts and the
+five empty headers, the card's fans with duty meters and a chart).
+
+**Defects found by opening the view**, none by a test:
+
+- In two grid cells the drawing rendered at about 0.6 of its size, so its
+  12 px words were about 7 px. It now spans three cells; at 1280 it takes the
+  whole row.
+- Four tiles in one narrow card cut the values to "2281 RPI". The tiles are
+  now two to a row.
+- The label "3 front fans · in" sat on the top radiator. It is now outside
+  the case, between the arrows.
+- The end labels of the board charts were cut ("CPU_FAN1 2051 R"). The line
+  names are now short (`CPU`, `pump`, `SYS1`, `JAF_1`), and the chart titles
+  give the header names.
+
+The hover panel of the card's fan dot was checked: four readings and the
+basis text. At the time the card's fans read 1201 and 1517 RPM: the card was
+under load.
+
+Screenshots: `2026-10-27-checkpoint-5a-cooling-2560.png`, `-1280.png` and
+`-hover-card-fans.png`.
+
+**Cost** (30 s each, `2026-10-27-checkpoint-5a-overhead.json`):
+
+| View | Rate | Python | Chrome | Total |
+|---|---|---|---|---|
+| Cooling | 1 Hz | 0.0093 | 0.0427 | **0.0520 cores** |
+| Cooling | 10 Hz | 0.0363 | 0.0557 | **0.0920 cores** |
+
+Below the processor view (0.199 cores at 10 Hz). The machine was not idle:
+the graphics card's fans were turning.

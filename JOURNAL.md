@@ -2041,3 +2041,35 @@ model names: "Use the photos. Which components do you need named?"
   Not established; the BIOS test of Q20 settles it.
 - The case and the case fans were not identified. Gova asked which names are
   needed: the case model and the front, top and rear fan models.
+
+## 2026-10-27 — Session 13: checkpoint 5a built
+
+**What was built**
+
+- `views/airflow-diagram.js`: the case from the side, as photograph 04 sees
+  it (rear left, front right). Every fan of Gova's airflow table, the air as
+  arrows, the radiators, the card, the pump. One dot for the card's two NVML
+  channels, between its fan and its radiator (Q14). The four live board
+  headers in a dashed box, "not established (Q20)", with their values.
+  `PUMP_SYS1` is in the box too: the header's name does not say what is on
+  it (`exp-0020`).
+- `views/cooling.js`, first version: the drawing, the board headers with two
+  charts and the five empty headers, the card's fans with duty meters.
+- `tests/test_web_airflow.py`: the drawing's table equals the one in
+  `docs/physical-build.md`; 10 fans and a pump; no header placed while Q20 is
+  open. Claims in `docs/diagram-positions.md`.
+- Cost: 0.052 cores at 1 Hz, 0.092 at 10 Hz.
+
+**Defects found by opening it**: the drawing at 0.6 size, values cut in the
+tiles, a label on the radiator, cut chart labels. All fixed; `exp-0015`, 5a.
+
+**Found on the way**
+
+- **The DIMM labels were lost.** The kernel numbered the SMBus as bus 5 at
+  the boot of 2026-10-26, so `0-0051` became `5-0051`, and the memory view
+  had shown no module temperature since then. Two description tests had
+  failed. Fixed by matching the address (`83539c4`).
+- The card's fans turned at 30 and 42 % duty with the card at 32-33 °C and
+  11-20 % use; `exp-0017` had them stopped at idle. Recorded as a correction
+  in `exp-0017`, not as a reason.
+- The NVIDIA driver is now 595.99.02.

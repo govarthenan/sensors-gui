@@ -138,3 +138,13 @@ and the radiator fans reach the card through their own cable
 not established, that each channel drives a different group of fans. The
 procedure tests that too: if the card fan and the radiator fans always start
 and change together, the likely answer is wrong, and that is worth knowing.
+
+## Later reading, 2026-10-27 — the fans did not stop
+
+On 2026-10-27 both channels turned while the card was cool and nearly idle:
+1201 RPM at 30 % duty and 1517 RPM at 42 %, with the card at 32-33 °C and
+11-20 % use (`data/probes/2026-10-27-gpu-fans-turning-when-cool.txt`). The
+driver is now 595.99.02. So "both fans are stopped at idle" held on
+2026-09-23 and does not hold now. Why is not established: the driver
+changed, and "idle" was not the same load (11-20 % use against none). The
+finding above stays as it was recorded; this note corrects it.

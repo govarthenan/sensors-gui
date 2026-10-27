@@ -1,0 +1,7 @@
+# Command: nvidia-smi --query-gpu=utilization.gpu,temperature.gpu,fan.speed,power.draw,driver_version --format=csv (read only)
+# Date: 2026-10-27T05:44:25Z, host dst-gova-pc
+# Source: NVIDIA driver. The GUI read GPU fan 1 = 1201 RPM at 30 % duty and GPU fan 2 = 1517 RPM at 42 % duty a few minutes earlier (lab/exp-0015-gui-checkpoints/results/2026-10-27-checkpoint-5a-cooling-hover-card-fans.png).
+# The same morning a first read gave 11 %, 33 C, 30 %, 71.86 W. The driver is now 595.99.02; docs/hardware-inventory.md says 595.91.07.
+
+utilization.gpu [%], temperature.gpu, fan.speed [%], power.draw [W], driver_version
+20 %, 32, 30 %, 59.69 W, 595.99.02
