@@ -252,10 +252,11 @@ def test_a_thread_names_the_other_thread_of_its_core() -> None:
 
 
 def test_each_dimm_names_its_slot_and_its_address() -> None:
+    """The address on the bus, not the bus number: the kernel numbered the bus 0, then 5 (2026-10-27)."""
     a2 = _one("DIMM A2")
     b2 = _one("DIMM B2")
-    assert "A2" in a2.measures and "0-0051" in a2.neighbours
-    assert "B2" in b2.measures and "0-0053" in b2.neighbours
+    assert "A2" in a2.measures and "0x51" in a2.neighbours
+    assert "B2" in b2.measures and "0x53" in b2.neighbours
 
 
 # --- values a view makes from two channels, 2026-09-25 --------------------------

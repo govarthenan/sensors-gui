@@ -5,7 +5,8 @@
  * The order is from the manual's "Overview of Components", page 27, in
  * `docs/reference/mobo-board-layout.png`: from the processor socket outward,
  * DIMMA1, DIMMA2, DIMMB1, DIMMB2. The modules are in A2 and B2, and the
- * temperature sensor of each is the SPD hub at i2c `0-0051` and `0-0053`
+ * temperature sensor of each is the SPD hub at address 0x51 and 0x53 on the
+ * SMBus; the kernel numbers the bus itself at boot (0, then 5 on 2026-10-27)
  * (`docs/hardware-inventory.md`, from `dmidecode -t memory` and the i2c
  * devices).
  *
@@ -24,9 +25,9 @@ import { Dots, make } from "./dots.js";
 /** The four slots, from the socket outward, and the channel of a fitted one. */
 const SLOTS = [
   { name: "DIMMA1", fitted: false },
-  { name: "DIMMA2", fitted: true, label: "DIMM A2", hub: "0-0051" },
+  { name: "DIMMA2", fitted: true, label: "DIMM A2", hub: "0x51" },
   { name: "DIMMB1", fitted: false },
-  { name: "DIMMB2", fitted: true, label: "DIMM B2", hub: "0-0053" },
+  { name: "DIMMB2", fitted: true, label: "DIMM B2", hub: "0x53" },
 ];
 
 const WIDTH = 820;
@@ -108,7 +109,7 @@ export function memoryDiagram(catalogue, stream) {
         id: slot.name,
         name: `${slot.name}, TEAM GROUP UD5-6400, 32 GB`,
         basis:
-          `The module in slot ${slot.name.slice(4)}; its sensor is the SPD hub at i2c ${slot.hub} ` +
+          `The module in slot ${slot.name.slice(4)}; its sensor is the SPD hub at address ${slot.hub} on the SMBus ` +
           "(docs/hardware-inventory.md). Slot order from the manual, page 27. Where on the module the hub sits " +
           "is not established.",
         rows: [{ label: "Temperature", channel }],

@@ -1,0 +1,30 @@
+# Command: for h in /sys/class/hwmon/hwmon*; do name; readlink -f $h/device; done (spd5118 only); uptime -s; uname -r. Read only.
+# Date: 2026-10-27T05:43:05Z, host dst-gova-pc
+# Source: sysfs. Until 2026-09-25 the two modules were at i2c-0/0-0051 and 0-0053 (docs/hardware-inventory.md).
+# The SMBus controller is the same PCI device, 0000:00:14.0; only the bus number the kernel gave it at boot changed.
+
+/sys/class/hwmon/hwmon3 spd5118 -> /sys/devices/pci0000:00/0000:00:14.0/i2c-5/5-0051
+/sys/class/hwmon/hwmon4 spd5118 -> /sys/devices/pci0000:00/0000:00:14.0/i2c-5/5-0053
+boot: 2026-10-26 09:47:46
+kernel: 7.0.0-38-generic
+
+== ls /sys/bus/i2c/devices/
+5-0051
+5-0053
+i2c-0
+i2c-1
+i2c-10
+i2c-11
+i2c-12
+i2c-13
+i2c-14
+i2c-2
+i2c-3
+i2c-4
+i2c-5
+i2c-6
+i2c-7
+i2c-8
+i2c-9
+== cat /sys/bus/i2c/devices/i2c-5/name
+SMBus PIIX4 adapter port 0 at 0b00

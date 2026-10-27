@@ -78,6 +78,13 @@ Three things this settles, all of which the application needed:
 
 Both modules run above their JEDEC rating, so an EXPO or XMP profile is on.
 
+**The bus number in the table above is not fixed (2026-10-27).** After the
+boot of 2026-10-26 (kernel `7.0.0-38-generic`) the same two hubs are at
+`5-0051` and `5-0053`: the kernel numbered the same SMBus controller
+(`0000:00:14.0`, "SMBus PIIX4 adapter port 0") as bus 5, not bus 0.
+`data/probes/2026-10-27-spd5118-bus.txt`. The address on the bus, `0x51` and
+`0x53`, is what names the slot, and the code matches on it alone.
+
 DDR5 puts the SPD hub of slot *n* at `0x50 + n` and the power management chip
 at `0x48 + n`. **Never write to an address from 0x48 to 0x4F.** Those chips set
 the voltage of the memory modules.

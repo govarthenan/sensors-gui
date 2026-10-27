@@ -30,7 +30,7 @@ const IDENTITY = [
   ["Speed", "6400 MT/s configured, 5200 MT/s rated: an EXPO or XMP profile is on", "docs/hardware-inventory.md"],
   ["Voltage", "1.1 V configured", "docs/hardware-inventory.md"],
   ["Rank", "2 per module", "docs/hardware-inventory.md"],
-  ["Sensor of each module", "SPD hub, i2c 0-0051 (A2) and 0-0053 (B2)", "docs/hardware-inventory.md"],
+  ["Sensor of each module", "SPD hub, address 0x51 (A2) and 0x53 (B2) on the SMBus", "docs/hardware-inventory.md"],
 ];
 
 /**

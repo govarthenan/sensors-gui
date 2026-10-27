@@ -52,6 +52,7 @@ PROC_DOC = _CPU_MEM + "proc-meminfo-loadavg-stat.txt"
 CPUFREQ_DOC = _CPU_MEM + "cpufreq.rst-extract.txt"
 PSUTIL = _CPU_MEM + "psutil-7.2.2-extracts.txt"
 CPU_MEM_PROBE = _CPU_MEM + "probe-cpu-memory-sysfs.txt"
+SPD5118_BUS_PROBE = "data/probes/2026-10-27-spd5118-bus.txt"
 LAYOUT = "data/evidence/ryzen-9900x-package-layout-2026-09-23/README.md"
 TOPOLOGY = "data/probes/2026-09-22-cpu-topology.txt"
 FREQUENCY_MARGIN = "data/probes/2026-09-23-cpu-frequency-margin.txt"
@@ -548,27 +549,34 @@ for _minutes, _name in ((1, "load1"), (5, "load5"), (15, "load15")):
 
 # --- the memory -----------------------------------------------------------------
 
-_DIMMS = {"0-0051": "A2", "0-0053": "B2"}
+# Keyed by the address on the bus. The bus number before it is the kernel's,
+# given at boot: `0-0051` until 2026-09, `5-0051` on 2026-10-27
+# (`data/probes/2026-10-27-spd5118-bus.txt`).
+_DIMMS = {"0x51": "A2", "0x53": "B2"}
 
 
 def _dimm(hub: str) -> Description | None:
     """Return the description of one module's temperature, or None for a hub address not on this board."""
-    slot = _DIMMS.get(hub)
+    _, _, client = hub.partition("-")
+    address = f"0x{client[-2:]}" if len(client) == 4 and client.startswith("00") else None
+    slot = _DIMMS.get(address)
     if slot is None:
         return None
-    other_hub, other_slot = next((key, value) for key, value in _DIMMS.items() if key != hub)
+    other_address, other_slot = next((key, value) for key, value in _DIMMS.items() if key != address)
     return Description(
         measures=(
             f"The temperature of the memory module in slot {slot}, from the SPD5118 sensor on the module (the SPD hub)."
         ),
         call=f"spd5118, i2c {hub}, temp1_input",
         neighbours=(
-            f"The module in {slot} is the one at i2c {hub}; DIMM {other_slot} is the other module, at "
-            f"{other_hub}. The kernel driver owns the bus; this application only reads what it publishes. "
+            f"The module in {slot} is the one at address {address} on the SMBus (i2c {hub} now); DIMM "
+            f"{other_slot} is the other module, at {other_address}. The kernel numbers the bus at boot, so the "
+            "number before the address can change; the address does not. The kernel driver owns the bus; this "
+            "application only reads what it publishes. "
             "The chip carries a maximum of 55 °C and a critical threshold of 85 °C, which the scale and the "
             "state use. The driver's documentation says these limits can be configured."
         ),
-        sources=(SPD5118_DOC, INVENTORY, CPU_MEM_PROBE),
+        sources=(SPD5118_DOC, INVENTORY, CPU_MEM_PROBE, SPD5118_BUS_PROBE),
     )
 
 

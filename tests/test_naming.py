@@ -106,6 +106,28 @@ def test_friendly_names_the_dimm_at_0053_b2() -> None:
     assert naming.friendly(spec).label == "DIMM B2"
 
 
+def test_friendly_names_the_dimm_by_its_address_when_the_kernel_numbers_the_bus_5() -> None:
+    """The bus number is given at boot: i2c-0 until 2026-09, i2c-5 on 2026-10-27.
+
+    `data/probes/2026-10-27-spd5118-bus.txt`. The address on the bus is the slot.
+    """
+    a2 = _spec(
+        "hwmon", "spd5118@/sys/devices/pci0000:00/0000:00:14.0/i2c-5/5-0051", "temp1", "temp1", group=Group.MEMORY
+    )
+    b2 = _spec(
+        "hwmon", "spd5118@/sys/devices/pci0000:00/0000:00:14.0/i2c-5/5-0053", "temp1", "temp1", group=Group.MEMORY
+    )
+    assert naming.friendly(a2).label == "DIMM A2"
+    assert naming.friendly(b2).label == "DIMM B2"
+
+
+def test_friendly_does_not_name_a_dimm_from_an_address_that_only_ends_like_one() -> None:
+    spec = _spec(
+        "hwmon", "spd5118@/sys/devices/pci0000:00/0000:00:14.0/i2c-1/1-10051", "temp1", "temp1", group=Group.MEMORY
+    )
+    assert naming.friendly(spec).label == "temp1"
+
+
 def test_friendly_puts_the_ethernet_phy_in_the_network_group() -> None:
     spec = _spec(
         "hwmon",

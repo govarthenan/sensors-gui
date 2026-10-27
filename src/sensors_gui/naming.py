@@ -68,12 +68,15 @@ NCT6687_DRIVER = "nct6687"
 SPD5118_DRIVER = "spd5118"
 R8169_DRIVER_PREFIX = "r8169"
 
-# `spd5118` at i2c 0-0051 is slot DIMMA2, and 0-0053 is DIMMB2. See
-# `docs/hardware-inventory.md`.
+# `spd5118` at address 0x51 is slot DIMMA2, and 0x53 is DIMMB2. See
+# `docs/hardware-inventory.md`. The match is on the address, not the bus
+# number: the kernel numbers the bus at boot, and it was `i2c-0` until
+# 2026-09 and `i2c-5` on 2026-10-27 (`data/probes/2026-10-27-spd5118-bus.txt`).
 _DIMM_LABELS: dict[str, str] = {
-    "0-0051": "DIMM A2",
-    "0-0053": "DIMM B2",
+    "0051": "DIMM A2",
+    "0053": "DIMM B2",
 }
+_I2C_CLIENT_PATTERN = re.compile(r"/i2c-\d+/\d+-([0-9a-f]{4})$")
 
 # Proved in exp-0007 (five samples, one second apart, matching every time):
 # the nct6687 "CPU" temperature is k10temp's Tctl read a second way, not an
@@ -224,11 +227,9 @@ def _channel_kind(channel: str) -> str:
 
 
 def _dimm_label(device: str, current_label: str) -> str:
-    """Return `DIMM A2` / `DIMM B2` for a known i2c address, else the label unchanged."""
-    for suffix, name in _DIMM_LABELS.items():
-        if device.endswith(suffix):
-            return name
-    return current_label
+    """Return `DIMM A2` / `DIMM B2` for a known i2c address on any bus, else the label unchanged."""
+    match = _I2C_CLIENT_PATTERN.search(device)
+    return _DIMM_LABELS.get(match.group(1), current_label) if match else current_label
 
 
 def _renamed_voltage_label(raw_label: str) -> str:
