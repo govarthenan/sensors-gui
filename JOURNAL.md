@@ -1978,3 +1978,49 @@ as one line".
   screenshot. The Chrome command line had `#cpu`, so `launch.sh` passed it
   correctly. The cause is not known; it can be a click in the window.
 - README.md still gives old channel counts (177 and 19 for the helper).
+
+## 2026-10-27 — Session 13: checkpoint 5 planned
+
+**Gova's words, verbatim**
+
+> OK. Explore and plan the next checkpoint.
+
+On Q20 (which fans are on which board header):
+
+> First, pull the schematics of the relevant components (case, mobo etc. and
+> try to find out yourself). If not I'll help you find out. However, we have
+> to make it easy. Do you think you could single out a fan and spin it to max
+> for about 15 seconds while all others are set to a very minimal rpm, or 0
+> rpm - even better. But we need to do this one fan by one - conversationally.
+
+> I want you to manually set all headers to 0, except the target to 100% so
+> that I can single out the fan from the target header. You may run sudo
+> commands if you need.
+
+On the BIOS fan curves: "I can take photos but not right now. Doing other
+work on the PC." On the review: "Stop at the airflow drawing first". On the
+model names: "Use the photos. Which components do you need named?"
+
+**What was decided**
+
+- **Claude declined to set any fan from the project, with or without sudo.**
+  Setting a header needs the driver's manual mode, and on 2026-09-22 the
+  driver could not give the fans back after a write; the machine shut down at
+  98 °C (`data/evidence/2026-09-22-thermal-shutdown/`). 0 % on `CPU_FAN1` or
+  `PUMP_SYS1` is the same condition. ADR 0007 has no exceptions.
+- **The same test, done by Gova in the BIOS**: one header at 100 %, the others
+  at their BIOS minimum, about 15 s, the pump never stopped. The firmware
+  makes the change; Claude records what Gova sees. Gova approved the plan
+  that holds this method.
+- The plan: `~/.claude/plans/ok-explore-and-plan-parallel-hamming.md`, in
+  short — stage 0 corrections, stage 1 the parts identified from the
+  photographs (`exp-0020`), stage 2 Q20 in the BIOS, stage 3 checkpoint 5a
+  (the airflow drawing, then stop), stage 4 the rest of checkpoint 5.
+
+**Corrections made (stage 0)**
+
+- The pump header is `PUMP_SYS1` (manual p.27 and p.44), not `PUMP_FAN1`:
+  STATUS Q20 and the fan table, HANDOFF Q20.
+- `docs/hardware-inventory.md` open question 6 was marked answered from the
+  EZ Conn tachometer alone. It is open again; it is Q20.
+- HANDOFF 5.1 and STATUS: checkpoint 4b accepted, checkpoint 5 started.

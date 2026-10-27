@@ -1,6 +1,6 @@
 # STATUS
 
-Last update: 2026-09-25 (end of session 11; checkpoint 4b waits for Gova's review; session 11 commits not pushed)
+Last update: 2026-10-27 (session 13; checkpoint 4b accepted on 2026-09-25; checkpoint 5 started, first stop 5a, the airflow drawing)
 
 ## Phase
 
@@ -32,6 +32,13 @@ with its sources, two drawings, and the core columns at sensor granularity
 (Gova: "If we 24 freq data, then 24 columns"). Open it with
 `uv run python -m sensors_gui.web --page "/#cpu"`, then "Memory". Checkpoint 5
 does not start before Gova answers.
+
+**Checkpoint 4b is accepted** (2026-09-25, Gova: "I had a look. It's OK").
+**Checkpoint 5 started in session 13 (2026-10-27).** The plan stops first at
+5a, the airflow drawing of the case, on Gova's choice; then the board view,
+the board drawing and the cooling view. Q20 (which fans are on which header)
+is found with Gova in the BIOS, one header at a time; the project writes
+nothing.
 
 **Checkpoint 4b, session 11 (2026-09-25).** Gova on checkpoint 4: "The memory
 view is subpar imo. Can't pinpoint what to improve though." He made no
@@ -516,7 +523,7 @@ Verified on the machine at the end of session 6, not assumed:
 | ~~Q17~~ | **ANSWERED 2026-09-23**, Gova: "yes change the cpu floor to the hw min", after proposing that the log waits for 110 % of a limit. Built: the floor is `cpuinfo_min_freq` (614 MHz), and the alert log records a CPU frequency only 10 % past its limit. The original question follows. **The CPU thread frequencies pass their kernel limits all the time.** `scaling_cur_freq` read above `cpuinfo_max_freq` (5662.016 MHz) in 33 of 9600 readings, up to 5695.5 MHz (+0.59 %), and below `scaling_min_freq` (3001.551 MHz, the lowest the frequency policy asks for, not the hardware minimum of 614 MHz) down to 2.7 GHz. `data/probes/2026-09-23-cpu-frequency-above-max.txt`. The alert log took 500 alerts in about 20 minutes, almost all from these 24 channels. Options: keep watching them; stop watching the frequency channels, because their limits are the kernel's policy and not a ceiling of the part; or keep the ceiling and use the hardware minimum as the floor. | the Alerts screen being readable | Gova |
 | Q18 | **Updated 2026-09-23:** Gova's photographs 06 and 07 added the coolant tubes and the card's fan to the drawing, and confirmed the chip plate and the connector. Memory, VRM, PCIe and the fan channels still have no position. The original question follows. The wireframe places two dots on the card: the power connector (seen in photograph 02) and the chip (inferred from the backplate plate). Memory, VRM, PCIe, the fans and the hotspot are in a "position not established" row. A photograph of the card's fan side, or of the bare board, would place more. Will Gova take one, or is the row the answer? | the wireframe | Gova |
 | ~~Q19~~ | **ANSWERED 2026-09-23**, Gova: "Is the cost significant? Reduce if it is." It was: it doubled the view's cost at 1 Hz. A pulse in 12 steps over 3 s, on compositor-only HTML, costs about 0.005 cores at 1 Hz and 0.008 at 10 Hz, about 90 % less. The original question follows. The pulse of the wireframe dots costs about 0.045 cores while it is on screen, and roughly doubles the view's cost at 1 Hz (0.0876 against 0.0450 cores). Keep it, slow it, or pulse only a dot whose state is not normal? | overhead | Gova |
-| Q20 | **Half answered 2026-09-23:** Gova traced the airflow with a string. The CPU radiator is at the top, with the 3 top fans; the full table is in `docs/physical-build.md`. **Still open: which fans each board header reads** — `CPU_FAN1`, `PUMP_FAN1`, `SYS_FAN1` and the EZ Conn header. The original question follows. **Where is the CPU cooler's radiator, and which fans are on `CPU_FAN1`?** The bottom radiator turned out to be the graphics card's (2026-09-23). The CPU cooler's tubes run from the pump toward the top of the case (photograph 05), so its radiator is probably under the 3 top fans. `docs/physical-build.md` guessed that `CPU Fan` drives "the radiator fans", meaning the bottom ones; that is now open again. A photograph of the top of the case, or Gova's own knowledge, answers it. It matters for the Cooling view at checkpoint 5. | the cooling view, and `HANDOFF.md` section 3 | Gova |
+| Q20 | **Half answered 2026-09-23:** Gova traced the airflow with a string. The CPU radiator is at the top, with the 3 top fans; the full table is in `docs/physical-build.md`. **Still open: which fans each board header reads** — `CPU_FAN1`, `PUMP_SYS1`, `SYS_FAN1` and the EZ Conn header (`JAF_1`). **Corrected 2026-10-27:** the pump header is `PUMP_SYS1` (manual p.27 and p.44); this row said `PUMP_FAN1`. **Method agreed 2026-10-27:** Gova sets the fans in the BIOS, one header at a time, and the project writes nothing (ADR 0007). The original question follows. **Where is the CPU cooler's radiator, and which fans are on `CPU_FAN1`?** The bottom radiator turned out to be the graphics card's (2026-09-23). The CPU cooler's tubes run from the pump toward the top of the case (photograph 05), so its radiator is probably under the 3 top fans. `docs/physical-build.md` guessed that `CPU Fan` drives "the radiator fans", meaning the bottom ones; that is now open again. A photograph of the top of the case, or Gova's own knowledge, answers it. It matters for the Cooling view at checkpoint 5. | the cooling view, and `HANDOFF.md` section 3 | Gova |
 | Q21 | **2026-09-25, `exp-0019` finding 4.** Each read of `amdgpu` `power1_input` ("PPT", in the catalogue in group `gpu`; no view shows it yet, but the collector reads it) makes the kernel driver send `SMU_MSG_TransferTableSmu2Dram` to the SMU, at most once each millisecond; the collector reads it on every pass. ADR 0011 section 2 permits what a kernel driver publishes, but ADR 0010 closed the SMU route. The channel also reads 0.03-0.06 W while the package draws 161 W, so its meaning is not established. Keep it, or drop it? The other `amdgpu` channels may take the same path; that is not checked. The research probe of `exp-0019` also read `gpu_metrics` for 30 s, and each such read sends the same message with no cache. | the integrated graphics channels | Gova |
 | Q22 | **2026-09-25, `exp-0019`.** A webcam, Sonix `0c45:6366` "USB 2.0 Camera", behind a Genesys hub on bus 9, is not in `docs/hardware-inventory.md`. `lab/exp-0019-power-draw-sources/results/usb-devices.txt`. Add it at the next inventory pass. | inventory | Claude |
 | Q10 | **The screen now shows this live**: on 2026-09-22 it read 31 unsafe shutdowns in 150 power cycles, about one in five. One of them was the thermal shutdown of 2026-09-22. Does Gova know what causes the rest? (This row no longer holds a copy of the number. `HANDOFF.md` said 29 and this file said 28; both were true when written, at 145 and 144 power cycles.) | health | Gova |
@@ -534,7 +541,7 @@ This is the number that makes a `0 RPM` reading readable.
 | AIO pump | 1 | to be confirmed; it should be on a `PUMP_FAN` header |
 | **Total** | **9 fans plus a pump** | |
 
-The MSI PRO X870-P WIFI has 8 four-pin headers: `CPU_FAN1`, `PUMP_FAN1` and
+The MSI PRO X870-P WIFI has 8 four-pin headers: `CPU_FAN1`, `PUMP_SYS1` (corrected 2026-10-27; it said `PUMP_FAN1`) and
 `SYS_FAN1` to `SYS_FAN6`. So all 7 case fans and the pump can reach the board.
 
 ## Blockers

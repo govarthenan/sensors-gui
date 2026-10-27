@@ -266,7 +266,10 @@ The board's own fan curve: source **CPU Core**; 0 °C → 20 %, 45 °C → 35 %,
 5. **Unsafe shutdowns: now 29 of 145 power cycles.** Between the two probes the
    machine went through **one** power cycle, and the unsafe count rose by
    **one**. One sample is not a pattern, but it is worth watching.
-6. ~~Which headers the 9 fans are wired to.~~ **ANSWERED 2026-09-22: the case
-   fans are on the `JAF_1` EZ Conn header**, which the BIOS reads and Linux
-   does not. See `exp-0009`.
+6. Which headers the fans are wired to. **Open again 2026-10-27 (Q20).** It was
+   marked answered on 2026-09-22: "the case fans are on the `JAF_1` EZ Conn
+   header", from `exp-0009`. That rests on the live EZ Conn tachometer in the
+   BIOS, not on a look at the cables, so it is an inference. The 7 case-side
+   fans and 3 live fan channels (`CPU_FAN1`, `SYS_FAN1`, `JAF_1`) cannot be
+   mapped from it.
 7. The exact model of the MSI liquid cooler.
