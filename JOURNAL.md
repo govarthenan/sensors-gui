@@ -2073,3 +2073,23 @@ tiles, a label on the radiator, cut chart labels. All fixed; `exp-0015`, 5a.
   11-20 % use; `exp-0017` had them stopped at idle. Recorded as a correction
   in `exp-0017`, not as a reason.
 - The NVIDIA driver is now 595.99.02.
+
+## 2026-10-27 — Session 13: checkpoint 5a accepted, deferred list
+
+**Gova's words, verbatim**
+
+> 1. Looks ok.
+> Defer 2 and 3. Record all deferred in a single file so we can pick up when we have time.
+
+> Push everything to remote.
+
+**What it means**
+
+- Checkpoint 5a, the airflow drawing, is **accepted**. Stage 4 (the board
+  view, the board drawing, the full cooling view) may start.
+- The BIOS test of Q20 (item 2) and the model names (item 3) are deferred.
+- `state/DEFERRED.md` is the one list of deferred work: 20 items, in three
+  parts (Gova at the machine, Gova's decision, Claude at low priority). It
+  takes the items that were spread over STATUS, HANDOFF and the JOURNAL;
+  those keep their detail. `CLAUDE.md` names the file in the folder list and
+  in the order of reading.

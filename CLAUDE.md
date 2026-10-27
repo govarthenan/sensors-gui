@@ -23,6 +23,8 @@ Work happens over many sessions. To continue correctly:
    file that gives the whole picture: what runs, what the machine is, what is
    still unread, and the rules learned the hard way.
 1. Read `state/STATUS.md` — current phase, next actions, open questions.
+   Then `state/DEFERRED.md` — everything put off, in one list. A new deferred
+   item goes there, never into a file of its own.
 2. Read `JOURNAL.md` — the last two or three entries.
 3. Read `docs/hardware-inventory.md` and `docs/sensor-sources.md` for facts
    about the machine.
@@ -45,6 +47,7 @@ launch.sh              The one command to start the GUI, the terminal screen and
 README.md              Short description for a human.
 JOURNAL.md             Dated log of events, findings and decisions. Short entries.
 state/STATUS.md        Live state: phase, next actions, open questions, blockers.
+state/DEFERRED.md      The one list of work put off until Gova has time.
 docs/
   hardware-inventory.md  The components of this PC.
   sensor-sources.md      Every sensor source, with path, unit and status.

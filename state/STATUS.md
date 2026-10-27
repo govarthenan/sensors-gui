@@ -361,7 +361,11 @@ rules before any code is written. Reading comes first.
 
 ## Waiting for Gova
 
-**Session 13 (2026-10-27): checkpoint 5a waits for Gova's review.**
+**Session 13 (2026-10-27): checkpoint 5a is accepted** (Gova: "Looks ok.").
+The BIOS test of Q20 and the model names are **deferred**: every deferred
+item is in `state/DEFERRED.md`. Next: the rest of checkpoint 5 (stage 4).
+
+**Earlier in session 13: checkpoint 5a waited for Gova's review.**
 Open it with `./launch.sh gui --page "/#cooling"`. Built: the airflow drawing
 of the case (`views/airflow-diagram.js`) and a first cooling view. Cost
 0.052 cores at 1 Hz, 0.092 at 10 Hz. Waiting for Gova on:
