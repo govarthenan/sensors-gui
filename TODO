@@ -1,0 +1,1 @@
+[ ] Explore and identify which other peripherals or sensors let us measure power draw. So that we may more accurately guage the total power draw of the system, in addition to what we have from cpu and gpu.
